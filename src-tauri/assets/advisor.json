@@ -1,0 +1,6522 @@
+{
+  "version": 2,
+  "rules": [
+    {
+      "id": "KW_WEAPON_1",
+      "priority": 990,
+      "level": "critical",
+      "tags": [
+        "키워드",
+        "위험",
+        "LV4"
+      ],
+      "title": "위험물/흉기 키워드: 즉시 안전조치",
+      "body": [
+        "즉시 안전 확보 및 관리자/보안 라인 보고를 우선하세요.",
+        "발견 위치/시간/보관 상태/접근자 정보를 빠짐없이 기록하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "폭발",
+          "흉기",
+          "칼",
+          "위험물",
+          "라이터가스",
+          "가위"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "ESC_001",
+      "priority": 980,
+      "level": "critical",
+      "tags": [
+        "긴급",
+        "LV5"
+      ],
+      "title": "LV5: 즉시 보고/안전조치 체크",
+      "body": [
+        "즉시 보고 라인(관리자/책임자)을 확인하고, 안전 확보(분리/보호)를 우선하세요.",
+        "사실관계는 기록하되, 확정되지 않은 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "KW_SELF_1",
+      "priority": 970,
+      "level": "critical",
+      "tags": [
+        "키워드",
+        "자해",
+        "LV4"
+      ],
+      "title": "자해/극단 언급: 즉시 안전/연계",
+      "body": [
+        "즉시 안전 확보 및 보호자/전문기관 연계를 고려하세요.",
+        "발언/행동의 맥락, 발견 시점, 동행자 정보를 정확히 기록하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "자해",
+          "자살",
+          "죽고",
+          "극단",
+          "해치고"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "ESC_002",
+      "priority": 960,
+      "level": "warn",
+      "tags": [
+        "주의",
+        "LV4"
+      ],
+      "title": "LV4: 관계자 분리 + 증거 보존 체크",
+      "body": [
+        "당사자/목격자 분리를 고려하고, 채널(메신저/문자/통화기록) 증거를 보존하세요.",
+        "추후 대비로 시간/장소/발언을 최대한 정확히 적어두는 게 좋아요."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "KW_SEX_1",
+      "priority": 950,
+      "level": "critical",
+      "tags": [
+        "키워드",
+        "성",
+        "LV4"
+      ],
+      "title": "성 관련 이슈: 2차 피해 방지",
+      "body": [
+        "2차 피해 방지(확산 차단/비밀 유지)를 최우선으로 하세요.",
+        "관련 증거는 원본 보존(삭제/전송 금지), 담당 라인 보고를 즉시 진행하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "성희롱",
+          "성추행",
+          "불법촬영",
+          "음란",
+          "신체접촉"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "ESC_003",
+      "priority": 940,
+      "level": "warn",
+      "tags": [
+        "점검",
+        "LV3"
+      ],
+      "title": "LV3: 타임라인 + 후속조치 계획 세우기",
+      "body": [
+        "케이스 기간을 정하고, 첫 대응/보고/연락 순서를 정리해두세요.",
+        "반복 민원/갈등 가능성이 있으면 공식채널로 전환도 고려하세요."
+      ],
+      "when": {
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 5
+      }
+    },
+    {
+      "id": "KW_POLICE_1",
+      "priority": 930,
+      "level": "critical",
+      "tags": [
+        "키워드",
+        "신고",
+        "LV4"
+      ],
+      "title": "경찰/신고: 즉시 보고라인 확인",
+      "body": [
+        "신고/출동 여부와 시각, 대응자, 현장 상황을 정확히 기록하세요.",
+        "관련 자료는 원본 보존(삭제 금지)하고, 관리자 보고를 진행하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "경찰",
+          "112",
+          "신고",
+          "출동"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "SUP_002",
+      "priority": 930,
+      "level": "critical",
+      "tags": [
+        "지원",
+        "안전",
+        "LV4"
+      ],
+      "title": "자해/극단 위험이 있으면 혼자 두지 않기",
+      "body": [
+        "위험 신호가 있으면 혼자 두지 말고, 즉시 안전 확보 후 보호자/담당 라인과 연계하세요.",
+        "발언/행동의 맥락과 발견 시각을 정확히 기록하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "자해",
+          "자살",
+          "극단"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "ESC_004",
+      "priority": 920,
+      "level": "warn",
+      "tags": [
+        "점검",
+        "보고"
+      ],
+      "title": "LV4+: 24시간 내 사실 타임라인 고정",
+      "body": [
+        "초기 24시간 안에 시간순 사실 타임라인을 먼저 확정하면 이후 충돌이 크게 줄어요.",
+        "주요 전환점(언제/누가/어디서/무슨 말/무슨 행동)을 5줄로 요약해두세요."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "ESC_005",
+      "priority": 910,
+      "level": "warn",
+      "tags": [
+        "점검",
+        "증거"
+      ],
+      "title": "LV4+: 증거 원본 보존(삭제/전송 최소화)",
+      "body": [
+        "원본 삭제/편집/재전송은 피하고, 원본 파일/캡처를 보존하세요.",
+        "가능하면 파일명/생성시각/출처(채널)를 기록에 남겨두세요."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "storeTypesAny": [
+          "문자",
+          "업무메신저",
+          "공식채널",
+          "문서"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "ESC_006",
+      "priority": 905,
+      "level": "warn",
+      "tags": [
+        "점검",
+        "현장"
+      ],
+      "title": "LV4+: 현장 정보(동선/자리/목격자) 빠르게 수집",
+      "body": [
+        "현장 상황은 시간이 지나면 바뀌어요. 동선/자리/목격자를 빠르게 기록하세요.",
+        "목격자는 가능하면 '어디에 있었는지'까지 남기면 좋아요."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "placesAny": [
+          "교실",
+          "복도",
+          "급식실",
+          "교외"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "CH_공식채널_LV5",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "채널",
+        "공식채널",
+        "LV5"
+      ],
+      "title": "공식채널: 채널별 기록/대응 포인트",
+      "body": [
+        "공식채널 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "공식채널"
+        ],
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "공식채널"
+        }
+      }
+    },
+    {
+      "id": "CH_기타_LV5",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "채널",
+        "기타",
+        "LV5"
+      ],
+      "title": "기타: 채널별 기록/대응 포인트",
+      "body": [
+        "기타 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "기타"
+        ],
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "CH_문서_LV5",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "채널",
+        "문서",
+        "LV5"
+      ],
+      "title": "문서: 채널별 기록/대응 포인트",
+      "body": [
+        "문서 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문서"
+        ],
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "문서"
+        }
+      }
+    },
+    {
+      "id": "CH_문자_LV5",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "채널",
+        "문자",
+        "LV5"
+      ],
+      "title": "문자: 채널별 기록/대응 포인트",
+      "body": [
+        "문자 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문자"
+        ],
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "문자"
+        }
+      }
+    },
+    {
+      "id": "CH_방문상담_LV5",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "채널",
+        "방문상담",
+        "LV5"
+      ],
+      "title": "방문상담: 채널별 기록/대응 포인트",
+      "body": [
+        "방문상담 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "방문상담"
+        ],
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "방문상담"
+        }
+      }
+    },
+    {
+      "id": "CH_업무메신저_LV5",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "채널",
+        "업무메신저",
+        "LV5"
+      ],
+      "title": "업무메신저: 채널별 기록/대응 포인트",
+      "body": [
+        "업무메신저 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "업무메신저"
+        ],
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "업무메신저"
+        }
+      }
+    },
+    {
+      "id": "CH_전화_LV5",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "채널",
+        "전화",
+        "LV5"
+      ],
+      "title": "전화: 채널별 기록/대응 포인트",
+      "body": [
+        "전화 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "전화"
+        ],
+        "minSensitivity": "LV5",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "전화"
+        }
+      }
+    },
+    {
+      "id": "HYG_001",
+      "priority": 900,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "케이스 제목/내용을 한 문장으로 고정하기",
+      "body": [
+        "제목은 '누가-무엇을-어디서-언제' 형태로 1줄로 정리해두면 이후 검색/증거정리가 쉬워요.",
+        "케이스 내용(query)에 핵심 키워드(행동/요구/결과)를 3~5개 넣어두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "KW_EXTORT_1",
+      "priority": 900,
+      "level": "critical",
+      "tags": [
+        "키워드",
+        "갈취",
+        "LV4"
+      ],
+      "title": "금품갈취/강요: 반복/권력관계 확인",
+      "body": [
+        "반복 여부와 권력관계(누가 누구에게)를 먼저 확인하세요.",
+        "관련 증거(대화/송금/목격)를 원본으로 보존하고 담당 라인 보고를 고려하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "갈취",
+          "빼앗",
+          "돈",
+          "강요",
+          "심부름",
+          "셔틀"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "ESC_007",
+      "priority": 890,
+      "level": "info",
+      "tags": [
+        "주의",
+        "LV2"
+      ],
+      "title": "LV2라도 반복되면 '패턴'으로 관리하기",
+      "body": [
+        "LV2 사건이 반복되면 단일 사건이 아니라 '패턴'이 될 수 있어요.",
+        "동일 인물/장소/시간대가 반복되면 케이스를 분리해 추적해보세요."
+      ],
+      "when": {
+        "minSensitivity": "LV2",
+        "recordCountAtLeast": 6
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "HYG_002",
+      "priority": 890,
+      "level": "info",
+      "tags": [
+        "증거"
+      ],
+      "title": "요약(summary)을 '사실/발언/행동' 위주로 보강하기",
+      "body": [
+        "요약에 '누가/무엇을/어떤 표현으로/결과가 어땠는지'를 넣어두면 유사 기록 추천이 정확해져요.",
+        "감정 표현은 최소화하고, 확인 가능한 사실을 우선으로 적어두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 10
+      }
+    },
+    {
+      "id": "HYG_003",
+      "priority": 880,
+      "level": "info",
+      "tags": [
+        "정리",
+        "장소"
+      ],
+      "title": "장소가 '기타'인 기록은 placeOther를 구체화하기",
+      "body": [
+        "placeOther에 '몇 층/몇 반/복도 구간/교실 번호' 같은 구체 위치를 남겨두세요.",
+        "나중에 CCTV/목격자 확인이 쉬워집니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "KW_LEGAL_1",
+      "priority": 880,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "법적",
+        "LV3"
+      ],
+      "title": "법적 대응 언급: 문서화 우선",
+      "body": [
+        "발언/요구/기한을 문서화하고, 사실관계 타임라인을 먼저 확정하세요.",
+        "감정적 대응은 피하고, 공식채널로 커뮤니케이션을 정리하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "법적",
+          "변호사",
+          "소송",
+          "고소",
+          "고발",
+          "민사"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "SUP_001",
+      "priority": 880,
+      "level": "warn",
+      "tags": [
+        "지원",
+        "정서",
+        "LV3"
+      ],
+      "title": "정서적 위축 징후: 관찰 지표를 정하기",
+      "body": [
+        "위축/회피/눈물 반응이 있으면 관찰 지표(수면/식사/등교/참여)를 2~3개 정해 체크해보세요.",
+        "필요 시 보호자와 공유하고, 학교 상담/전문 지원 연계를 검토하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "불안",
+          "우울",
+          "위축",
+          "눈물",
+          "스트레스"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 80
+      }
+    },
+    {
+      "id": "HYG_004",
+      "priority": 870,
+      "level": "info",
+      "tags": [
+        "정리",
+        "채널"
+      ],
+      "title": "storeOther에 채널 단서를 남기기",
+      "body": [
+        "전화/문자/메신저는 '플랫폼/대화방/발신·수신 단서(마스킹)'를 남기세요.",
+        "문서/공식채널은 '문서명/공문번호/발신기관'이 있으면 좋아요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "HYG_005",
+      "priority": 860,
+      "level": "info",
+      "tags": [
+        "이해관계자"
+      ],
+      "title": "관련자(related)가 비어있다면 주변 인물을 추가하기",
+      "body": [
+        "목격자/동행자/동료교사/관리자 등 '관계자'를 related로 추가해두면 추천과 조언 정확도가 올라가요.",
+        "이름이 부담되면 역할(예: 보건교사)만 적어도 OK."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "KW_BULLY_1",
+      "priority": 860,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "학폭",
+        "LV3"
+      ],
+      "title": "학교폭력/따돌림: 절차/증거 체크",
+      "body": [
+        "관련 절차(보고/조사/회의)가 있다면 Step으로 쪼개서 관리하세요.",
+        "진술/증거는 원본 보존, 타임라인 정리가 핵심입니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학폭",
+          "학교폭력",
+          "폭력위",
+          "따돌림",
+          "괴롭힘",
+          "왕따"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "KW_INJURY_1",
+      "priority": 860,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "부상",
+        "LV3"
+      ],
+      "title": "부상/상해: 증거/의료 기록 보존",
+      "body": [
+        "부상 상태(사진/보건실 기록 등)와 발견 시점을 보존하세요.",
+        "목격자/현장 상황을 함께 기록하면 좋아요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "상해",
+          "부상",
+          "피",
+          "멍",
+          "타박",
+          "찢어"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "HYG_006",
+      "priority": 850,
+      "level": "info",
+      "tags": [
+        "타임라인"
+      ],
+      "title": "케이스 기간(timeFrom~timeTo)을 대략이라도 지정하기",
+      "body": [
+        "기간을 잡아두면 케이스 타임라인이 깔끔해지고 관련 기록 추천이 안정적입니다.",
+        "모르면 '발생 전후 1~2주' 정도로 넉넉히 잡아두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 5
+      }
+    },
+    {
+      "id": "KW_CYBER_1",
+      "priority": 850,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "사이버",
+        "LV3"
+      ],
+      "title": "사이버/단톡방 문제: 캡처/확산경로 고정",
+      "body": [
+        "대화 로그는 원본 캡처를 우선 보존하고, 누가/어디서/누구에게 공유했는지 확산경로를 적어두세요.",
+        "가능하면 관리자/담당 라인과 공유 범위를 최소화하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "단톡",
+          "단체방",
+          "카톡",
+          "DM",
+          "인스타",
+          "SNS",
+          "계정",
+          "로그"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "HYG_007",
+      "priority": 840,
+      "level": "info",
+      "tags": [
+        "민감도"
+      ],
+      "title": "민감도(LV)를 '최고 위험' 기준으로 맞추기",
+      "body": [
+        "민감도는 '가장 민감한 한 건'을 기준으로 잡는 게 안전해요.",
+        "케이스 sensFilter를 LV3~LV5로 올리면 고위험 기록만 집중해서 볼 수 있어요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 15
+      }
+    },
+    {
+      "id": "KW_RUMOR_1",
+      "priority": 840,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "유포",
+        "LV3"
+      ],
+      "title": "허위사실/유포: 채널/확산경로 기록",
+      "body": [
+        "어디서/누가/어떤 채널로/누구에게 퍼졌는지 확산경로를 기록하세요.",
+        "캡처/로그 등 증거를 보존하고, 공식채널로 정정 커뮤니케이션을 고려하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "허위",
+          "모함",
+          "명예훼손",
+          "유포",
+          "루머",
+          "소문"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "HYG_008",
+      "priority": 830,
+      "level": "info",
+      "tags": [
+        "증거"
+      ],
+      "title": "증거 파일(캡처/문서/로그)을 별도 폴더로 정리하기",
+      "body": [
+        "요약에는 '증거 파일이 어디에 있는지' 폴더명/파일명 규칙을 남겨두세요.",
+        "추후 대응이 필요해질 때 시간을 크게 줄여줍니다."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문자",
+          "업무메신저",
+          "공식채널",
+          "문서"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "CH_공식채널_LV4",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "공식채널",
+        "LV4"
+      ],
+      "title": "공식채널: 채널별 기록/대응 포인트",
+      "body": [
+        "공식채널 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "공식채널"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "공식채널"
+        }
+      }
+    },
+    {
+      "id": "CH_기타_LV4",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "기타",
+        "LV4"
+      ],
+      "title": "기타: 채널별 기록/대응 포인트",
+      "body": [
+        "기타 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "기타"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "CH_문서_LV4",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "문서",
+        "LV4"
+      ],
+      "title": "문서: 채널별 기록/대응 포인트",
+      "body": [
+        "문서 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문서"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "문서"
+        }
+      }
+    },
+    {
+      "id": "CH_문자_LV4",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "문자",
+        "LV4"
+      ],
+      "title": "문자: 채널별 기록/대응 포인트",
+      "body": [
+        "문자 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문자"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "문자"
+        }
+      }
+    },
+    {
+      "id": "CH_방문상담_LV4",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "방문상담",
+        "LV4"
+      ],
+      "title": "방문상담: 채널별 기록/대응 포인트",
+      "body": [
+        "방문상담 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "방문상담"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "방문상담"
+        }
+      }
+    },
+    {
+      "id": "CH_업무메신저_LV4",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "업무메신저",
+        "LV4"
+      ],
+      "title": "업무메신저: 채널별 기록/대응 포인트",
+      "body": [
+        "업무메신저 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "업무메신저"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "업무메신저"
+        }
+      }
+    },
+    {
+      "id": "CH_전화_LV4",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "전화",
+        "LV4"
+      ],
+      "title": "전화: 채널별 기록/대응 포인트",
+      "body": [
+        "전화 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "전화"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "전화"
+        }
+      }
+    },
+    {
+      "id": "GOV_002",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "절차",
+        "LV4"
+      ],
+      "title": "LV4+: 정보 공유 범위(need-to-know) 점검",
+      "body": [
+        "민감 케이스는 공유 범위를 최소화(need-to-know)하고, 기록 접근 권한을 점검하세요.",
+        "개인정보/2차 피해 위험이 큰 사건은 특히 주의가 필요합니다."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "HYG_009",
+      "priority": 820,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "동일 사건의 중복 기록은 '시점/채널'로 구분하기",
+      "body": [
+        "같은 사건이라도 채널이 다르면 증거 성격이 달라요.(전화 vs 공식채널 등)",
+        "요약에 '발생 시점'과 '채널'을 명시해두면 중복이 아니라 '증거 묶음'이 됩니다."
+      ],
+      "when": {
+        "recordCountAtLeast": 3
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 90
+      }
+    },
+    {
+      "id": "KW_DISC_1",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "징계",
+        "LV3"
+      ],
+      "title": "징계/조치 언급: 절차 체크리스트 만들기",
+      "body": [
+        "절차를 Step으로 쪼개고(보고→회의→통지 등), 책임자/기한을 붙이세요.",
+        "결정 근거가 되는 기록/증거를 케이스에 묶어두세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "전학",
+          "퇴학",
+          "징계",
+          "조치",
+          "처분"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "KW_SUBST_1",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "물질",
+        "LV3"
+      ],
+      "title": "물질/흡연/음주: 사실관계/물증 정리",
+      "body": [
+        "목격 내용과 물증(사진/물품/발견 장소)을 분리해 기록하세요.",
+        "추측은 따로 표시하고, 확인된 사실 중심으로 정리하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "약",
+          "마약",
+          "술",
+          "흡연",
+          "담배",
+          "전자담배"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "SUP_003",
+      "priority": 820,
+      "level": "warn",
+      "tags": [
+        "지원",
+        "보건실",
+        "LV3"
+      ],
+      "title": "보건실 이용이 반복되면 스트레스 요인 확인",
+      "body": [
+        "두통/복통 등 반복 보건실 이용은 스트레스 신호일 수 있어요.",
+        "시간대/수업/관계 상황과 연결되는지 타임라인으로 확인해보세요."
+      ],
+      "when": {
+        "placesAny": [
+          "보건실"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 2
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "HYG_010",
+      "priority": 810,
+      "level": "info",
+      "tags": [
+        "후속"
+      ],
+      "title": "후속 조치(Step)를 최소 1개라도 남기기",
+      "body": [
+        "'연락 예정/보고 예정/회의 예정' 같은 액션을 Step으로 남겨두면 케이스 관리가 쉬워요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "HYG_011",
+      "priority": 805,
+      "level": "info",
+      "tags": [
+        "기록"
+      ],
+      "title": "사실/추정/의견을 문장 단위로 분리하기",
+      "body": [
+        "'확인된 사실'과 '추정/의견'을 문장으로 분리해 적어두면 분쟁 시 안전합니다.",
+        "가능하면 '누가 확인했는지(교사/목격자/당사자)'를 함께 남기세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 12
+      }
+    },
+    {
+      "id": "HYG_012",
+      "priority": 800,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "시간 표현을 절대 시각으로 치환하기",
+      "body": [
+        "'방금/어제/지난주' 같은 표현은 실제 날짜/시각으로 바꿔 적어두세요.",
+        "타임라인 충돌이 줄어듭니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "어제",
+          "지난주",
+          "방금"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 15
+      }
+    },
+    {
+      "id": "KW_HATE_1",
+      "priority": 800,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "차별",
+        "LV3"
+      ],
+      "title": "차별/혐오 표현: 2차 확산 차단",
+      "body": [
+        "발언 원문과 당시 상황(누가/어디서/누가 들었는지)을 기록하세요.",
+        "확산 차단과 당사자 보호를 우선으로 하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "차별",
+          "혐오",
+          "인종",
+          "장애",
+          "성별",
+          "외모"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "HYG_013",
+      "priority": 795,
+      "level": "info",
+      "tags": [
+        "보안",
+        "개인정보"
+      ],
+      "title": "개인정보는 최소한으로, 식별 단서는 마스킹",
+      "body": [
+        "전화번호/계정/주소 등은 마스킹(예: 010-12**-****) 후 필요한 단서만 남기세요.",
+        "학교/기관 내부 규정에 따라 보관 범위를 꼭 확인하세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "전화",
+          "문자",
+          "업무메신저"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 18
+      }
+    },
+    {
+      "id": "HYG_014",
+      "priority": 790,
+      "level": "info",
+      "tags": [
+        "정리",
+        "라벨"
+      ],
+      "title": "분류 값은 일관된 선택지로 유지하기",
+      "body": [
+        "storeType/place/actorType은 가능한 한 같은 단어로 통일하세요.",
+        "표기 변형이 줄면 검색/추천 정확도가 올라갑니다."
+      ],
+      "when": {
+        "recordCountAtLeast": 5
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "KW_THREAT_1",
+      "priority": 790,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "위협",
+        "LV3"
+      ],
+      "title": "협박/위협 표현: 발언 원문 보존",
+      "body": [
+        "위협 표현은 가능한 한 원문에 가깝게 기록하고, 시간/채널을 정확히 남기세요.",
+        "반복되면 공식 채널로 전환하고, 책임자 보고를 고려하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "협박",
+          "위협",
+          "죽여",
+          "해코지",
+          "가만안둬",
+          "찾아가"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "HYG_015",
+      "priority": 785,
+      "level": "info",
+      "tags": [
+        "증거"
+      ],
+      "title": "발언은 가능한 원문에 가깝게 기록하기",
+      "body": [
+        "욕설/협박/차별 발언 등은 '원문'을 최대한 보존하고, 맥락(전후 대화)을 함께 남기세요.",
+        "원문을 남기기 어렵다면 핵심 표현만 따옴표로 표시해도 좋아요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "폭언",
+          "욕설",
+          "협박",
+          "위협",
+          "차별",
+          "혐오"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "GOV_003",
+      "priority": 780,
+      "level": "warn",
+      "tags": [
+        "절차",
+        "증거"
+      ],
+      "title": "진술/증거는 원본 우선, 요약은 별도",
+      "body": [
+        "원본(캡처/원문/문서)은 원본대로 보존하고, 요약은 별도 기록으로 분리하세요.",
+        "원본을 수정/가공한 자료는 '가공본'이라고 표시해두면 좋아요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문서",
+          "공식채널",
+          "업무메신저",
+          "문자"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "HYG_016",
+      "priority": 780,
+      "level": "info",
+      "tags": [
+        "정리",
+        "관련자"
+      ],
+      "title": "관련자 역할을 한 줄로 요약하기",
+      "body": [
+        "related에 들어간 인물별로 '역할/관계/확인할 것'을 1줄씩 적어두면 대응이 빨라집니다."
+      ],
+      "when": {
+        "hasRelated": true,
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "KW_VIOL_1",
+      "priority": 780,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "폭력",
+        "LV3"
+      ],
+      "title": "신체적 폭력 징후: 안전 확보/분리",
+      "body": [
+        "즉시 안전 확보(분리/보호)를 우선하고, 목격자 진술을 사실 중심으로 기록하세요.",
+        "부상/증거(사진/보건실 기록 등)가 있으면 보존하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "폭행",
+          "때림",
+          "맞음",
+          "주먹",
+          "발로",
+          "밀침",
+          "목조름"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "HYG_017",
+      "priority": 775,
+      "level": "info",
+      "tags": [
+        "타임라인"
+      ],
+      "title": "사건의 '전-중-후'를 최소 3지점으로 잡기",
+      "body": [
+        "가능하면 '발생 전 징후/발생/후속' 3지점을 타임라인에 남기면 이해가 쉬워져요."
+      ],
+      "when": {
+        "recordCountAtLeast": 3
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "HYG_018",
+      "priority": 770,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "구두 합의는 공식채널/문서로 재확인하기",
+      "body": [
+        "전화/대면으로 합의한 내용은 핵심만이라도 문서/공식채널로 남겨두는 게 안전합니다."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "전화",
+          "방문상담"
+        ],
+        "minSensitivity": "LV2",
+        "recordCountAtLeast": 2
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 90
+      }
+    },
+    {
+      "id": "HYG_019",
+      "priority": 765,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "사건명/키워드를 표준 템플릿으로 통일하기",
+      "body": [
+        "예: '다툼-급식실-줄서기', 'SNS-루머-확산'처럼 짧은 사건명을 반복 사용해보세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 6
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "CH_공식채널_LV3",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "공식채널",
+        "LV3"
+      ],
+      "title": "공식채널: 채널별 기록/대응 포인트",
+      "body": [
+        "공식채널 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "공식채널"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "공식채널"
+        }
+      }
+    },
+    {
+      "id": "CH_기타_LV3",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "기타",
+        "LV3"
+      ],
+      "title": "기타: 채널별 기록/대응 포인트",
+      "body": [
+        "기타 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "기타"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "CH_문서_LV3",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "문서",
+        "LV3"
+      ],
+      "title": "문서: 채널별 기록/대응 포인트",
+      "body": [
+        "문서 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문서"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "문서"
+        }
+      }
+    },
+    {
+      "id": "CH_문자_LV3",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "문자",
+        "LV3"
+      ],
+      "title": "문자: 채널별 기록/대응 포인트",
+      "body": [
+        "문자 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문자"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "문자"
+        }
+      }
+    },
+    {
+      "id": "CH_방문상담_LV3",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "방문상담",
+        "LV3"
+      ],
+      "title": "방문상담: 채널별 기록/대응 포인트",
+      "body": [
+        "방문상담 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "방문상담"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "방문상담"
+        }
+      }
+    },
+    {
+      "id": "CH_업무메신저_LV3",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "업무메신저",
+        "LV3"
+      ],
+      "title": "업무메신저: 채널별 기록/대응 포인트",
+      "body": [
+        "업무메신저 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "업무메신저"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "업무메신저"
+        }
+      }
+    },
+    {
+      "id": "CH_전화_LV3",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "채널",
+        "전화",
+        "LV3"
+      ],
+      "title": "전화: 채널별 기록/대응 포인트",
+      "body": [
+        "전화 기록은 '누가/언제/어디서/무슨 표현으로'를 최대한 그대로 남기는 게 중요해요.",
+        "동일 사건의 다른 채널 기록과 함께 묶으면 증거 신뢰도가 높아집니다.",
+        "가능하면 요약에 '채널 특성(원문/스크린샷/통화기록/공문)'을 1줄로 남기세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "전화"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 0,
+        "match": {
+          "storeType": "전화"
+        }
+      }
+    },
+    {
+      "id": "GOV_001",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "절차",
+        "LV3"
+      ],
+      "title": "절차가 필요한 사건이면 Step을 '보고→조사→회의→통지'로 쪼개기",
+      "body": [
+        "절차가 필요한 케이스는 단계를 Step으로 나누면 누락이 줄어요.",
+        "학교/기관별 세부 절차는 다를 수 있으니 내부 지침을 확인해 적용하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학폭",
+          "징계",
+          "조치",
+          "회의",
+          "위원회"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "HYG_020",
+      "priority": 760,
+      "level": "info",
+      "tags": [
+        "후속"
+      ],
+      "title": "후속 조치에 담당자/기한을 붙이기",
+      "body": [
+        "Step에는 가능하면 '담당(누가)/기한(언제까지)/완료 조건'을 함께 적어두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 35
+      }
+    },
+    {
+      "id": "KW_DAMAGE_1",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "재물",
+        "LV3"
+      ],
+      "title": "기물파손: 파손물/수리 견적/목격자",
+      "body": [
+        "파손물 사진/상태, 발견 시각, 목격자를 확보하세요.",
+        "수리/복구 진행은 Step으로 쪼개서 관리하면 좋아요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "파손",
+          "기물",
+          "부숨",
+          "망가",
+          "훼손",
+          "낙서"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "KW_THEFT_1",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "키워드",
+        "도난",
+        "LV3"
+      ],
+      "title": "도난/분실: 물증/동선 기록",
+      "body": [
+        "물품 정보(특징/사진), 마지막 확인 시점, 동선을 기록하세요.",
+        "CCTV/목격자 확인 포인트를 Step으로 남기세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "도난",
+          "훔침",
+          "분실",
+          "절도",
+          "갈취"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "REL_003",
+      "priority": 760,
+      "level": "warn",
+      "tags": [
+        "이해관계자",
+        "LV4"
+      ],
+      "title": "LV4+: 이해관계자/보고 라인을 분리해서 기록",
+      "body": [
+        "고민/의견은 따로 두고, 보고/조치 사실만 별도로 정리하세요.",
+        "보고 라인(누구에게/언제/무엇을)을 Step으로 남겨두면 좋아요."
+      ],
+      "when": {
+        "hasRelated": true,
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "REL_004",
+      "priority": 750,
+      "level": "warn",
+      "tags": [
+        "이해관계자",
+        "LV4"
+      ],
+      "title": "LV4+: 관련자 역할이 불명확하면 즉시 정리",
+      "body": [
+        "관련자(목격자/피해/가해/담당) 역할을 확정하고, 연락/확인 순서를 Step으로 만드세요."
+      ],
+      "when": {
+        "hasRelated": true,
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 10
+      }
+    },
+    {
+      "id": "COM_003",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "커뮤니케이션",
+        "LV4"
+      ],
+      "title": "LV4+: 단일 창구(담당자) 지정 고려",
+      "body": [
+        "고위험/고갈등 케이스는 커뮤니케이션 창구를 단일화하면 혼선이 줄어요.",
+        "학교/기관 내부 절차에 따라 담당/보고 라인을 확인하세요."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "DET_003",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "증거",
+        "LV4"
+      ],
+      "title": "LV4+: 증거 원본 보존(캡처/문서/로그)",
+      "body": [
+        "원본 삭제/편집은 피하고, 캡처/원본 파일을 보존하세요.",
+        "필요하면 파일명/생성시각 같은 단서를 함께 남겨두세요."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "storeTypesAny": [
+          "문자",
+          "업무메신저",
+          "공식채널",
+          "문서"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "PL_교무실_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "교무실",
+        "LV4"
+      ],
+      "title": "교무실: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "교무실"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "교무실"
+        }
+      }
+    },
+    {
+      "id": "PL_교실_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "교실",
+        "LV4"
+      ],
+      "title": "교실: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "교실"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "교실"
+        }
+      }
+    },
+    {
+      "id": "PL_교외_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "교외",
+        "LV4"
+      ],
+      "title": "교외: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "교외"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "교외"
+        }
+      }
+    },
+    {
+      "id": "PL_급식실_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "급식실",
+        "LV4"
+      ],
+      "title": "급식실: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "급식실"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "급식실"
+        }
+      }
+    },
+    {
+      "id": "PL_기타_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "기타",
+        "LV4"
+      ],
+      "title": "기타: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "PL_도서관_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "도서관",
+        "LV4"
+      ],
+      "title": "도서관: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "도서관"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "도서관"
+        }
+      }
+    },
+    {
+      "id": "PL_보건실_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "보건실",
+        "LV4"
+      ],
+      "title": "보건실: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "보건실"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "보건실"
+        }
+      }
+    },
+    {
+      "id": "PL_복도_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "복도",
+        "LV4"
+      ],
+      "title": "복도: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "복도"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "복도"
+        }
+      }
+    },
+    {
+      "id": "PL_상담실_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "상담실",
+        "LV4"
+      ],
+      "title": "상담실: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "상담실"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "상담실"
+        }
+      }
+    },
+    {
+      "id": "PL_운동장_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "운동장",
+        "LV4"
+      ],
+      "title": "운동장: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "운동장"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "운동장"
+        }
+      }
+    },
+    {
+      "id": "PL_특별실_LV4",
+      "priority": 740,
+      "level": "warn",
+      "tags": [
+        "장소",
+        "특별실",
+        "LV4"
+      ],
+      "title": "특별실: 현장/목격자 포인트(고위험)",
+      "body": [
+        "고위험 사건은 현장 정보가 가장 빨리 사라집니다. 동선/자리/목격자를 먼저 고정하세요.",
+        "진술은 사실 중심으로, 추정은 분리해 적어두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "특별실"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "특별실"
+        }
+      }
+    },
+    {
+      "id": "SCN_PARENT_01",
+      "priority": 739,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "SCN_PARENT_02",
+      "priority": 738,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "SCN_PARENT_03",
+      "priority": 737,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 50
+      }
+    },
+    {
+      "id": "SCN_PARENT_04",
+      "priority": 736,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "DET_004",
+      "priority": 735,
+      "level": "warn",
+      "tags": [
+        "현장",
+        "LV4"
+      ],
+      "title": "LV4+: 현장 정보(동선/위치/목격자) 빠르게 고정",
+      "body": [
+        "현장 상황은 시간이 지나면 바뀌어요. 동선/위치/목격자를 빠르게 기록하세요."
+      ],
+      "when": {
+        "minSensitivity": "LV4",
+        "placesAny": [
+          "교실",
+          "복도",
+          "급식실",
+          "교외"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "SCN_PARENT_05",
+      "priority": 735,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "SCN_PARENT_06",
+      "priority": 734,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 80
+      }
+    },
+    {
+      "id": "SCN_PARENT_07",
+      "priority": 733,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_PARENT_08",
+      "priority": 732,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "SCN_PARENT_09",
+      "priority": 731,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 110
+      }
+    },
+    {
+      "id": "AT_관리자_LV4",
+      "priority": 730,
+      "level": "warn",
+      "tags": [
+        "관계자",
+        "관리자",
+        "LV4"
+      ],
+      "title": "관리자 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "보고 라인(누구에게/언제/무엇을)을 Step으로 남기고, 결정사항과 근거를 분리 기록하세요.",
+        "결정 이전에는 '사실 확인 중' 문구로 상태를 명확히 해두는 게 안전합니다."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "관리자"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_동료교사_LV4",
+      "priority": 730,
+      "level": "warn",
+      "tags": [
+        "관계자",
+        "동료교사",
+        "LV4"
+      ],
+      "title": "동료교사 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "동료교사와 공유한 사실/관찰 포인트를 1줄로 남기면 인수인계가 쉬워요.",
+        "역할 분담(누가 무엇을 확인/연락)을 Step으로 나누세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "동료교사"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_외부인_LV4",
+      "priority": 730,
+      "level": "warn",
+      "tags": [
+        "관계자",
+        "외부인",
+        "LV4"
+      ],
+      "title": "외부인 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "외부인은 신원/접촉 경로/요구사항을 간단히 기록하고, 공식창구로 안내하세요.",
+        "구두 응대는 요점만 정리하고 문서/공식채널로 전환을 고려하세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "외부인"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_학부모_LV4",
+      "priority": 730,
+      "level": "warn",
+      "tags": [
+        "관계자",
+        "학부모",
+        "LV4"
+      ],
+      "title": "학부모 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "요구사항을 '요구-근거-기한'으로 구조화하고, 합의는 공식채널/문서로 재확인하세요.",
+        "감정적 표현은 최소화하고, 확인된 사실/요청/다음 액션만 정리해두세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "학부모"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_학생_LV4",
+      "priority": 730,
+      "level": "warn",
+      "tags": [
+        "관계자",
+        "학생",
+        "LV4"
+      ],
+      "title": "학생 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "학생 진술은 '질문-답변' 형태로 남기면 왜곡이 줄어듭니다.",
+        "충돌이 있으면 당사자들을 따로 면담하고, 같은 질문을 동일하게 적용하세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "학생"
+        ],
+        "minSensitivity": "LV4",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "SCN_PARENT_10",
+      "priority": 730,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 70
+      }
+    },
+    {
+      "id": "SCN_PARENT_11",
+      "priority": 729,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 75
+      }
+    },
+    {
+      "id": "SCN_PARENT_12",
+      "priority": 728,
+      "level": "info",
+      "tags": [
+        "학부모",
+        "민원"
+      ],
+      "title": "학부모 민원: 요구를 문장으로 재확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "학부모",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 140
+      }
+    },
+    {
+      "id": "COM_001",
+      "priority": 720,
+      "level": "warn",
+      "tags": [
+        "커뮤니케이션",
+        "민원"
+      ],
+      "title": "요구가 강하면 '요약→확인→다음 단계'로 대화 구조화",
+      "body": [
+        "대화는 (1)요약 (2)상대 확인 (3)다음 단계(언제/어떻게) 순으로 진행하면 감정이 가라앉아요.",
+        "합의된 문장은 1줄로 기록하고, 동일 문장을 공식채널/문서로 재확인하세요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "민원",
+          "항의",
+          "불만",
+          "요구"
+        ],
+        "minSensitivity": "LV2",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 70
+      }
+    },
+    {
+      "id": "MCH_012",
+      "priority": 712,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "전화 합의는 문서로 고정",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "전화",
+          "문서"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_011",
+      "priority": 711,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "메신저 내용은 문서로 고정",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "업무메신저",
+          "문서"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "COM_002",
+      "priority": 710,
+      "level": "info",
+      "tags": [
+        "커뮤니케이션"
+      ],
+      "title": "상대가 흥분하면 '사실-감정-요구'를 분리해 반영",
+      "body": [
+        "상대 발언을 사실/감정/요구로 분리해 되짚어주면 오해가 줄어듭니다.",
+        "기록에도 동일하게 분리해 적어두면 이후 대응이 깔끔해져요."
+      ],
+      "when": {
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 110
+      }
+    },
+    {
+      "id": "MCH_010",
+      "priority": 710,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "공식채널 기록으로 대면내용을 마무리",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "공식채널",
+          "방문상담"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_009",
+      "priority": 709,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "문서 근거 + 문자 요구사항 연결",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "문서",
+          "문자"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_008",
+      "priority": 708,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "대면-전화 기록을 시점순으로 정리",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "방문상담",
+          "전화"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_007",
+      "priority": 707,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "메신저/문자 로그를 한 타임라인으로 합치기",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "업무메신저",
+          "문자"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_006",
+      "priority": 706,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "문자 내용은 공식채널로 정리/확인",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "문자",
+          "공식채널"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_005",
+      "priority": 705,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "구두 내용은 공식채널로 재확인",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "전화",
+          "공식채널"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_004",
+      "priority": 704,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "문서/공식채널 증거 세트로 정리",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "문서",
+          "공식채널"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_003",
+      "priority": 703,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "대면상담 후 문서로 재확인",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "방문상담",
+          "문서"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_002",
+      "priority": 702,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "메신저 ↔ 공식채널 '내용 일치' 확인",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "업무메신저",
+          "공식채널"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "MCH_001",
+      "priority": 701,
+      "level": "info",
+      "tags": [
+        "증거",
+        "채널"
+      ],
+      "title": "통화-문자 교차증거 묶기",
+      "body": [
+        "동일 사건의 여러 채널 기록은 서로 보완되는 증거가 됩니다.",
+        "각 채널의 핵심 문장을 1줄씩 요약해두면 이후 대응이 훨씬 쉬워져요.",
+        "가능하면 '누가 어떤 채널에서 무엇을 말했다'를 표로 정리하는 것도 추천합니다."
+      ],
+      "when": {
+        "storeTypesAll": [
+          "전화",
+          "문자"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "COM_004",
+      "priority": 700,
+      "level": "info",
+      "tags": [
+        "커뮤니케이션",
+        "문서"
+      ],
+      "title": "대면/전화 이후에는 '핵심 3줄'을 문서로 남기기",
+      "body": [
+        "대면/전화 직후 '합의/요청/다음 일정' 3줄만이라도 문서/공식채널로 남기면 안전합니다."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "전화",
+          "방문상담"
+        ],
+        "recordCountAtLeast": 2,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 120
+      }
+    },
+    {
+      "id": "SCN_EVID_01",
+      "priority": 699,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "SCN_EVID_02",
+      "priority": 698,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "SCN_EVID_03",
+      "priority": 697,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 50
+      }
+    },
+    {
+      "id": "SCN_EVID_04",
+      "priority": 696,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "SCN_EVID_05",
+      "priority": 695,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "SCN_EVID_06",
+      "priority": 694,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 80
+      }
+    },
+    {
+      "id": "SCN_EVID_07",
+      "priority": 693,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_EVID_08",
+      "priority": 692,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "SCN_EVID_09",
+      "priority": 691,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 110
+      }
+    },
+    {
+      "id": "SCN_EVID_10",
+      "priority": 690,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 70
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_01",
+      "priority": 689,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "SCN_EVID_11",
+      "priority": 689,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 75
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_02",
+      "priority": 688,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "SCN_EVID_12",
+      "priority": 688,
+      "level": "info",
+      "tags": [
+        "증거",
+        "정리"
+      ],
+      "title": "증거 정리: 파일명 규칙(날짜-채널-요약) 만들기",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "캡처",
+          "스크린샷",
+          "로그",
+          "녹음"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 140
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_03",
+      "priority": 687,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 50
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_04",
+      "priority": 686,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_05",
+      "priority": 685,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_06",
+      "priority": 684,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 80
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_07",
+      "priority": 683,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_08",
+      "priority": 682,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_09",
+      "priority": 681,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 110
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_10",
+      "priority": 680,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 70
+      }
+    },
+    {
+      "id": "RELX_001",
+      "priority": 679,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_11",
+      "priority": 679,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 75
+      }
+    },
+    {
+      "id": "SCN_REPEAT_01",
+      "priority": 679,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "RELX_002",
+      "priority": 678,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_CONFLICT_12",
+      "priority": 678,
+      "level": "info",
+      "tags": [
+        "갈등",
+        "중재"
+      ],
+      "title": "갈등 중재: 같은 질문, 다른 공간에서 확인",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "오해",
+          "서운",
+          "뒷담",
+          "갈등"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 140
+      }
+    },
+    {
+      "id": "SCN_REPEAT_02",
+      "priority": 678,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "RELX_003",
+      "priority": 677,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_03",
+      "priority": 677,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 50
+      }
+    },
+    {
+      "id": "RELX_004",
+      "priority": 676,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_04",
+      "priority": 676,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "RELX_005",
+      "priority": 675,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "REL_001",
+      "priority": 675,
+      "level": "info",
+      "tags": [
+        "이해관계자"
+      ],
+      "title": "관련자가 있다면 역할을 한 줄로 정리",
+      "body": [
+        "related 인물별로 '역할/관계/확인할 것'을 1줄씩 정리해두세요.",
+        "누가 무엇을 알고 있는지 정리되면 대응이 빨라집니다."
+      ],
+      "when": {
+        "hasRelated": true,
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "SCN_REPEAT_05",
+      "priority": 675,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "RELX_006",
+      "priority": 674,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_06",
+      "priority": 674,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 80
+      }
+    },
+    {
+      "id": "RELX_007",
+      "priority": 673,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_07",
+      "priority": 673,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "RELX_008",
+      "priority": 672,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_08",
+      "priority": 672,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "RELX_009",
+      "priority": 671,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_09",
+      "priority": 671,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 110
+      }
+    },
+    {
+      "id": "RELX_010",
+      "priority": 670,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "REL_002",
+      "priority": 670,
+      "level": "info",
+      "tags": [
+        "이해관계자"
+      ],
+      "title": "관련자가 없으면 최소 1명(목격자/담당자) 추가",
+      "body": [
+        "목격자/동료교사/관리자 등 최소 1명은 related로 추가해두는 걸 추천해요.",
+        "관계자 정보가 있으면 추천 정확도가 크게 올라갑니다."
+      ],
+      "when": {
+        "hasRelated": false,
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 50
+      }
+    },
+    {
+      "id": "SCN_REPEAT_10",
+      "priority": 670,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 70
+      }
+    },
+    {
+      "id": "RELX_011",
+      "priority": 669,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_11",
+      "priority": 669,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 75
+      }
+    },
+    {
+      "id": "RELX_012",
+      "priority": 668,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_REPEAT_12",
+      "priority": 668,
+      "level": "info",
+      "tags": [
+        "반복",
+        "패턴"
+      ],
+      "title": "반복 사건: '언제/어디서/누가'가 반복되는지 체크",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "반복",
+          "또",
+          "다시"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 140
+      }
+    },
+    {
+      "id": "RELX_013",
+      "priority": 667,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "RELX_014",
+      "priority": 666,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "RELX_015",
+      "priority": 665,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "RELX_016",
+      "priority": 664,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "RELX_017",
+      "priority": 663,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "RELX_018",
+      "priority": 662,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "RELX_019",
+      "priority": 661,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "DET_001",
+      "priority": 660,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "메신저/문자라면 storeOther에 대화방/전화번호 단서 남기기",
+      "body": [
+        "storeOther에 '플랫폼/대화방 이름/전화번호(마스킹)' 같은 식별 단서를 남기면 좋아요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "문자",
+          "업무메신저"
+        ],
+        "requireStoreOther": true,
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "RELX_020",
+      "priority": 660,
+      "level": "info",
+      "tags": [
+        "관계",
+        "중재"
+      ],
+      "title": "관계 갈등이면 '사실-감정-요구'를 분리해서 기록",
+      "body": [
+        "관계 갈등은 사실(무슨 일이 있었는지) / 감정(어떤 느낌인지) / 요구(원하는 것)를 분리해 적으면 정리가 빨라요.",
+        "중재할 때는 '서로 동의한 문장'을 1줄로 남겨두면 재발 방지에 도움이 됩니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "배제",
+          "왕따",
+          "뒷담",
+          "오해",
+          "서운",
+          "갈등",
+          "다툼"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_CLASS_01",
+      "priority": 659,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "SCN_CLASS_02",
+      "priority": 658,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "SCN_CLASS_03",
+      "priority": 657,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 50
+      }
+    },
+    {
+      "id": "SCN_CLASS_04",
+      "priority": 656,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "DET_002",
+      "priority": 655,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "방문상담이면 placeOther에 구체 위치 남기기",
+      "body": [
+        "placeOther에 '교무실/상담실/몇 층' 같이 구체 위치를 남겨두세요."
+      ],
+      "when": {
+        "storeTypesAny": [
+          "방문상담"
+        ],
+        "requirePlaceOther": true,
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "SCN_CLASS_05",
+      "priority": 655,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "SCN_CLASS_06",
+      "priority": 654,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 80
+      }
+    },
+    {
+      "id": "SCN_CLASS_07",
+      "priority": 653,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 55
+      }
+    },
+    {
+      "id": "SCN_CLASS_08",
+      "priority": 652,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 60
+      }
+    },
+    {
+      "id": "SCN_CLASS_09",
+      "priority": 651,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 110
+      }
+    },
+    {
+      "id": "DET_005",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "placeOther에 '교실 번호/층' 같은 디테일을 넣기",
+      "body": [
+        "placeOther는 짧아도 좋아요. '2층 3-2 앞 복도'처럼 핵심 디테일만 넣어도 됩니다."
+      ],
+      "when": {
+        "requirePlaceOther": true,
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 35
+      }
+    },
+    {
+      "id": "PL_교무실_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "교무실",
+        "LV3"
+      ],
+      "title": "교무실: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "교무실"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "교무실"
+        }
+      }
+    },
+    {
+      "id": "PL_교실_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "교실",
+        "LV3"
+      ],
+      "title": "교실: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "교실"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "교실"
+        }
+      }
+    },
+    {
+      "id": "PL_교외_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "교외",
+        "LV3"
+      ],
+      "title": "교외: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "교외"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "교외"
+        }
+      }
+    },
+    {
+      "id": "PL_급식실_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "급식실",
+        "LV3"
+      ],
+      "title": "급식실: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "급식실"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "급식실"
+        }
+      }
+    },
+    {
+      "id": "PL_기타_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "기타",
+        "LV3"
+      ],
+      "title": "기타: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "PL_도서관_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "도서관",
+        "LV3"
+      ],
+      "title": "도서관: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "도서관"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "도서관"
+        }
+      }
+    },
+    {
+      "id": "PL_보건실_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "보건실",
+        "LV3"
+      ],
+      "title": "보건실: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "보건실"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "보건실"
+        }
+      }
+    },
+    {
+      "id": "PL_복도_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "복도",
+        "LV3"
+      ],
+      "title": "복도: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "복도"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "복도"
+        }
+      }
+    },
+    {
+      "id": "PL_상담실_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "상담실",
+        "LV3"
+      ],
+      "title": "상담실: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "상담실"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "상담실"
+        }
+      }
+    },
+    {
+      "id": "PL_운동장_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "운동장",
+        "LV3"
+      ],
+      "title": "운동장: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "운동장"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "운동장"
+        }
+      }
+    },
+    {
+      "id": "PL_특별실_LV3",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "장소",
+        "특별실",
+        "LV3"
+      ],
+      "title": "특별실: 현장/목격자 포인트",
+      "body": [
+        "현장(자리/동선/주변 사람)과 목격자 정보가 핵심이에요.",
+        "가능하면 당시 위치/동선/주변 사람을 related로 추가해두세요."
+      ],
+      "when": {
+        "placesAny": [
+          "특별실"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "after_first_match",
+        "offsetMinutes": 15,
+        "match": {
+          "place": "특별실"
+        }
+      }
+    },
+    {
+      "id": "SCN_CLASS_10",
+      "priority": 650,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 70
+      }
+    },
+    {
+      "id": "SCN_CLASS_11",
+      "priority": 649,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 75
+      }
+    },
+    {
+      "id": "SCN_CLASS_12",
+      "priority": 648,
+      "level": "info",
+      "tags": [
+        "학급운영",
+        "지도"
+      ],
+      "title": "학급운영: 규칙은 '행동-이유-대안'으로 안내",
+      "body": [
+        "선배교사 팁: 기록을 '한 줄 결론 → 근거 2개 → 다음 액션' 구조로 쓰면 의사결정이 빨라져요.",
+        "관련 인물/장소/채널 중 하나라도 누락되면, 이후 확인 비용이 커집니다."
+      ],
+      "when": {
+        "keywordsAny": [
+          "수업",
+          "자리",
+          "조편성",
+          "규칙"
+        ],
+        "recordCountAtLeast": 1,
+        "minSensitivity": "LV2"
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 140
+      }
+    },
+    {
+      "id": "DET_006",
+      "priority": 645,
+      "level": "info",
+      "tags": [
+        "정리"
+      ],
+      "title": "storeOther에 식별 가능한 단서(문서명/번호/플랫폼) 넣기",
+      "body": [
+        "storeOther에 문서명/공문번호/플랫폼 같은 단서를 넣으면 이후 검색이 쉬워집니다."
+      ],
+      "when": {
+        "requireStoreOther": true,
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 35
+      }
+    },
+    {
+      "id": "AT_관리자_LV3",
+      "priority": 640,
+      "level": "info",
+      "tags": [
+        "관계자",
+        "관리자",
+        "LV3"
+      ],
+      "title": "관리자 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "보고 라인(누구에게/언제/무엇을)을 Step으로 남기고, 결정사항과 근거를 분리 기록하세요.",
+        "결정 이전에는 '사실 확인 중' 문구로 상태를 명확히 해두는 게 안전합니다."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "관리자"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_동료교사_LV3",
+      "priority": 640,
+      "level": "info",
+      "tags": [
+        "관계자",
+        "동료교사",
+        "LV3"
+      ],
+      "title": "동료교사 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "동료교사와 공유한 사실/관찰 포인트를 1줄로 남기면 인수인계가 쉬워요.",
+        "역할 분담(누가 무엇을 확인/연락)을 Step으로 나누세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "동료교사"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_외부인_LV3",
+      "priority": 640,
+      "level": "info",
+      "tags": [
+        "관계자",
+        "외부인",
+        "LV3"
+      ],
+      "title": "외부인 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "외부인은 신원/접촉 경로/요구사항을 간단히 기록하고, 공식창구로 안내하세요.",
+        "구두 응대는 요점만 정리하고 문서/공식채널로 전환을 고려하세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "외부인"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_학부모_LV3",
+      "priority": 640,
+      "level": "info",
+      "tags": [
+        "관계자",
+        "학부모",
+        "LV3"
+      ],
+      "title": "학부모 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "요구사항을 '요구-근거-기한'으로 구조화하고, 합의는 공식채널/문서로 재확인하세요.",
+        "감정적 표현은 최소화하고, 확인된 사실/요청/다음 액션만 정리해두세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "학부모"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "AT_학생_LV3",
+      "priority": 640,
+      "level": "info",
+      "tags": [
+        "관계자",
+        "학생",
+        "LV3"
+      ],
+      "title": "학생 관련: 커뮤니케이션/기록 포인트",
+      "body": [
+        "학생 진술은 '질문-답변' 형태로 남기면 왜곡이 줄어듭니다.",
+        "충돌이 있으면 당사자들을 따로 면담하고, 같은 질문을 동일하게 적용하세요."
+      ],
+      "when": {
+        "actorTypesAny": [
+          "학생"
+        ],
+        "minSensitivity": "LV3",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "case_created",
+        "offsetMinutes": 20
+      }
+    },
+    {
+      "id": "KW_SWEAR_1",
+      "priority": 640,
+      "level": "info",
+      "tags": [
+        "키워드",
+        "폭언",
+        "LV2"
+      ],
+      "title": "폭언/욕설: 표현 원문 + 맥락 기록",
+      "body": [
+        "표현은 가능한 원문 그대로, 맥락(앞뒤 대화)을 함께 남겨두세요.",
+        "반복되면 공식채널로 전환하고, 기록 가능한 채널을 권장해요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "폭언",
+          "욕설",
+          "막말",
+          "비하"
+        ],
+        "minSensitivity": "LV2",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "DET_X_001",
+      "priority": 639,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 23
+      }
+    },
+    {
+      "id": "DET_X_002",
+      "priority": 638,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 24
+      }
+    },
+    {
+      "id": "DET_X_003",
+      "priority": 637,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 25
+      }
+    },
+    {
+      "id": "DET_X_004",
+      "priority": 636,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 26
+      }
+    },
+    {
+      "id": "DET_X_005",
+      "priority": 635,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 27
+      }
+    },
+    {
+      "id": "DET_X_006",
+      "priority": 634,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 28
+      }
+    },
+    {
+      "id": "DET_X_007",
+      "priority": 633,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 29
+      }
+    },
+    {
+      "id": "DET_X_008",
+      "priority": 632,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "DET_X_009",
+      "priority": 631,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 31
+      }
+    },
+    {
+      "id": "DET_X_010",
+      "priority": 630,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 32
+      }
+    },
+    {
+      "id": "KW_FIGHT_1",
+      "priority": 630,
+      "level": "info",
+      "tags": [
+        "키워드",
+        "갈등",
+        "LV2"
+      ],
+      "title": "다툼/갈등: 당사자 분리 + 재발 방지",
+      "body": [
+        "당사자/목격자를 분리해서 진술을 확보하고, 재발 방지 액션을 Step으로 남기세요.",
+        "관계자(동료교사/관리자) involvement를 related로 추가하면 좋아요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "몸싸움",
+          "싸움",
+          "다툼",
+          "말싸움"
+        ],
+        "minSensitivity": "LV2",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "DET_X_011",
+      "priority": 629,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 33
+      }
+    },
+    {
+      "id": "DET_X_012",
+      "priority": 628,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 34
+      }
+    },
+    {
+      "id": "DET_X_013",
+      "priority": 627,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 35
+      }
+    },
+    {
+      "id": "DET_X_014",
+      "priority": 626,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 36
+      }
+    },
+    {
+      "id": "DET_X_015",
+      "priority": 625,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 37
+      }
+    },
+    {
+      "id": "DET_X_016",
+      "priority": 624,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 38
+      }
+    },
+    {
+      "id": "DET_X_017",
+      "priority": 623,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 39
+      }
+    },
+    {
+      "id": "DET_X_018",
+      "priority": 622,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 40
+      }
+    },
+    {
+      "id": "DET_X_019",
+      "priority": 621,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 41
+      }
+    },
+    {
+      "id": "DET_X_020",
+      "priority": 620,
+      "level": "info",
+      "tags": [
+        "정리",
+        "누락"
+      ],
+      "title": "기타 선택 시 보충 필드(placeOther/storeOther) 확인",
+      "body": [
+        "'기타'를 선택한 경우, 보충 입력(placeOther/storeOther)에 핵심 단서를 1줄이라도 남겨두세요.",
+        "나중에 재구성할 때 가장 자주 필요한 정보입니다."
+      ],
+      "when": {
+        "placesAny": [
+          "기타"
+        ],
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 42
+      }
+    },
+    {
+      "id": "KW_COMPL_1",
+      "priority": 620,
+      "level": "info",
+      "tags": [
+        "키워드",
+        "민원",
+        "LV2"
+      ],
+      "title": "민원/요구: 요구사항 구조화",
+      "body": [
+        "요구사항을 '요구-근거-기한-요청 채널'로 구조화하세요.",
+        "후속 답변은 가능하면 공식채널/문서로 남기는 게 좋아요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "민원",
+          "항의",
+          "불만",
+          "요구",
+          "강하게"
+        ],
+        "minSensitivity": "LV2",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 30
+      }
+    },
+    {
+      "id": "KW_ATTEND_1",
+      "priority": 610,
+      "level": "info",
+      "tags": [
+        "키워드",
+        "출결",
+        "LV2"
+      ],
+      "title": "결석/무단: 연락 시도 로그 정리",
+      "body": [
+        "결석 시점/연락 시도/응답 내용을 기록으로 남기세요.",
+        "보호자 커뮤니케이션은 가능한 공식채널로 정리하는 게 좋아요."
+      ],
+      "when": {
+        "keywordsAny": [
+          "결석",
+          "무단",
+          "지각",
+          "조퇴",
+          "연락두절"
+        ],
+        "minSensitivity": "LV2",
+        "recordCountAtLeast": 1
+      },
+      "anchor": {
+        "type": "first_record",
+        "offsetMinutes": 45
+      }
+    },
+    {
+      "id": "VOL_008",
+      "priority": 608,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 40건 이상: 타임라인 충돌/누락 점검",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 40,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "VOL_007",
+      "priority": 607,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 30건 이상: 사건을 '페이즈'로 나누기",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 30,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "VOL_006",
+      "priority": 606,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 20건 이상: 케이스를 하위 케이스로 분리 고려",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 20,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "VOL_005",
+      "priority": 605,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 15건 이상: 증거 폴더/파일 구조 정리",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 15,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "VOL_004",
+      "priority": 604,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 10건 이상: '핵심 5분 요약' 작성",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 10,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "VOL_003",
+      "priority": 603,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 8건 이상: 이해관계자 매트릭스 만들기",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 8,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "VOL_002",
+      "priority": 602,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 5건 이상: 핵심 쟁점 3개로 요약",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 5,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    },
+    {
+      "id": "VOL_001",
+      "priority": 601,
+      "level": "info",
+      "tags": [
+        "정리",
+        "볼륨"
+      ],
+      "title": "기록이 3건 이상: 타임라인 분할",
+      "body": [
+        "기록이 많아지면 '시간대/쟁점/인물' 기준으로 묶는 게 좋아요.",
+        "케이스 제목을 하위 주제(예: 1차 민원 / 2차 통화)로 나누는 것도 방법입니다.",
+        "중요 증거(원문/사진/공문)는 따로 태그를 붙여 빠르게 찾게 해두세요."
+      ],
+      "when": {
+        "recordCountAtLeast": 3,
+        "minSensitivity": "LV1"
+      },
+      "anchor": {
+        "type": "last_record",
+        "offsetMinutes": 0
+      }
+    }
+  ]
+}

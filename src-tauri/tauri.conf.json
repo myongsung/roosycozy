@@ -1,0 +1,24 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "productName": "roosycozy",
+  "version": "0.1.0",
+  "identifier": "co.roosycozy.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "roosycozy",
+        "width": 1200,
+        "height": 820,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ]
+  }
+}

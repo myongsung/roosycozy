@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# build outputs (front-end)
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+
+# tauri / rust
+src-tauri/target/
+
+# env
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

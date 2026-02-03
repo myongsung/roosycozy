@@ -1,0 +1,9 @@
+{
+  "identifier": "main",
+  "description": "Default capability for roosycozy",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:allow-save"
+  ]
+}

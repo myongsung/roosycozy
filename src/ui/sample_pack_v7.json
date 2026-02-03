@@ -1,0 +1,652 @@
+{
+  "v": 7,
+  "exportedAt": "2026-07-20T16:00:00.000Z",
+  "state": {
+    "v": 7,
+    "tab": "records",
+    "selectedCaseId": "CASE_adhd_care_04",
+    "records": [
+      {
+        "id": "REC_start_01",
+        "ts": "2026-03-02T09:00:00.000Z",
+        "storeType": "교무수첩",
+        "actor": { "type": "학생", "name": "학생4" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "입학식 날. 자리에 앉아있지 못하고 계속 돌아다님. 주의를 주어도 1분 내로 다시 일어남."
+      },
+      {
+        "id": "REC_start_02",
+        "ts": "2026-03-03T10:30:00.000Z",
+        "storeType": "지도일지",
+        "actor": { "type": "학생", "name": "학생4" },
+        "place": "복도",
+        "lv": "LV2",
+        "summary": "화장실 간다고 나간 뒤 20분째 함흥차사. 다른 반 복도에서 소리지르며 뛰다가 옆반 선생님께 인계됨."
+      },
+      {
+        "id": "REC_start_03",
+        "ts": "2026-03-04T16:00:00.000Z",
+        "storeType": "전화",
+        "actor": { "type": "학부모", "name": "4번 모" },
+        "place": "교무실",
+        "lv": "LV3",
+        "summary": "기초 조사서상 특이사항 없음. 전화로 학교 생활 모습(산만함) 전달했으나 '집에서는 얌전하다, 선생님이 예민하신 것 아니냐'며 방어적 태도."
+      },
+      {
+        "id": "REC_obs_01",
+        "ts": "2026-03-10T11:00:00.000Z",
+        "storeType": "관찰기록",
+        "actor": { "type": "학생", "name": "학생15" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "발표 목소리가 매우 작고 눈을 마주치지 못함. 짝꿍(학생16)이 말을 걸면 움찔거림."
+      },
+      {
+        "id": "REC_obs_02",
+        "ts": "2026-03-12T13:00:00.000Z",
+        "storeType": "상담일지",
+        "actor": { "type": "학생", "name": "학생15" },
+        "place": "복도",
+        "lv": "LV2",
+        "summary": "점심시간 짧은 면담. 작년 담임 선생님이 무서웠다는 이야기를 얼핏 함. 정서적 지지 필요."
+      },
+      {
+        "id": "REC_admin_01",
+        "ts": "2026-03-15T15:00:00.000Z",
+        "storeType": "공문",
+        "actor": { "type": "관리자", "name": "교무부장" },
+        "place": "교무실",
+        "lv": "LV1",
+        "summary": "학기초 정서행동특성검사 실시 계획 내부결재 기안."
+      },
+      {
+        "id": "REC_adhd_04",
+        "ts": "2026-03-20T10:00:00.000Z",
+        "storeType": "업무일지",
+        "actor": { "type": "학생", "name": "학생4" },
+        "related": [{ "type": "학생", "name": "학생5" }],
+        "place": "급식실",
+        "lv": "LV3",
+        "summary": "급식 줄 서던 중 학생5를 밀쳐 넘어뜨림. 식판 엎어짐. 고의성 다분해 보임."
+      },
+      {
+        "id": "REC_adhd_05",
+        "ts": "2026-03-20T14:00:00.000Z",
+        "storeType": "상담록",
+        "actor": { "type": "동료교사", "name": "작년담임" },
+        "place": "연구실",
+        "lv": "LV2",
+        "summary": "학생4 작년 담임과 협의. 작년에도 친구들과 마찰이 잦았으며 학부모가 상담 권유를 거부했다고 함."
+      },
+      {
+        "id": "REC_adhd_06",
+        "ts": "2026-03-21T16:00:00.000Z",
+        "storeType": "방문상담",
+        "actor": { "type": "학부모", "name": "4번 부" },
+        "place": "상담실",
+        "lv": "LV4",
+        "summary": "아버님 내교. 학생의 학교 폭력성 행동(밀침)에 대해 인지시킴. 병원 검사(ADHD) 조심스럽게 권유함. 아버님은 수용적 태도."
+      },
+      {
+        "id": "REC_multi_01",
+        "ts": "2026-04-01T09:00:00.000Z",
+        "storeType": "학급일지",
+        "actor": { "type": "학생", "name": "학생9" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "알림장을 전혀 받아쓰지 못함. 한글 미해득 상태로 보임 (다문화 가정)."
+      },
+      {
+        "id": "REC_multi_02",
+        "ts": "2026-04-02T15:30:00.000Z",
+        "storeType": "전화",
+        "actor": { "type": "학부모", "name": "9번 모" },
+        "place": "교무실",
+        "lv": "LV2",
+        "summary": "어머님 한국어 소통이 원활하지 않음. 기초학력 지원 프로그램 동의 여부 묻기 어려움. 통역 앱 사용 고려."
+      },
+      {
+        "id": "REC_multi_03",
+        "ts": "2026-04-05T10:00:00.000Z",
+        "storeType": "협의록",
+        "actor": { "type": "동료교사", "name": "다문화강사" },
+        "place": "교무실",
+        "lv": "LV1",
+        "summary": "한국어 학급 강사님과 학생9 지원 스케줄 조정."
+      },
+      {
+        "id": "REC_complaint_01",
+        "ts": "2026-04-10T08:50:00.000Z",
+        "storeType": "문자",
+        "actor": { "type": "학부모", "name": "22번 모" },
+        "place": "기타",
+        "lv": "LV3",
+        "summary": "'어제 우리 애가 짝꿍한테 맞았다는데 왜 연락 안 줬냐'며 항의 문자. (사실 확인 결과 가벼운 장난이었음)"
+      },
+      {
+        "id": "REC_complaint_02",
+        "ts": "2026-04-10T12:30:00.000Z",
+        "storeType": "전화",
+        "actor": { "type": "학부모", "name": "22번 모" },
+        "place": "교무실",
+        "lv": "LV4",
+        "summary": "수업 중 3회 연속 부재중 전화. 점심시간 콜백하니 '담임이 전화를 왜 안 받냐'며 고성. 교육활동 침해 소지 있음."
+      },
+      {
+        "id": "REC_complaint_03",
+        "ts": "2026-04-10T16:00:00.000Z",
+        "storeType": "보고서",
+        "actor": { "type": "관리자", "name": "교감" },
+        "place": "교장실",
+        "lv": "LV4",
+        "summary": "악성 민원 발생 보고. 교감 선생님이 학부모와 직접 통화하여 중재해주기로 함."
+      },
+      {
+        "id": "REC_routine_01",
+        "ts": "2026-04-15T08:40:00.000Z",
+        "storeType": "출석부",
+        "actor": { "type": "학생", "name": "학생11" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "질병 결석 (독감 확진). 등교 중지 안내."
+      },
+      {
+        "id": "REC_routine_02",
+        "ts": "2026-04-20T11:00:00.000Z",
+        "storeType": "사진",
+        "actor": { "type": "학생", "name": "학생1" },
+        "place": "과학실",
+        "lv": "LV1",
+        "summary": "과학 실험 활동 사진 촬영. 학급 밴드 업로드용."
+      },
+      {
+        "id": "REC_adhd_07",
+        "ts": "2026-05-01T09:00:00.000Z",
+        "storeType": "전화",
+        "actor": { "type": "학부모", "name": "4번 모" },
+        "place": "교무실",
+        "lv": "LV2",
+        "summary": "어머님 전화. '병원 다녀왔고 약물 치료 시작하기로 했다. 점심 시간에 약 챙겨달라' 요청. 태도가 많이 부드러워짐."
+      },
+      {
+        "id": "REC_adhd_08",
+        "ts": "2026-05-02T12:30:00.000Z",
+        "storeType": "지도일지",
+        "actor": { "type": "학생", "name": "학생4" },
+        "place": "교실",
+        "lv": "LV2",
+        "summary": "투약 지도 1일차. 약 먹는 것을 친구들이 볼까 봐 창피해함. 보건실에서 먹도록 조치."
+      },
+      {
+        "id": "REC_theft_01",
+        "ts": "2026-05-10T14:20:00.000Z",
+        "storeType": "진술서",
+        "actor": { "type": "학생", "name": "학생30" },
+        "place": "교실",
+        "lv": "LV3",
+        "summary": "체육 시간 후 지갑에서 5천원이 없어졌다고 신고. 반 전체 가방 검사 실시했으나 미발견."
+      },
+      {
+        "id": "REC_theft_02",
+        "ts": "2026-05-11T08:30:00.000Z",
+        "storeType": "CCTV",
+        "actor": { "type": "학생", "name": "학생33" },
+        "place": "복도",
+        "lv": "LV4",
+        "summary": "체육 시간(교실 비운 시간)에 학생33이 교실 뒷문으로 들어가는 모습 CCTV 확인."
+      },
+      {
+        "id": "REC_theft_03",
+        "ts": "2026-05-11T09:30:00.000Z",
+        "storeType": "상담일지",
+        "actor": { "type": "학생", "name": "학생33" },
+        "place": "상담실",
+        "lv": "LV4",
+        "summary": "CCTV 사실 제시하자 울면서 자백. '준비물 살 돈이 없어서 그랬다'고 함. 가정 형편 파악 필요."
+      },
+      {
+        "id": "REC_theft_04",
+        "ts": "2026-05-11T16:00:00.000Z",
+        "storeType": "전화",
+        "actor": { "type": "학부모", "name": "33번 부" },
+        "place": "교무실",
+        "lv": "LV3",
+        "summary": "아버님 통화. 경제적 어려움 호소. 교육비 지원 대상자인지 행정실 확인 필요."
+      },
+      {
+        "id": "REC_welfare_01",
+        "ts": "2026-05-12T10:00:00.000Z",
+        "storeType": "업무협조",
+        "actor": { "type": "동료교사", "name": "교육복지사" },
+        "place": "복지실",
+        "lv": "LV2",
+        "summary": "학생33 교육복지 우선지원 대상자 선정 협의."
+      },
+      {
+        "id": "REC_routine_03",
+        "ts": "2026-05-15T10:00:00.000Z",
+        "storeType": "행사",
+        "actor": { "type": "학생", "name": "전체" },
+        "place": "강당",
+        "lv": "LV1",
+        "summary": "스승의 날 행사. 학생 대표 편지 낭독."
+      },
+      {
+        "id": "REC_fight_01",
+        "ts": "2026-05-20T13:00:00.000Z",
+        "storeType": "교무수첩",
+        "actor": { "type": "학생", "name": "학생7" },
+        "related": [{ "type": "학생", "name": "학생8" }],
+        "place": "운동장",
+        "lv": "LV3",
+        "summary": "축구하다가 태클 문제로 주먹다짐 직전까지 감. 뜯어말림. 둘 다 흥분 상태."
+      },
+      {
+        "id": "REC_fight_02",
+        "ts": "2026-05-20T13:30:00.000Z",
+        "storeType": "화해중재",
+        "actor": { "type": "학생", "name": "학생7" },
+        "related": [{ "type": "학생", "name": "학생8" }],
+        "place": "교실",
+        "lv": "LV2",
+        "summary": "흥분 가라앉힌 후 '관계회복 서클' 대화법으로 중재. 서로 사과하고 악수함."
+      },
+      {
+        "id": "REC_fight_03",
+        "ts": "2026-05-20T16:00:00.000Z",
+        "storeType": "문자",
+        "actor": { "type": "학부모", "name": "7번 모" },
+        "related": [{ "type": "학부모", "name": "8번 부" }],
+        "place": "기타",
+        "lv": "LV1",
+        "summary": "양측 학부모에게 상황 설명 및 화해 사실 알림 문자 발송. '잘 지도해주셔서 감사하다'는 답장 수신."
+      },
+      {
+        "id": "REC_consult_01",
+        "ts": "2026-05-25T15:30:00.000Z",
+        "storeType": "동학년협의회",
+        "actor": { "type": "동료교사", "name": "학년부장" },
+        "place": "연구실",
+        "lv": "LV1",
+        "summary": "현장체험학습 장소 사전 답사 결과 공유 및 버스 계약 건 논의."
+      },
+      {
+        "id": "REC_health_01",
+        "ts": "2026-06-01T11:00:00.000Z",
+        "storeType": "보건일지",
+        "actor": { "type": "학생", "name": "학생2" },
+        "place": "보건실",
+        "lv": "LV1",
+        "summary": "체육 시간 줄넘기 중 발목 접질림. 냉찜질 처치."
+      },
+      {
+        "id": "REC_counsel_deep_01",
+        "ts": "2026-06-05T14:30:00.000Z",
+        "storeType": "상담일지",
+        "actor": { "type": "학생", "name": "학생12" },
+        "place": "상담실",
+        "lv": "LV3",
+        "summary": "손목에 자해 흔적(커터칼 흉터) 발견하여 긴급 상담. 가정 불화 및 성적 스트레스 호소. 위클래스 의뢰 필요."
+      },
+      {
+        "id": "REC_counsel_deep_02",
+        "ts": "2026-06-05T16:00:00.000Z",
+        "storeType": "내부기안",
+        "actor": { "type": "동료교사", "name": "상담교사" },
+        "place": "위클래스",
+        "lv": "LV4",
+        "summary": "위기 학생(학생12) 상담 연계 신청서 작성 및 비밀 보장 협의."
+      },
+      {
+        "id": "REC_counsel_deep_03",
+        "ts": "2026-06-06T10:00:00.000Z",
+        "storeType": "전화",
+        "actor": { "type": "학부모", "name": "12번 모" },
+        "place": "교무실",
+        "lv": "LV4",
+        "summary": "어머님께 조심스럽게 상황 전달. 어머님 통곡하심. 외부 전문 기관 상담 동의."
+      },
+      {
+        "id": "REC_routine_04",
+        "ts": "2026-06-10T15:00:00.000Z",
+        "storeType": "청소지도",
+        "actor": { "type": "학생", "name": "학생25" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "1인 1역(우유 당번) 성실히 수행함. 칭찬 스티커 부여."
+      },
+      {
+        "id": "REC_admin_02",
+        "ts": "2026-06-15T09:00:00.000Z",
+        "storeType": "회의록",
+        "actor": { "type": "관리자", "name": "교장" },
+        "place": "교장실",
+        "lv": "LV2",
+        "summary": "직원 회의. 여름철 식중독 예방 및 물놀이 안전 교육 철저 지시."
+      },
+      {
+        "id": "REC_obs_03",
+        "ts": "2026-06-20T10:00:00.000Z",
+        "storeType": "행동특성",
+        "actor": { "type": "학생", "name": "학생19" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "미술 시간, 만들기를 어려워하는 짝꿍을 자발적으로 도와줌. 배려심이 돋보임."
+      },
+      {
+        "id": "REC_lost_01",
+        "ts": "2026-06-25T13:00:00.000Z",
+        "storeType": "문자",
+        "actor": { "type": "학부모", "name": "1번 모" },
+        "place": "기타",
+        "lv": "LV1",
+        "summary": "학생1이 실내화 주머니를 잃어버리고 왔다고 함. 찾아봐 달라는 요청."
+      },
+      {
+        "id": "REC_lost_02",
+        "ts": "2026-06-26T08:30:00.000Z",
+        "storeType": "확인",
+        "actor": { "type": "학생", "name": "학생1" },
+        "place": "신발장",
+        "lv": "LV1",
+        "summary": "신발장 구석에서 실내화 주머니 발견하여 전달."
+      },
+      {
+        "id": "REC_adhd_09",
+        "ts": "2026-07-01T11:00:00.000Z",
+        "storeType": "관찰기록",
+        "actor": { "type": "학생", "name": "학생4" },
+        "place": "교실",
+        "lv": "LV2",
+        "summary": "약물 치료 2개월 차. 수업 시간 착석 유지 시간이 10분에서 30분으로 늘어남. 과잉 행동 빈도 현저히 감소."
+      },
+      {
+        "id": "REC_adhd_10",
+        "ts": "2026-07-01T16:00:00.000Z",
+        "storeType": "통지표",
+        "actor": { "type": "학생", "name": "학생4" },
+        "place": "교실",
+        "lv": "LV2",
+        "summary": "1학기 행동발달상황 입력. '학기 초에 비해 규칙 준수 태도가 많이 개선됨' 긍정적 서술."
+      },
+      {
+        "id": "REC_report_card_01",
+        "ts": "2026-07-10T15:00:00.000Z",
+        "storeType": "나이스",
+        "actor": { "type": "학생", "name": "전체" },
+        "place": "교무실",
+        "lv": "LV1",
+        "summary": "1학기 생활기록부 교과학습발달상황 및 창의적 체험활동 마감 작업."
+      },
+      {
+        "id": "REC_vacation_01",
+        "ts": "2026-07-15T09:00:00.000Z",
+        "storeType": "가정통신문",
+        "actor": { "type": "학생", "name": "전체" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "여름방학 계획서 배부 및 안전 수칙 지도."
+      },
+      {
+        "id": "REC_consult_02",
+        "ts": "2026-07-16T14:00:00.000Z",
+        "storeType": "면담",
+        "actor": { "type": "관리자", "name": "교감" },
+        "place": "교감실",
+        "lv": "LV2",
+        "summary": "복무 관리(연가 사용) 관련 면담."
+      },
+      {
+        "id": "REC_end_01",
+        "ts": "2026-07-20T12:00:00.000Z",
+        "storeType": "학급일지",
+        "actor": { "type": "학생", "name": "전체" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "1학기 종업식. 큰 사고 없이 마무리됨에 감사."
+      },
+      {
+        "id": "REC_conflict_01",
+        "ts": "2026-04-15T13:00:00.000Z",
+        "storeType": "학생상담",
+        "actor": { "type": "학생", "name": "학생30" },
+        "related": [{"type": "학생", "name": "학생31"}],
+        "place": "복도",
+        "lv": "LV2",
+        "summary": "학생31이 자신의 외모를 놀린다며 울면서 찾아옴."
+      },
+      {
+        "id": "REC_conflict_02",
+        "ts": "2026-04-15T13:20:00.000Z",
+        "storeType": "학생상담",
+        "actor": { "type": "학생", "name": "학생31" },
+        "place": "복도",
+        "lv": "LV2",
+        "summary": "학생31 면담. '친해서 장난친 것'이라고 변명하나 피해자가 싫어함을 인지시킴."
+      },
+      {
+        "id": "REC_admin_final",
+        "ts": "2026-07-19T10:00:00.000Z",
+        "storeType": "결재",
+        "actor": { "type": "관리자", "name": "교장" },
+        "place": "행정실",
+        "lv": "LV1",
+        "summary": "방학 중 근무조 편성표 결재 완료."
+      },
+      {
+        "id": "REC_support_01",
+        "ts": "2026-03-30T15:00:00.000Z",
+        "storeType": "회의",
+        "actor": { "type": "동료교사", "name": "특수교사" },
+        "place": "통합교육지원실",
+        "lv": "LV2",
+        "summary": "통합학급 학생 개별화교육계획(IEP) 협의."
+      },
+      {
+        "id": "REC_parent_visit_01",
+        "ts": "2026-03-25T14:00:00.000Z",
+        "storeType": "상담",
+        "actor": { "type": "학부모", "name": "1번 부" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "학부모 총회 참석 후 담임과 간단한 인사."
+      },
+      {
+        "id": "REC_safety_drill",
+        "ts": "2026-05-18T10:00:00.000Z",
+        "storeType": "행사",
+        "actor": { "type": "학생", "name": "전체" },
+        "place": "운동장",
+        "lv": "LV1",
+        "summary": "재난대응 안전한국훈련(지진 대피) 실시."
+      },
+      {
+        "id": "REC_grade_check",
+        "ts": "2026-06-25T16:00:00.000Z",
+        "storeType": "업무일지",
+        "actor": { "type": "학생", "name": "학생20" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "수학 수행평가 채점 중 학생20의 풀이 과정이 독창적임을 발견."
+      },
+      {
+        "id": "REC_phone_habit",
+        "ts": "2026-04-05T08:50:00.000Z",
+        "storeType": "수거",
+        "actor": { "type": "학생", "name": "학생13" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "아침 휴대폰 수거 미제출 적발. 방과후까지 보관 조치."
+      },
+      {
+        "id": "REC_monitor_repair",
+        "ts": "2026-05-08T11:00:00.000Z",
+        "storeType": "요청",
+        "actor": { "type": "관리자", "name": "행정실장" },
+        "place": "교실",
+        "lv": "LV1",
+        "summary": "교실 TV 화면 깜빡임 현상 수리 요청."
+      },
+      {
+        "id": "REC_library_vol",
+        "ts": "2026-06-02T13:00:00.000Z",
+        "storeType": "봉사",
+        "actor": { "type": "학생", "name": "학생5" },
+        "place": "도서관",
+        "lv": "LV1",
+        "summary": "점심시간 도서부 봉사활동 성실히 수행."
+      },
+      {
+        "id": "REC_covid_alert",
+        "ts": "2026-04-14T08:30:00.000Z",
+        "storeType": "알림",
+        "actor": { "type": "동료교사", "name": "보건교사" },
+        "place": "메신저",
+        "lv": "LV1",
+        "summary": "인근 학교 수두 유행 주의보 발령 알림."
+      }
+    ],
+    "cases": {
+      "CASE_adhd_care_04": {
+        "id": "CASE_adhd_care_04",
+        "title": "학생4 행동특성(ADHD) 관찰 및 지도",
+        "actors": [
+          { "type": "학생", "name": "학생4" },
+          { "type": "학부모", "name": "4번 부" },
+          { "type": "학부모", "name": "4번 모" }
+        ],
+        "sensFilter": "LV3",
+        "status": "진행중",
+        "createdAt": "2026-03-02T09:00:00.000Z",
+        "steps": [
+          { "id": "S_01", "ts": "2026-03-10T16:00:00.000Z", "name": "문제행동 파악", "note": "수업 방해 및 충동성 관찰", "lv": "LV2", "owner": "담임" },
+          { "id": "S_02", "ts": "2026-03-21T17:00:00.000Z", "name": "학부모 상담", "note": "부친 내교 상담으로 치료 필요성 공감대 형성", "lv": "LV4", "owner": "담임" },
+          { "id": "S_03", "ts": "2026-05-02T12:00:00.000Z", "name": "투약 관리 지원", "note": "학교 내 복약 지도 시작", "lv": "LV3", "owner": "담임,보건" }
+        ],
+        "advisors": [
+          {
+            "id": "ADV_adhd_01",
+            "ts": "2026-03-05T00:00:00.000Z",
+            "title": "객관적 기록 유지",
+            "body": "학부모 상담 시 '산만하다'는 추상적 표현보다 '20분간 5회 자리 이탈' 등 구체적 수치와 일시를 제시하는 것이 효과적입니다.",
+            "level": "info",
+            "tags": ["상담", "기록"],
+            "state": "active",
+            "ruleId": "proto:pack"
+          }
+        ],
+        "query": "학생4 산만 폭력 약물",
+        "recordIds": ["REC_start_01", "REC_start_02", "REC_start_03", "REC_adhd_04", "REC_adhd_05", "REC_adhd_06", "REC_adhd_07", "REC_adhd_08", "REC_adhd_09", "REC_adhd_10"]
+      },
+      "CASE_complaint_22": {
+        "id": "CASE_complaint_22",
+        "title": "22번 학부모 반복 민원 대응",
+        "actors": [
+          { "type": "학부모", "name": "22번 모" },
+          { "type": "관리자", "name": "교감" }
+        ],
+        "sensFilter": "LV4",
+        "status": "완료",
+        "createdAt": "2026-04-10T09:00:00.000Z",
+        "steps": [
+          { "id": "S_C_01", "ts": "2026-04-10T13:00:00.000Z", "name": "민원 접수", "note": "폭언성 전화 녹취 확보", "lv": "LV4" },
+          { "id": "S_C_02", "ts": "2026-04-10T16:00:00.000Z", "name": "관리자 보고", "note": "교권보호위원회 개최 여부 검토 및 관리자 개입", "lv": "LV5" }
+        ],
+        "advisors": [
+          {
+            "id": "ADV_comp_01",
+            "ts": "2026-04-10T13:00:00.000Z",
+            "title": "감정 노동 보호",
+            "body": "폭언이 지속될 경우 '대화가 어려워 통화를 종료합니다'라고 고지 후 끊을 수 있습니다. 관리자에게 즉시 보고하세요.",
+            "level": "warn",
+            "tags": ["교권", "법률"],
+            "state": "active",
+            "ruleId": "proto:comm"
+          }
+        ],
+        "query": "22번 민원 폭언",
+        "recordIds": ["REC_complaint_01", "REC_complaint_02", "REC_complaint_03"]
+      },
+      "CASE_theft_33": {
+        "id": "CASE_theft_33",
+        "title": "학급 내 금품 도난 사안(학생33)",
+        "actors": [
+          { "type": "학생", "name": "학생33" },
+          { "type": "학생", "name": "학생30" },
+          { "type": "동료교사", "name": "교육복지사" }
+        ],
+        "sensFilter": "LV4",
+        "status": "완료",
+        "createdAt": "2026-05-10T14:00:00.000Z",
+        "steps": [
+          { "id": "S_T_01", "ts": "2026-05-11T10:00:00.000Z", "name": "사안 조사", "note": "CCTV 확인 및 학생 자백 확보", "lv": "LV4" },
+          { "id": "S_T_02", "ts": "2026-05-12T11:00:00.000Z", "name": "후속 조치", "note": "처벌보다는 가정 환경 지원(복지)에 초점", "lv": "LV2" }
+        ],
+        "advisors": [],
+        "query": "도난 지갑 33번",
+        "recordIds": ["REC_theft_01", "REC_theft_02", "REC_theft_03", "REC_theft_04", "REC_welfare_01"]
+      },
+      "CASE_crisis_12": {
+        "id": "CASE_crisis_12",
+        "title": "학생12 자해 흔적 및 위기 상담",
+        "actors": [
+          { "type": "학생", "name": "학생12" },
+          { "type": "동료교사", "name": "상담교사" }
+        ],
+        "sensFilter": "LV5",
+        "status": "진행중",
+        "createdAt": "2026-06-05T14:00:00.000Z",
+        "steps": [
+          { "id": "S_K_01", "ts": "2026-06-05T15:00:00.000Z", "name": "긴급 개입", "note": "자살/자해 위험성 평가 및 보호자 통보", "lv": "LV5" }
+        ],
+        "advisors": [
+          {
+            "id": "ADV_crisis_01",
+            "ts": "2026-06-05T14:30:00.000Z",
+            "title": "비밀 보장의 예외",
+            "body": "자해나 자살 위험은 비밀 보장 예외 사유입니다. 학생에게 이를 알리고 즉시 보호자 및 전문가(상담교사)와 연계해야 합니다.",
+            "level": "warn",
+            "tags": ["위기", "안전"],
+            "state": "active",
+            "ruleId": "proto:next"
+          }
+        ],
+        "query": "자해 학생12 위클래스",
+        "recordIds": ["REC_counsel_deep_01", "REC_counsel_deep_02", "REC_counsel_deep_03"]
+      },
+      "CASE_multi_09": {
+        "id": "CASE_multi_09",
+        "title": "다문화 학생(학생9) 학습 지원",
+        "actors": [
+          { "type": "학생", "name": "학생9" },
+          { "type": "동료교사", "name": "다문화강사" }
+        ],
+        "sensFilter": "LV1",
+        "status": "진행중",
+        "createdAt": "2026-04-01T09:00:00.000Z",
+        "steps": [],
+        "advisors": [],
+        "query": "다문화 한국어 학생9",
+        "recordIds": ["REC_multi_01", "REC_multi_02", "REC_multi_03"]
+      },
+      "CASE_fight_7_8": {
+        "id": "CASE_fight_7_8",
+        "title": "학생7-학생8 운동장 다툼 화해",
+        "actors": [
+          { "type": "학생", "name": "학생7" },
+          { "type": "학생", "name": "학생8" }
+        ],
+        "sensFilter": "LV3",
+        "status": "완료",
+        "createdAt": "2026-05-20T13:00:00.000Z",
+        "steps": [
+          { "id": "S_F_01", "ts": "2026-05-20T14:00:00.000Z", "name": "관계 회복", "note": "당일 화해 및 학부모 안내 완료", "lv": "LV2" }
+        ],
+        "advisors": [],
+        "query": "싸움 화해 학생7",
+        "recordIds": ["REC_fight_01", "REC_fight_02", "REC_fight_03"]
+      }
+    }
+  }
+}
