@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     runs-on: windows-latest
-    
+
     steps:
       - uses: actions/checkout@v4
 
@@ -26,18 +26,33 @@ jobs:
       - name: install frontend dependencies
         run: npm install --legacy-peer-deps
 
-      - name: build the app
+      # ✅ 핵심: 최소 1개(포터블 exe)는 항상 나오게 하고,
+      # tauri-action이 "No artifacts were found"로 죽지 않게 함
+      - name: build the app (portable exe + draft release)
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v${{ github.run_number }}
           releaseName: "App Build #${{ github.run_number }}"
-          releaseDraft: true 
+          releaseBody: "Automated Windows build."
+          releaseDraft: true
           prerelease: false
 
-      # ✅ [수정 핵심] 빌드된 모든 설치 파일(.exe, .msi)을 무조건 수집합니다.
-      - name: upload windows artifacts
+          # 포터블 exe만 빌드 (설치 번들 없어도 OK)
+          args: --no-bundle
+          uploadPlainBinary: true
+
+      # ✅ 포터블 exe도 Workflow Artifacts로 별도 업로드 (테스터에게 전달하기 편함)
+      - name: upload portable exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: roosycozy-portable-exe
+          path: src-tauri/target/release/*.exe
+          if-no-files-found: error
+
+      # ✅ (선택) 만약 나중에 NSIS/MSI를 따로 빌드하도록 바꾸면 자동으로 같이 수집됨
+      - name: upload installer artifacts (if any)
         uses: actions/upload-artifact@v4
         with:
           name: roosycozy-installers
