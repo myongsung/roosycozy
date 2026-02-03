@@ -1,0 +1,43 @@
+name: "Build Windows EXE"
+
+on:
+  push:
+    branches:
+      - main # main 브랜치에 푸시될 때 실행
+  workflow_dispatch: # 수동으로도 실행 가능하게 설정
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: install frontend dependencies
+        run: npm install # yarn이나 pnpm을 사용한다면 해당 명령어로 변경하세요.
+
+      - name: build the app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: app-v__VERSION__ # 버전별로 태그 생성
+          releaseName: "App v__VERSION__"
+          releaseBody: "See the assets below to download the binary."
+          releaseDraft: true # 드래프트 상태로 릴리즈 생성 (테스트용으로 적합)
+          prerelease: false
