@@ -23,28 +23,25 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      # 1. 의존성 충돌 해결 (기존 이슈 반영)
       - name: install frontend dependencies
         run: npm install --legacy-peer-deps
 
-      # 2. Tauri 빌드 실행
-      # tauri.conf.json의 버전과 일치하지 않아도 빌드 자체는 진행되도록 설정
       - name: build the app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v${{ github.run_number }} # 버전 충돌 방지를 위해 실행 번호를 태그로 사용
+          tagName: v${{ github.run_number }}
           releaseName: "App Build #${{ github.run_number }}"
-          releaseBody: "Automated Windows build for beta testers."
           releaseDraft: true 
           prerelease: false
 
-      # 3. 중요: 빌드된 .exe 파일을 Artifacts 탭으로 직접 업로드
-      # Release에서 파일을 찾지 못하더라도 여기서 확실하게 다운로드 가능합니다.
-      - name: upload windows executable
+      # ✅ [수정 핵심] 빌드된 모든 설치 파일(.exe, .msi)을 무조건 수집합니다.
+      - name: upload windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: roosycozy-windows-exe
-          path: src-tauri/target/release/roosycozy.exe
-          if-no-files-found: error
+          name: roosycozy-installers
+          path: |
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
+          if-no-files-found: warn
