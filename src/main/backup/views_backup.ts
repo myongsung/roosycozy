@@ -47,62 +47,6 @@ const H = {
 const dl = (id: string, values: string[]) =>
   `<datalist id="${id}">${values.map((v) => `<option value="${esc(v)}"></option>`).join('')}</datalist>`;
 
-/* ==================== TOAST + <dialog> TOP LAYER FIX ==================== */
-// <dialog>.showModal() is rendered in the browser "top layer", so normal z-index can't beat it.
-// If a dialog is open, we "portal" the toast element into the top-most open dialog so it stays visible.
-
-let _toastPortalInstalled = false;
-let _toastPortalObs: MutationObserver | null = null;
-
-function topOpenDialog(): HTMLDialogElement | null {
-  const ae = document.activeElement as Element | null;
-  const activeDlg = ae?.closest?.('dialog[open]') as HTMLDialogElement | null;
-  if (activeDlg) return activeDlg;
-
-  const ds = Array.from(document.querySelectorAll('dialog[open]')) as HTMLDialogElement[];
-  return ds.length ? ds[ds.length - 1] : null;
-}
-
-function portalToast() {
-  const toast = document.getElementById('toast');
-  if (!toast) return;
-
-  const dlg = topOpenDialog();
-  const home = (document.querySelector('.container') as HTMLElement | null) ?? document.body;
-
-  const target: HTMLElement = (dlg as any) ?? home;
-  if (toast.parentElement !== target) target.appendChild(toast);
-}
-
-function installToastPortal() {
-  if (_toastPortalInstalled) return;
-  _toastPortalInstalled = true;
-
-  const kick = () => requestAnimationFrame(() => portalToast());
-
-  _toastPortalObs = new MutationObserver((muts) => {
-    for (const m of muts) {
-      if (m.type === 'attributes') {
-        const el = m.target as Element;
-        if (el.matches?.('dialog') || (el as HTMLElement).id === 'toast') { kick(); break; }
-      } else if (m.type === 'childList') {
-        // re-render / dialog insertion / toast replacement
-        kick();
-        break;
-      }
-    }
-  });
-
-  _toastPortalObs.observe(document.body, {
-    subtree: true,
-    childList: true,
-    attributes: true,
-    attributeFilter: ['open', 'class'],
-  });
-
-  // first sync
-  kick();
-}
 
 // Rust(engine)과 동일한 토크나이즈 규칙(점수 산출 근거를 "정확하게" 표시하기 위함)
 // - ASCII 영숫자 + 한글 범위만 단어로 취급
@@ -216,10 +160,6 @@ export function render() {
   if (ui.recordsListOpen) openRecordsListModal();
   if (ui.caseCreateOpen) openCaseCreateModal();
   if (ui.paperPickOpen) openPaperPickModal();
-  // keep toast visible even when <dialog>.showModal() is open
-    installToastPortal();
-    portalToast();
-
 }
 
 /* ==================== COMMON MODALS ==================== */
@@ -251,11 +191,9 @@ function renderPaperPickModal() {
 
   const body = all.length
     ? `
-      ${/*
-            <div class="miniSearch" style="margin-top:10px">
-              <input class="searchInput" placeholder="메모 묶음 검색…" value="${esc(q)}" data-action="search-paper-cases" data-field="q" />
-            </div>
-            */ ''}
+      <div class="miniSearch" style="margin-top:10px">
+        <input class="searchInput" placeholder="메모 묶음 검색…" value="${esc(q)}" data-action="search-paper-cases" data-field="q" />
+      </div>
 
       <div class="paperPickList" role="list">
         ${filtered.length ? filtered.map(({ c, recCount, lastTs }) => `
@@ -1071,7 +1009,7 @@ function renderCaseTimeline(c: CaseItem) {
       <div class="aiTopActions">
         ${H.btn('업데이트', 'open-case-update')}
         ${H.btn('증빙자료출력', 'open-paper')}
-        ${H.btn('목록으로', 'clear-case')}
+        ${H.btn('닫기', 'clear-case')}
       </div>
     </div>
 

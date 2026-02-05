@@ -89,19 +89,45 @@ function bindEvents() {
     'open-case-create': () => (S.tab = 'cases' as any, ui.caseCreateOpen = true, render(), openCaseCreateModal(), void saveState(S), log('case create modal open')),
     'close-case-create': () => (closeCaseCreateModal(), render(), log('case create modal close')),
 
+    // ✅ 새 모달 액션들
+    'saved-close': () => closeDlg('savedModal'),
+    'saved-view-record': () => {
+      const id = (ui as any).lastSavedRecordId as string | undefined;
+      closeDlg('savedModal');
+      if (!id) return;
+      ui.viewRecordId = id;
+      render();
+      openRecordModal();
+      log('saved modal -> view record', id);
+    },
+
+    'case-created-close': () => closeDlg('caseCreatedModal'),
+    'case-created-open': () => {
+      closeDlg('caseCreatedModal');
+      // 이미 생성 직후 selectedCaseId로 선택됨. 탭만 cases로 보장
+      S.tab = 'cases' as any;
+      void saveState(S);
+      render();
+    },
+    'case-created-open-paper': async () => {
+      closeDlg('caseCreatedModal');
+      const c = mustCase(); if (!c) return;
+      ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c);
+      render(); openPaperModal(); log('paper open (case created modal)', c.id);
+    },
+
     backup: async () => { const pack = JSON.stringify({ v: 7, exportedAt: nowISO(), state: S }, null, 2); await navigator.clipboard.writeText(pack); toast('백업 JSON 복사'); log('backup copied'); },
     'copy-backup': async () => click.backup!(document.body as any),
-
 
     'load-sample': async () => {
       const hasData = (S.records?.length ?? 0) > 0 || Object.keys(S.cases || {}).length > 0;
 
-      if (hasData) {
-        toast('샘플을 불러오면 현재 데이터가 덮어써져요. 먼저 ⎘로 백업을 추천해요.', {
-          label: '백업 복사',
-          onClick: () => void click.backup!(document.body as any),
-        });
-      }
+     // if (hasData) {
+     //   toast('샘플을 불러오면 현재 데이터가 덮어써져요. 먼저 ⎘로 백업을 추천해요.', {
+     //     label: '백업 복사',
+     //     onClick: () => void click.backup!(document.body as any),
+     //   });
+     // }
 
       if (!(await openConfirm('샘플 데이터를 불러올까요?(현재 데이터는 샘플로 덮어써집니다)'))) return;
 
@@ -154,13 +180,16 @@ function bindEvents() {
       render(); toast(`채널: ${kind}`); log('record intake changed', kind);
     },
 
+    // ✅ 변경: 관련자 비어 있으면 그냥 넘어감(강제/토스트 없음)
     'add-related': () => {
       const typeText = String((draftRecord as any).relTypeText || '').trim();
       const type = actorTypeInternalFromText(typeText);
       draftRecord.relType = type; (draftRecord as any).relTypeText = actorTypeTextFromInternal(type);
       const name = String(draftRecord.relNameOther || '').trim();
-      if (!typeText) return toast('관련자 유형을 선택하세요');
-      if (!name) return toast('관련자 이름을 입력하세요');
+
+      if (!typeText) return;
+      if (!name) return;
+
       draftRecord.relNameChoice = OTHER;
       const actor: ActorRef = { type, name };
       draftRecord.related = addActorToList(draftRecord.related || [], actor);
@@ -197,7 +226,9 @@ function bindEvents() {
 
       if (place === '기타' && !placeOther) return toast('장소 상세(기타)를 입력하세요');
       if (storeType === '기타' && !storeOther) return toast('보관형태 상세(기타)를 입력하세요');
-      if (!(draftRecord.related || []).length) return toast('관련자를 최소 1명 추가하세요 (없으면 “기타 / 없음”)');
+
+      // ✅ related(관련자)는 0명이어도 OK. 빈 이름은 저장 전에 정리
+      const relatedClean = (draftRecord.related || []).filter((a) => String((a as any)?.name || '').trim().length > 0);
 
       const { record, error } = buildRecordFromDraft({
         tsISO: fromLocalInputValue(draftRecord.ts),
@@ -206,18 +237,31 @@ function bindEvents() {
         actorType: draftRecord.actorType,
         actorNameChoice: OTHER,
         actorNameOther: String(draftRecord.actorNameOther || '').trim(),
-        related: (draftRecord.related || []).slice(),
+        related: relatedClean,
         place, placeOther,
         summary: String(draftRecord.summary || '').trim(),
       }, () => uid('REC'));
       if (error) return toast(error);
 
-      S.records.unshift(record!); await saveState(S);
+      // ✅ 저장 + (선택된 사건이 있으면) 자동 반영
+      S.records.unshift(record!);
+      const sel = getSelectedCase();
+      if (sel) {
+        S.cases[sel.id] = await addRecordsToCase(sel, S.records, [record!.id]);
+      }
+      await saveState(S);
+
       draftRecord.summary = ''; draftRecord.related = []; render();
 
-      const sel = getSelectedCase();
-      sel ? toast('기록 저장됨 · 선택한 사건에 반영하려면 업데이트를 실행하세요', { label: '사건 업데이트', onClick: () => openUpdate(sel.id) })
-          : toast('기록 저장됨 · 사건 반영은 [사건 업데이트]에서 진행');
+      // ✅ 저장 완료 모달 (임팩트)
+      (ui as any).lastSavedRecordId = record!.id;
+      setText('savedMsg', `“${String(record!.summary || '').trim() || '메모'}” 저장됨`);
+      setText('savedSub', sel ? '선택한 메모 묶음에 자동 반영됐어요.' : '사건(메모 묶음)에 모으려면 위에서 “스마트 메모 모으기”를 사용해요.');
+
+      openDlg('savedModal');
+      window.setTimeout(() => closeDlg('savedModal'), 1800);
+
+      toast('저장 완료 ✅');
       log('record saved', record!.id);
     },
 
@@ -286,7 +330,14 @@ function bindEvents() {
       S.cases[c.id] = c; S.selectedCaseId = c.id; S.tab = 'cases';
       Object.assign(draftCase, DEFAULT_CASE());
       await SR(); closeCaseCreateModal(); render();
-      toast(pickedCount ? `AI가 기록 ${pickedCount}개를 모았어요` : 'AI가 포함할 기록을 찾지 못했어요');
+
+      // ✅ 스마트 메모 모으기 완료 모달
+      setText('caseCreatedMsg', `“${String(c.title || '').trim() || '메모 묶음'}” 생성됨`);
+      setText('caseCreatedSub', pickedCount ? `AI가 메모 ${pickedCount}개를 모았어요.` : 'AI가 포함할 메모를 찾지 못했어요.');
+      openDlg('caseCreatedModal');
+      window.setTimeout(() => closeDlg('caseCreatedModal'), 2000);
+
+      toast('생성 완료 ✅');
       log('case created', c.id);
     },
 
@@ -340,6 +391,7 @@ function bindEvents() {
       }
     },
 
+    // (UI에서 숨기지만 기능은 유지)
     'open-case-update': () => { const c = mustCase(); if (c) (openUpdate(c.id), log('case update modal open', c.id)); },
     'close-case-update': () => (closeCaseUpdateModal(), render()),
 
@@ -496,6 +548,10 @@ function bindEvents() {
 
     if (e.key === 'Escape') {
       const c = dlg('confirmModal'); if (c?.open) return void (e.preventDefault(), closeConfirm(false));
+
+      const sm = dlg('savedModal'); if (sm?.open) return void (e.preventDefault(), closeDlg('savedModal'));
+      const cm = dlg('caseCreatedModal'); if (cm?.open) return void (e.preventDefault(), closeDlg('caseCreatedModal'));
+
       closeDlg('restoreModal'); closeDlg('logsModal');
 
       const rec = dlg('recordModal'); if (rec?.open) return void (e.preventDefault(), closeRecordModal(), render());
