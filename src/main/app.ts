@@ -187,7 +187,7 @@ function bindEvents() {
       if (!path) return;
 
       try {
-        const saved = await invoke<string>('export_backup_json', { fileName: path, json });
+        const saved = await invoke<string>('export_backup_json', { args: { fileName: path, json } });
         toast('백업 파일 저장됨 ✅');
         log('backup saved', saved);
       } catch (e) {

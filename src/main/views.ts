@@ -192,8 +192,8 @@ export function render() {
 
           <div class="hdrActions">
             <div class="hdrPrimary">
-              ${H.btn('<span class="emIco" aria-hidden="true">🚨</span><span class="emLbl">사건 발생 조치</span>', 'open-case-create', ' title="비상 시 사건 발생 조치(관련 메모 자동 묶기)" aria-label="사건 발생 조치"', 'btn hdrEmergency pulse')}
-              ${H.btn('샘플', 'load-sample', 'title="샘플 불러오기(현재 데이터 덮어쓰기)"', 'btn hdrSub')}
+              ${H.btn('<span class="emIco" aria-hidden="true">🚨</span><span class="emLbl">스마트 메모 묶기</span>', 'open-case-create', ' title="비상 시 스마트 메모 묶기(관련 메모 자동 묶기)" aria-label="스마트 메모 묶기"', 'btn hdrEmergency pulse')}
+              ${/* H.btn('샘플', 'load-sample', 'title="샘플 불러오기(현재 데이터 덮어쓰기)"', 'btn hdrSub') */''}
             </div>
 
             <div class="toolGroup" role="group" aria-label="도구">
@@ -409,7 +409,7 @@ function renderRecordsMain() {
       <div class="helperBox" style="margin-top:14px">
         <b>데모로 한 번에 보고 싶다면</b> 샘플 데이터를 불러올 수 있어요.
         <div class="actionsRow" style="margin-top:10px">
-          ${H.btn('샘플 불러오기', 'load-sample', ' title="샘플 데이터를 불러와 현재 데이터를 덮어씁니다"', 'btn demo')}
+          ${/* H.btn('샘플 불러오기', 'load-sample', ' title="샘플 데이터를 불러와 현재 데이터를 덮어씁니다"', 'btn demo') */''}
         </div>
         <div class="muted" style="margin-top:6px; font-size:12px">
           샘플은 로컬스토리지에 저장돼요. 언제든 <b>백업</b>으로 저장하거나 <b>삭제</b>로 전체 삭제할 수 있어요.
@@ -842,11 +842,11 @@ function renderCaseCreateModal() {
       <div class="field highlight-section">
         <label style="color:var(--primary-dark); font-size:13px;">① 누구의 기록을 모을까요? (필수)</label>
         <div class="miniOptionRow">
-          <label class="miniToggle" title="①에서 첫 번째로 추가한 인물(주요 인물)의 record.actor만 모읍니다.">
+          <label class="miniToggle" title="원하시면 체크하세요. ①에서 첫 번째로 추가한 인물(주요 인물)의 record.actor만 모읍니다.">
             <input type="checkbox" data-action="draft-case" data-field="onlyMainActor" ${((draftCase as any).onlyMainActor ? 'checked' : '')} />
             <span>해당 학생(주요 인물) 기록만</span>
           </label>
-          <div class="miniHint">①에서 첫 번째로 추가한 인물 기준</div>
+          <div class="miniHint">원하시면 위 체크박스를 클릭/체크해 주세요. (①에서 첫 번째로 추가한 인물 기준)</div>
         </div>
         <div class="rowInline">
           <select data-action="draft-case" data-field="addTypeText" style="flex:0 0 100px;">${renderSelectFromList(UI_ACTOR_TYPES as any, String((draftCase as any).addTypeText || '학생'))}</select>
