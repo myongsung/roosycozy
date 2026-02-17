@@ -12,6 +12,14 @@ export const setState = (next: AppState) => (S = next);
 export const ui = {
   qRecords: '',
   qTimeline: '',
+  qUpdate: '', // [추가] 업데이트 모달 내 검색어
+  // 메모 필터(사이드바) - draft는 입력값, applied는 적용된 값
+  recFilterActor: '', recFilterPlace: '', recFilterKeyword: '',
+  recFilterActorDraft: '', recFilterPlaceDraft: '', recFilterKeywordDraft: '',
+  // '기록추가' 모달 필터 - draft/applied 분리
+  updFilterActor: '', updFilterPlace: '', updFilterKeyword: '',
+  updFilterActorDraft: '', updFilterPlaceDraft: '', updFilterKeywordDraft: '',
+  updatePickIds: [] as string[],
   viewRecordId: null as string | null,
   recordsListOpen: false,
   caseCreateOpen: false,
@@ -168,8 +176,25 @@ const closeDlg = (id: string) => { const d = dlg(id); d?.open && d.close(); };
 
 export const openRecordModal = () => openDlg('recordModal');
 export const closeRecordModal = () => { ui.viewRecordId = null; closeDlg('recordModal'); };
-export const openRecordsListModal = () => openDlg('recordsListModal');
-export const closeRecordsListModal = () => { ui.recordsListOpen = false; closeDlg('recordsListModal'); };
+export const openRecordsListModal = () => {
+  // Legacy: 이전에는 "전체 목록"을 dialog로 열었지만,
+  // 현재 UI에서는 우측 목록이 항상 보일 수 있어요.
+  // 1) dialog가 있으면 열고, 2) 없으면 목록/필터로 스크롤 + 포커스만 이동.
+  const d = dlg('recordsListModal');
+  if (d) {
+    ui.recordsListOpen = true;
+    if (!d.open) d.showModal();
+    return;
+  }
+  const list = document.getElementById('recordsList') as HTMLElement | null;
+  list?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  (document.getElementById('memoFilterKeyword') as HTMLInputElement | null)?.focus();
+};
+
+export const closeRecordsListModal = () => {
+  ui.recordsListOpen = false;
+  closeDlg('recordsListModal');
+};
 
 export const openCaseCreateModal = () => {
   const d = dlg('caseCreateModal'); if (!d) return;
@@ -196,7 +221,15 @@ export const closePaperPickModal = () => { ui.paperPickOpen = false; ui.paperPic
 
 
 export const openCaseUpdateModal = () => openDlg('caseUpdateModal');
-export const closeCaseUpdateModal = () => { ui.updateCaseId = ui.updateCandidatesForCaseId = null; ui.updateCandidates = null; ui.updateCandidatesLoading = false; closeDlg('caseUpdateModal'); };
+export const closeCaseUpdateModal = () => {
+  ui.updateCaseId = ui.updateCandidatesForCaseId = null;
+  ui.updateCandidates = null;
+  ui.updateCandidatesLoading = false;
+  ui.updatePickIds = [];
+  ui.updFilterActor = ui.updFilterPlace = ui.updFilterKeyword = '';
+  ui.updFilterActorDraft = ui.updFilterPlaceDraft = ui.updFilterKeywordDraft = '';
+  closeDlg('caseUpdateModal');
+};
 
 /* drafts */
 export const draftRecord = {
@@ -211,6 +244,7 @@ export const draftRecord = {
 };
 export const draftCase = {
   title: '', query: '', timeFrom: '', timeTo: '', maxResults: 80,
+  onlyMainActor: false,
   actors: [] as ActorRef[],
   sensFilterText: 'any', sensFilter: 'any' as CaseSensFilter,
   statusText: '진행중', status: '진행중' as CaseStatus,
@@ -221,11 +255,26 @@ export const draftStep = { ts: toLocalInputValue(nowISO()), name: '', note: '' }
 /* selectors */
 export const getSelectedCase = (): CaseItem | null => (S.selectedCaseId ? S.cases[S.selectedCaseId] ?? null : null);
 export const visibleRecords = () => {
-  const list = S.records.slice().sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')));
-  if (!ui.qRecords.trim()) return list;
-  return list.filter((r: RecordItem) =>
-    matchLite([r.summary, actorShort(r.actor), storeLabel(r.storeType, r.storeOther), placeLabel(r.place, r.placeOther), r.ts].join(' '), ui.qRecords)
-  );
+  // 최신순 정렬
+  let list = S.records.slice().sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')));
+
+  // 1) 검색창(qRecords)
+  if (ui.qRecords.trim()) {
+    list = list.filter((r: any) =>
+      matchLite([r.summary, actorShort(r.actor), storeLabel(r.storeType, r.storeOther), placeLabel(r.place, r.placeOther), r.ts].join(' '), ui.qRecords)
+    );
+  }
+
+  // 2) 메모 필터(적용된 값)
+  const fa = String((ui as any).recFilterActor || '').trim();
+  const fp = String((ui as any).recFilterPlace || '').trim();
+  const fk = String((ui as any).recFilterKeyword || '').trim();
+
+  if (fa) list = list.filter((r: any) => matchLite(actorShort(r.actor), fa));
+  if (fp) list = list.filter((r: any) => String(r.place || '') === fp);
+  if (fk) list = list.filter((r: any) => matchLite([r.summary, actorShort(r.actor), storeLabel(r.storeType, r.storeOther), placeLabel(r.place, r.placeOther), r.ts].join(' '), fk));
+
+  return list;
 };
 export const visibleCases = () =>
   Object.keys(S.cases).sort((a, b) => String(S.cases[b]?.createdAt || '').localeCompare(String(S.cases[a]?.createdAt || '')));

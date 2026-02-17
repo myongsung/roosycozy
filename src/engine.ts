@@ -1,5 +1,7 @@
-// src/engine.ts (ULTRA-PROTO) — TS는 "Rust 래퍼" 수준만 남김
+// src/engine.ts
 import { rustGenerateAdvisorsForCase, rustRankRecordsForCase } from './engine_rust';
+
+/* -------------------- Types -------------------- */
 
 export type Sensitivity = 'LV1' | 'LV2' | 'LV3' | 'LV4' | 'LV5';
 export type ActorType = '관리자' | '학부모' | '학생' | '동료교사' | '외부인' | '기타';
@@ -49,11 +51,35 @@ export type AdvisorItem = {
   [k: string]: any;
 };
 
+// [추가] Rust의 RankedComponents 구조체와 매칭
+export type RankedComponents = {
+  keywordScore: number;
+  textSim: number;
+  qHit: number;
+  qTotal: number;
+
+  actorScore: number;
+  actorMatch: boolean;
+  isMainActor: boolean;
+
+  relatedScore: number;
+  relatedHits: number;
+
+  inRange?: boolean;
+
+  wActor: number;
+  wRelated: number;
+  wText: number;
+  minScore: number;
+  minTextSim: number;
+};
+
 export type CaseItem = {
   id: string;
   title: string;
   actors: ActorRef[];
   sensFilter: CaseSensFilter;
+  onlyMainActor?: boolean;
   status: CaseStatus;
   createdAt: string;
   steps: StepItem[];
@@ -64,14 +90,28 @@ export type CaseItem = {
   maxResults?: number;
   mode?: 'smart' | 'normal';
   recordIds?: string[];
+
+  // 점수 스냅샷
   scoreByRecordId?: Record<string, number>;
+
+  // ✅ [추가] Rust components 스냅샷 (recordId -> RankedComponents)
+  componentsByRecordId?: Record<string, RankedComponents>;
 };
 
-export type RankedHit = { id: string; score: number; record: RecordItem };
-export type CaseUpdateCandidate = { id: string; score: number; record: RecordItem };
+// [수정] 상세 정보(rank, reasons, components)를 포함하도록 확장
+export type RankedHit = {
+  id: string;
+  score: number;
+  rank: number;
+  reasons: string[];
+  components: RankedComponents;
+  record: RecordItem;
+};
+
+export type CaseUpdateCandidate = RankedHit;
 
 export type TimelineEvent =
-  | { kind: 'record'; ts: string; record: RecordItem; score?: number }
+  | { kind: 'record'; ts: string; record: RecordItem; score?: number; components?: RankedComponents } // ✅ components 추가
   | { kind: 'advisor'; ts: string; advisor: AdvisorItem }
   | { kind: 'step'; ts: string; step: StepItem };
 
@@ -121,11 +161,29 @@ export async function rankRecordsForCase(
     minTextSim?: number;
   }
 ): Promise<RankedHit[]> {
-  const hits = await rustRankRecordsForCase(records, c, opts);
-  const map = new Map(records.map((r) => [r.id, r]));
+  // Rust에서 전체 데이터(reasons, components 포함)를 받아옴
+  const main = (c as any).onlyMainActor ? ((c.actors || [])[0] ?? null) : null;
+  const scoped = main ? records.filter((r) => actorEq(r.actor, main)) : records;
+  const hits: any[] = await rustRankRecordsForCase(scoped, c, opts);
+
+  const map = new Map(scoped.map((r) => [r.id, r]));
+
   return hits
-    .map((h) => ({ id: h.id, score: h.score, record: map.get(h.id)! }))
-    .filter((h) => !!h.record);
+    .map((h) => {
+      const record = map.get(h.id);
+      if (!record) return null;
+
+      // Rust가 준 모든 데이터를 다 챙겨서 반환
+      return {
+        id: h.id,
+        score: h.score,
+        rank: h.rank,
+        reasons: Array.isArray(h.reasons) ? h.reasons : [],
+        components: h.components as RankedComponents,
+        record: record,
+      };
+    })
+    .filter((h): h is RankedHit => h !== null);
 }
 
 export const regenerateCaseAdvisors = (c: CaseItem, records: RecordItem[]) =>
@@ -191,6 +249,7 @@ export type CaseDraftInput = {
   actors: ActorRef[];
   query: string;
   timeFromISO: string;
+  onlyMainActor?: boolean;
   timeToISO: string;
   sensFilter: CaseSensFilter;
   status: CaseStatus;
@@ -212,6 +271,7 @@ export async function buildCaseFromDraft(
     id: makeId(),
     title,
     actors: (Array.isArray(d.actors) ? d.actors : []).filter((a) => a?.name),
+    onlyMainActor: !!(d as any).onlyMainActor,
     sensFilter: d.sensFilter ?? 'any',
     status: d.status ?? '진행중',
     createdAt: nowISO(),
@@ -222,11 +282,17 @@ export async function buildCaseFromDraft(
     maxResults: clamp(d.maxResults ?? 80),
     recordIds: [],
     scoreByRecordId: {},
+    componentsByRecordId: {}, // ✅ 추가
   };
 
   const hits = await rankRecordsForCase(records, c, { limit: c.maxResults });
+
   c.recordIds = hits.map((h) => h.id);
   c.scoreByRecordId = Object.fromEntries(hits.map((h) => [h.id, h.score]));
+
+  // ✅ Rust components도 케이스에 저장
+  c.componentsByRecordId = Object.fromEntries(hits.map((h) => [h.id, h.components]));
+
   return { caseItem: c, pickedCount: c.recordIds.length } as const;
 }
 
@@ -250,7 +316,9 @@ export async function getCaseUpdateCandidates(
 ): Promise<CaseUpdateCandidate[]> {
   const hits = await rankRecordsForCase(records, c, { limit: clamp(c.maxResults ?? 80) });
   const existing = new Set(Array.isArray(c.recordIds) ? c.recordIds : []);
-  return hits.filter((h) => !existing.has(h.id)).map((h) => ({ id: h.id, score: h.score, record: h.record }));
+
+  // 이미 RankedHit 타입에 모든 정보가 있으므로 그대로 반환
+  return hits.filter((h) => !existing.has(h.id));
 }
 
 // overload 유지 (기존 호출부 안 깨지게)
@@ -266,18 +334,23 @@ export async function addRecordsToCase(c: CaseItem, a: RecordItem[] | string[], 
   for (const id of ids) if (!set.has(id)) (recordIds.push(id), set.add(id));
 
   let scoreByRecordId = { ...(c.scoreByRecordId || {}) } as Record<string, number>;
+  let componentsByRecordId = { ...(c.componentsByRecordId || {}) } as Record<string, RankedComponents>;
 
   if (hasRecs) {
     const hits = await rankRecordsForCase(records, { ...c, recordIds }, { limit: clamp(c.maxResults ?? 80) });
 
     // ✅ 스테일 점수 방지: recordIds 전체를 기준으로 scoreByRecordId를 "재생성"
-    const next: Record<string, number> = Object.fromEntries(recordIds.map((id) => [id, 0]));
-    for (const h of hits) next[h.id] = h.score;
+    const nextScore: Record<string, number> = Object.fromEntries(recordIds.map((id) => [id, 0]));
+    for (const h of hits) nextScore[h.id] = h.score;
+    scoreByRecordId = nextScore;
 
-    scoreByRecordId = next;
+    // ✅ components도 최신으로 갱신 (hits에 들어온 항목만 업데이트)
+    const nextComp: Record<string, RankedComponents> = { ...componentsByRecordId };
+    for (const h of hits) nextComp[h.id] = h.components;
+    componentsByRecordId = nextComp;
   }
 
-  return { ...c, recordIds, scoreByRecordId };
+  return { ...c, recordIds, scoreByRecordId, componentsByRecordId };
 }
 
 /* -------------------- selectors / timeline -------------------- */
@@ -310,9 +383,16 @@ export function buildCaseTimeline(c: CaseItem, records: RecordItem[], _q: string
     .sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
 
   const scoreMap = (c.scoreByRecordId || {}) as Record<string, number>;
+  const compMap = (c.componentsByRecordId || {}) as Record<string, RankedComponents>;
 
   const events: TimelineEvent[] = [
-    ...recs.map((r) => ({ kind: 'record' as const, ts: r.ts, record: r, score: scoreMap[r.id] })),
+    ...recs.map((r) => ({
+      kind: 'record' as const,
+      ts: r.ts,
+      record: r,
+      score: scoreMap[r.id],
+      components: compMap[r.id], // ✅ 포함
+    })),
     ...steps.map((s) => ({ kind: 'step' as const, ts: s.ts, step: s })),
     ...advisors.map((a) => ({ kind: 'advisor' as const, ts: a.ts, advisor: a })),
   ].sort((a, b) => (a.ts || '').localeCompare(b.ts || ''));
@@ -323,3 +403,4 @@ export function buildCaseTimeline(c: CaseItem, records: RecordItem[], _q: string
 /* ---- proto compat (import 깨짐 방지) ---- */
 export const actorNameOptions = (_t: ActorType, _r: RecordItem[]) => [] as string[];
 export const uniqueActorRefsFromRecords = (_r: RecordItem[]) => [] as ActorRef[];
+``

@@ -1,20 +1,23 @@
 import { esc, trunc, fmt, LS_KEY } from '../utils';
-import type { CaseItem, RecordItem, AdvisorItem, StepItem, ActorRef } from '../engine';
+import type { CaseItem, RecordItem, AdvisorItem, StepItem, ActorRef, RankedHit } from '../engine';
 import { recordActors, recordsForCase, buildCaseTimeline } from '../engine';
 import {
   S, ui, $app, logs,
   matchLite,
   renderSelectFromList,
-  STORE_TYPES, PLACE_TYPES, LVS, UI_ACTOR_TYPES,
+  STORE_TYPES, PLACE_TYPES, UI_ACTOR_TYPES,
   renderNameFieldForType,
-  storeLabel, placeLabel, lvLabel, actorLabel, actorShort,
+  storeLabel, placeLabel, actorLabel, actorShort,
   draftRecord, draftCase, draftStep,
   getSelectedCase, visibleRecords, visibleCases,
-  openRecordsListModal, openCaseCreateModal, openPaperPickModal,
+  openCaseCreateModal, openPaperPickModal,
   actorEqLite, uniq, tokenizeLite, isWithinRangeISO, daysDiff,
   UI_OTHER_ACTOR_LABEL, STUDENT_NAMES, PARENT_NAMES, ADMIN_NAMES
 } from './state';
 import { renderCasePaperModal } from './paper';
+
+const ENABLE_BACKUP_RESTORE = true; // backup/restore (JSON copy/paste) UI disabled
+
 
 /** ultra-light view helpers (single-file) */
 const H = {
@@ -104,18 +107,15 @@ function installToastPortal() {
   kick();
 }
 
-// Rust(engine)과 동일한 토크나이즈 규칙(점수 산출 근거를 "정확하게" 표시하기 위함)
-// - ASCII 영숫자 + 한글 범위만 단어로 취급
-// - 그 외 문자는 단어 분리자
-// - 토큰 길이 2 이상만 사용
+// Rust(engine)과 동일한 토크나이즈 규칙
 function isEngineWordChar(ch: string) {
   const cp = ch.codePointAt(0) ?? 0;
   const isAsciiNum = cp >= 0x30 && cp <= 0x39;
   const isAsciiUpper = cp >= 0x41 && cp <= 0x5A;
   const isAsciiLower = cp >= 0x61 && cp <= 0x7A;
-  const isHangulSyllable = cp >= 0xac00 && cp <= 0xd7a3; // 가-힣
-  const isHangulJamo1 = cp >= 0x3131 && cp <= 0x314e; // ㄱ-ㅎ
-  const isHangulJamo2 = cp >= 0x314f && cp <= 0x3163; // ㅏ-ㅣ
+  const isHangulSyllable = cp >= 0xac00 && cp <= 0xd7a3;
+  const isHangulJamo1 = cp >= 0x3131 && cp <= 0x314e;
+  const isHangulJamo2 = cp >= 0x314f && cp <= 0x3163;
   return isAsciiNum || isAsciiUpper || isAsciiLower || isHangulSyllable || isHangulJamo1 || isHangulJamo2;
 }
 
@@ -135,6 +135,17 @@ function tokenizeEngineLike(s: string): string[] {
   return out;
 }
 
+// Rust(engine)과 동일한 norm 규칙
+function normEngineLike(s: string): string {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/\u200B|\u200C|\u200D|\uFEFF/g, '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .join(' ');
+}
+
 function actorKey(a: ActorRef) {
   return `${String((a as any)?.type || '').trim()}::${String((a as any)?.name || '').trim()}`;
 }
@@ -150,39 +161,53 @@ export function render() {
   const mainHtml = S.tab === 'records' ? renderRecordsMain() : renderCasesMain(selected);
   const sideHtml = S.tab === 'records' ? renderRecordSidebar() : renderCaseSidebar(selected);
 
-  const gridClass = isAI ? 'grid aiSwap' : 'grid';
-  const gridInner = isAI
-    ? `<aside class="side">${sideHtml}</aside><main class="card">${mainHtml}</main>`
-    : `<main class="card">${mainHtml}</main><aside class="side">${sideHtml}</aside>`;
+  const isCases = S.tab === 'cases';
+  const showCaseSide = isCases && !!selected;
+
+  const gridClass = S.tab === 'records'
+    ? 'grid recGrid'
+    : (showCaseSide ? 'grid caseGrid' : 'grid oneCol');
+
+  const gridInner = `<main class="card">${mainHtml}</main><aside class="side">${sideHtml}</aside>`;
 
   $app.innerHTML = `
     <div class="container">
       <header class="topbar ${isAI ? 'aiFocus' : ''}">
-        <div class="brand">
-          <div class="name">roosycozy</div>
-          <div class="taglineSmall">메모를 남기고 묶어서, 증빙자료로 출력해요.</div>
-        </div>
+        <div class="topbarInner">
+          <div class="brand">
+            <div class="name"><span class="brandAccent">r</span>oosycozy <span class="brandAccent">L</span>ite</div>
+          </div>
 
-        <nav class="flow" aria-label="흐름">
-          <button class="flowStep ${S.tab === 'records' ? 'active' : ''}" data-action="tab" data-tab="records" type="button" ${S.tab === 'records' ? 'aria-current="step"' : ''}>
-            <span class="flowNo">1</span><span class="flowTxt">메모하기</span>
-          </button>
-          <span class="flowArrow">→</span>
-          <button class="flowStep ai ${S.tab === 'cases' ? 'active' : ''}" data-action="tab" data-tab="cases" type="button" ${S.tab === 'cases' ? 'aria-current="step"' : ''}>
-            <span class="flowNo">2</span><span class="flowTxt">메모묶음보기</span>
-          </button>
-          <span class="flowArrow">→</span>
-          <button class="flowStep ghost ${hasCases ? 'ready' : ''}" data-action="open-paper-picker" type="button" ${hasCases ? '' : 'disabled'} title="${hasCases ? '증빙자료를 출력할 메모 묶음을 고르세요' : '먼저 메모 묶음을 만들어주세요'}">
-            <span class="flowNo">3</span><span class="flowTxt">증빙자료출력</span>
-          </button>
-        </nav>
-<div class="actions">
-          ${H.btn('✨ 스마트 메모 모으기', 'open-case-create', ' title="스마트 메모 모으기"', 'btn topCta')}
-          ${H.btn('🧪 샘플 불러오기', 'load-sample', 'title="샘플 불러오기(현재 데이터 덮어쓰기)"', 'btn')}          
-          ${/* ${H.iconBtn('⎘', 'backup', '백업 JSON 복사')}
-            ${H.iconBtn('⤒', 'open-restore', '복구(붙여넣기)')}
-            ${H.iconBtn('≡', 'open-logs', '로그')} */ ''}
-          ${H.iconBtn('⌫', 'wipe', '전체 삭제')}
+          <nav class="flowSlim" aria-label="흐름">
+            <button class="flowSeg ${S.tab === 'records' ? 'active' : ''}" data-action="tab" data-tab="records" type="button" ${S.tab === 'records' ? 'aria-current="step"' : ''}>
+              <span class="segNo">1</span><span class="segTxt">메모하기</span>
+            </button>
+            <button class="flowSeg ${S.tab === 'cases' ? 'active' : ''}" data-action="tab" data-tab="cases" type="button" ${S.tab === 'cases' ? 'aria-current="step"' : ''}>
+              <span class="segNo">2</span><span class="segTxt">메모묶음보기</span>
+            </button>
+            <button class="flowSeg" data-action="open-paper-picker" type="button" title="${hasCases ? '증빙자료를 출력할 메모 묶음을 고르세요' : '증빙자료 출력 화면을 열 수 있어요(빈 상태)'}">
+              <span class="segNo">3</span><span class="segTxt">증빙자료출력</span>
+            </button>
+          </nav>
+
+          <div class="hdrActions">
+            <div class="hdrPrimary">
+              ${H.btn('<span class="emIco" aria-hidden="true">🚨</span><span class="emLbl">사건 발생 조치</span>', 'open-case-create', ' title="비상 시 사건 발생 조치(관련 메모 자동 묶기)" aria-label="사건 발생 조치"', 'btn hdrEmergency pulse')}
+              ${H.btn('샘플', 'load-sample', 'title="샘플 불러오기(현재 데이터 덮어쓰기)"', 'btn hdrSub')}
+            </div>
+
+            <div class="toolGroup" role="group" aria-label="도구">
+              <button class="toolBtn" data-action="backup" type="button" title="백업 파일 저장" aria-label="백업">
+                <span class="toolLbl">백업</span>
+              </button>
+              <button class="toolBtn" data-action="open-restore" type="button" title="복구(파일)" aria-label="복구">
+                <span class="toolLbl">복구</span>
+              </button>
+<button class="toolBtn danger" data-action="wipe" type="button" title="전체 삭제" aria-label="전체 삭제">
+                <span class="toolIco">⌫</span><span class="toolLbl">삭제</span>
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -193,12 +218,11 @@ export function render() {
         <div class="muted">저장소: localStorage (${esc(LS_KEY)})</div>
       </footer>
 
-      ${renderRestoreModal()}
+      ${ENABLE_BACKUP_RESTORE ? renderRestoreModal() : ''}
       ${renderLogsModal()}
       ${renderConfirmModal()}
 
       ${renderCaseCreateModal()}
-      ${renderRecordsListModal()}
       ${renderRecordModal()}
       ${renderTimelineDetailModal()}
       ${renderPaperPickModal()}
@@ -213,12 +237,11 @@ export function render() {
   `;
 
   // keep open modals alive through re-render
-  if (ui.recordsListOpen) openRecordsListModal();
   if (ui.caseCreateOpen) openCaseCreateModal();
   if (ui.paperPickOpen) openPaperPickModal();
   // keep toast visible even when <dialog>.showModal() is open
-    installToastPortal();
-    portalToast();
+  installToastPortal();
+  portalToast();
 
 }
 
@@ -251,12 +274,6 @@ function renderPaperPickModal() {
 
   const body = all.length
     ? `
-      ${/*
-            <div class="miniSearch" style="margin-top:10px">
-              <input class="searchInput" placeholder="메모 묶음 검색…" value="${esc(q)}" data-action="search-paper-cases" data-field="q" />
-            </div>
-            */ ''}
-
       <div class="paperPickList" role="list">
         ${filtered.length ? filtered.map(({ c, recCount, lastTs }) => `
           <button class="paperPickItem" data-action="pick-paper-case" data-id="${esc((c as any).id)}" type="button" role="listitem">
@@ -296,17 +313,26 @@ function renderPaperPickModal() {
 
 
 function renderRestoreModal() {
+  if (!ENABLE_BACKUP_RESTORE) return '';
   return H.modal(
     'restoreModal',
-    H.modalHead('복구', '백업 JSON을 붙여넣고 복구하세요. (현재 데이터 덮어씀)', H.btn('닫기', 'close-restore')),
+    H.modalHead('복구', '백업 파일(JSON)을 선택해 복구하세요. (현재 데이터 덮어씀)', H.btn('닫기', 'close-restore')),
     `
       <div class="field" style="margin-top:10px">
-        <label>JSON</label>
-        <textarea id="restoreText" rows="10" placeholder="여기에 붙여넣기…"></textarea>
+        <label>백업 파일</label>
+        <div id="restoreDropZone" class="dropZone" data-action="pick-restore-file" role="button" tabindex="0">
+          백업 파일을 클릭해서 선택하세요
+          <small>또는 파일을 여기로 드래그&amp;드롭</small>
+        </div>
+        <input id="restoreFile" class="srOnly" type="file" accept=".json,application/json" />
+        <div id="restoreFileName" class="muted" style="margin-top:10px; font-size:12px">선택된 파일 없음</div>
       </div>
-      <div class="rowInline" style="margin-top:12px">
+
+      <div class="rowInline" style="margin-top:14px">
         ${H.btn('복구', 'do-restore', '', 'btn primary')}
-        ${H.btn('현재 데이터 백업 복사', 'copy-backup')}
+      </div>
+      <div class="muted" style="margin-top:10px; font-size:12px">
+        복구하면 지금 데이터는 백업 파일 내용으로 덮어써져요.
       </div>
     `
   );
@@ -350,9 +376,7 @@ function renderRecordModal() {
 
   const body = r
     ? `<div class="detailGrid">
-        ${H.dr('시간', esc(fmt(r.ts)))}
-        ${H.dr('민감도', esc(lvLabel(r.lv)))}
-        ${H.dr('보관형태', esc(storeLabel(r.storeType, r.storeOther)))}
+        ${H.dr('시간', esc(fmt(r.ts)))}        ${H.dr('보관형태', esc(storeLabel(r.storeType, r.storeOther)))}
         ${H.dr('주 Actor', esc(actorLabel(r.actor)))}
         ${H.dr('장소', esc(placeLabel(r.place, r.placeOther)))}
         ${H.ds('관련자', relatedHtml)}
@@ -363,23 +387,6 @@ function renderRecordModal() {
   return H.modal('recordModal', H.modalHead('메모', String(title), H.btn('닫기', 'close-record')), body);
 }
 
-function renderRecordsListModal() {
-  const recs = visibleRecords();
-  const total = S.records.length;
-  const list = recs.length ? `<div class="list">${recs.map(renderRecordCard).join('')}</div>` : H.empty('검색 결과가 없어요.');
-
-  return H.modal(
-    'recordsListModal',
-    H.modalHead('메모 데이터', `저장된 메모를 조회/검색/삭제할 수 있어요. (총 ${total}개)`, H.btn('닫기', 'close-records-list')),
-      `${/*
-          <div class="rowInline" style="margin-top:12px">
-            <input class="searchInput" style="width:100%" placeholder="메모 검색…" value="${esc(ui.qRecords)}" data-action="search-records" data-field="q" />
-            ${H.btn('지우기', 'clear-records-search')}
-          </div>
-          */ ''}
-    <div style="margin-top:14px">${list}</div>`
-  );
-}
 
 function renderRecordsMain() {
   const total = S.records.length;
@@ -392,7 +399,7 @@ function renderRecordsMain() {
       </div>
       <div class="titleActions">
         <span class="countPill">총 ${total}개</span>
-        ${H.btn('메모 목록', 'open-records-list')}
+        <span class="muted" style="font-size:12px">오른쪽에서 필터/검색</span>
       </div>
     </div>
 
@@ -405,7 +412,7 @@ function renderRecordsMain() {
           ${H.btn('샘플 불러오기', 'load-sample', ' title="샘플 데이터를 불러와 현재 데이터를 덮어씁니다"', 'btn demo')}
         </div>
         <div class="muted" style="margin-top:6px; font-size:12px">
-          샘플은 로컬스토리지에 저장돼요. 언제든 ⎘로 백업하거나 ⌫로 전체 삭제할 수 있어요.
+          샘플은 로컬스토리지에 저장돼요. 언제든 <b>백업</b>으로 저장하거나 <b>삭제</b>로 전체 삭제할 수 있어요.
         </div>
       </div>
     ` : ''}
@@ -415,8 +422,89 @@ function renderRecordsMain() {
 }
 
 function renderRecordSidebar() {
-  return ``;
+  const all = (S.records || []).slice().sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')));
+  const filtered = visibleRecords();
+
+  const actorOpts = uniq(all.map((r) => actorShort(r.actor))).sort((a, b) => a.localeCompare(b));
+  const hasFilters = Boolean(String((ui as any).recFilterActor || '').trim() || String((ui as any).recFilterPlace || '').trim() || String((ui as any).recFilterKeyword || '').trim());
+
+  const mini = (r: RecordItem) => `
+    <article class="recMini">
+      ${H.tags([
+        H.tag(trunc(actorShort(r.actor), 18)),
+        H.tag(placeLabel(r.place, r.placeOther)),
+        `<span class="tag lilac">${esc(storeLabel(r.storeType, r.storeOther))}</span>`,
+      ])}
+      <div class="recMiniTitle">${esc(trunc(r.summary || '', 92))}</div>
+      <div class="recMiniMeta">${esc(fmt(r.ts))}</div>
+      <div class="actionsRow">
+        ${H.btnData('자세히', 'view-record', { id: r.id }, 'btn')}
+        ${H.btnData('복사', 'copy-record', { id: r.id }, 'btn ghost')}
+        ${H.btnData('삭제', 'delete-record', { id: r.id }, 'btn danger ghost')}
+      </div>
+    </article>
+  `;
+
+  const listHtml = filtered.length ? filtered.map(mini).join('') : H.empty(hasFilters ? '필터 결과가 없어요.' : '아직 메모가 없어요.', 140);
+
+  const opt = (v: string, label: string, sel: string) =>
+    `<option value="${esc(v)}" ${v === sel ? 'selected' : ''}>${esc(label)}</option>`;
+
+  const placeSel = String(((ui as any).recFilterPlaceDraft ?? (ui as any).recFilterPlace) || '');
+  const placeOptions =
+    `<option value="" ${!placeSel ? 'selected' : ''}>전체</option>` +
+    (PLACE_TYPES as any as string[]).map((p) => opt(String(p), String(p), placeSel)).join('');
+
+  const actorVal = String(((ui as any).recFilterActorDraft ?? (ui as any).recFilterActor) || '');
+  const kwVal = String(((ui as any).recFilterKeywordDraft ?? (ui as any).recFilterKeyword) || '');
+
+  return `
+    <div class="sideStack">
+
+      <section class="card sideCard memoFilterCard">
+        <div class="sideCardHead">
+          <div class="sideCardTitle">메모 필터</div>
+          <div class="sideCardActions">
+            ${H.btn('초기화', 'clear-record-filters', '', 'btn ghost')}
+          </div>
+        </div>
+
+        <div class="memoFilterBar" style="margin-top:8px">
+          <label class="srOnly" for="mfActor">주체</label>
+          <input id="mfActor" class="mfInput" placeholder="주체" list="dlFilterActor"
+            value="${esc(actorVal)}" data-action="draft-record-filters" data-field="actor" />
+
+          <label class="srOnly" for="mfPlace">장소</label>
+          <select id="mfPlace" class="mfSelect" data-action="draft-record-filters" data-field="place">${placeOptions}</select>
+
+          <label class="srOnly" for="mfKw">키워드</label>
+          <input id="mfKw" class="mfInput" placeholder="키워드" value="${esc(kwVal)}"
+            data-action="draft-record-filters" data-field="keyword" />
+
+          <span class="mfStat muted">
+            ${hasFilters ? `필터 <b>${esc(String(filtered.length))}</b>/${esc(String(all.length))}` : `총 <b>${esc(String(all.length))}</b>개`}
+          </span>
+
+          <button class="btn ghost mfBtn" type="button" data-action="apply-record-filters">적용</button>
+        </div>
+
+        ${dl('dlFilterActor', actorOpts)}
+      </section>
+
+      <section class="card sideCard">
+        <div class="sideCardHead">
+          <div class="sideCardTitle">전체 메모</div>
+          <div class="sideCardActions"><span class="countPill">${esc(String(filtered.length))}</span></div>
+        </div>
+        <div style="margin-top:10px; max-height: min(64vh, 720px); overflow:auto; padding-right:6px">
+          ${listHtml}
+        </div>
+      </section>
+    </div>
+  `;
 }
+
+
 
 function renderRecordCard(r: RecordItem) {
   return `
@@ -441,12 +529,34 @@ function renderRecordEntryForm() {
   const showStoreOther = (draftRecord.storeTypeText || '') === '기타';
   const showPlaceOther = (draftRecord.placeText || '') === '기타';
 
+  const actorType = String(draftRecord.actorTypeText || '학생');
+  const actorName = String(draftRecord.actorNameOther || '').trim();
+  const placeText = String(draftRecord.placeText || '교실');
+  const storeTypeText = String(draftRecord.storeTypeText || '전화');
+
+  const summaryTxt = String(draftRecord.summary || '').trim();
+  const okSummary = summaryTxt.length >= 4;
+
+  // '기타/없음' 성격의 주체 선택이면 이름 없이도 OK로 취급
+  const okActor = actorType === UI_OTHER_ACTOR_LABEL || actorType === '없음' ? true : actorName.length > 0;
+
+  const okTs = String(draftRecord.ts || '').trim().length >= 10;
+  const okPlace = placeText.trim().length > 0;
+
+  // 저장 가능(필수): 내용 + 시간 + 주체
+  const reqMissing: string[] = [];
+  if (!okSummary) reqMissing.push('내용');
+  if (!okTs) reqMissing.push('시간');
+  if (!okActor) reqMissing.push('주체');
+  const canSave = okSummary && okTs && okActor;
+  const reqLabel = canSave ? '필수 입력 완료' : `필수: ${reqMissing.join(' · ')}`;
+
   const mainNameField = renderNameFieldForType({
-    typeText: String(draftRecord.actorTypeText || ''),
+    typeText: actorType,
     value: String(draftRecord.actorNameOther || ''),
     action: 'draft-record',
     field: 'actorNameOther',
-    placeholder: '예: 학생1 / 1번 모 / 교장 / 김OO'
+    placeholder: '이름(예: 학생1 / 1번 모 / 교장 / 김OO)'
   });
 
   const relNameField = renderNameFieldForType({
@@ -459,104 +569,115 @@ function renderRecordEntryForm() {
 
   const relatedList =
     (draftRecord.related || []).length
-      ? `<div class="chips" style="margin-top:8px">
+      ? `<div class="chips mini" style="margin-top:8px">
           ${(draftRecord.related || [])
             .map(
               (a: ActorRef, idx: number) => `
               <span class="chip">
                 ${esc(actorShort(a))}
-                <button class="iconBtn" data-action="remove-related" data-idx="${esc(String(idx))}" type="button" title="삭제">×</button>
+                <button class="chipX" data-action="remove-related" data-idx="${esc(String(idx))}" type="button" title="삭제" aria-label="관련자 삭제">×</button>
               </span>
             `
             )
             .join('')}
         </div>`
-      : `<div class="muted" style="margin-top:6px">관련자가 없으면 <b>${esc(UI_OTHER_ACTOR_LABEL)} / 없음</b>을 추가해 주세요.</div>`;
+      : `<div class="muted" style="margin-top:6px; font-size:12px">관련자가 없으면 비워도 돼요.</div>`;
 
   return `
-    ${/*
-        <div class="intakeBar">
-          ${['상담', '관찰', '비정형', '규정']
-            .map((k) => `<button class="pill ${((draftRecord as any).intake || '상담') === k ? 'active' : ''}" data-action="record-intake" data-kind="${esc(k)}" type="button">${esc(k)}</button>`)
-            .join('')}
+    <div class="entryForm v2">
+      <div class="composer">
+        <div class="composerTop composerTopV3">
+          <div class="composerTitleBlock">
+            <div class="composerTitleRow">
+              <div class="composerTitle">빠른 메모 캡처</div>
+              <span id="recordReqPill" class="savePill ${canSave ? 'ready' : 'warn'}">${esc(reqLabel)}</span>
+            </div>
+            <div class="muted composerSub">사실만 짧게. 나중에 타임라인/증빙으로 정리돼요.</div>
+          </div>
+
+          <div class="composerCtas">
+            <button id="btnSaveRecord" class="btn saveCta" data-action="save-record" type="button"
+              ${canSave ? '' : 'disabled aria-disabled="true" title="필수 항목(내용/시간/주체)을 채우면 저장할 수 있어요"'}>
+              <span class="saveIco" aria-hidden="true">✅</span>
+              <span class="saveLbl">저장</span>
+              <span class="saveKbd">Ctrl/⌘+Enter</span>
+            </button>
+            ${H.btn('비우기', 'clear-record-draft', '', 'btn ghost')}
+          </div>
         </div>
-        */ ''}
 
-    <div class="field">
-      <label>시간</label>
-      <input type="datetime-local" value="${esc(draftRecord.ts)}" data-action="draft-record" data-field="ts" />
-    </div>
+        <div class="field" style="margin-bottom: 10px">
+          <label>내용 <span class="reqStar">*</span></label>
+          <textarea id="recordSummary" class="entryTa composerTa" rows="5"
+            placeholder="예: 2교시 후 복도에서 학생 간 언쟁 발생. 서로 고성, 밀침은 없음."
+            data-action="draft-record" data-field="summary">${esc(draftRecord.summary)}</textarea>
+          <div id="recordWarnSummary" class="composerInlineWarn" ${okSummary ? 'hidden' : ''}>⚠ 내용은 최소 4글자 이상 입력해 주세요.</div>
+        </div>
 
-    <div class="row">
-      <div class="field">
-        <label>주체 유형</label>
-        <select data-action="draft-record" data-field="actorTypeText">${renderSelectFromList(UI_ACTOR_TYPES as any, String(draftRecord.actorTypeText || '학생'))}</select>
+        <div class="metaInputs">
+          <div class="field compact">
+            <label>시간 <span class="reqStar">*</span></label>
+            <input id="recordTs" class="${okTs ? '' : 'reqWarn'}" type="datetime-local" value="${esc(draftRecord.ts)}" data-action="draft-record" data-field="ts" />
+            <div id="recordWarnTs" class="miniWarn" ${okTs ? 'hidden' : ''}>⚠ 시간을 선택해 주세요.</div>
+          </div>
+
+          <div class="field compact">
+            <label>주체 <span class="reqStar">*</span></label>
+            <div id="recordActorRow" class="rowInline compactRow ${okActor ? '' : 'reqWarn'}">
+              <select data-action="draft-record" data-field="actorTypeText">${renderSelectFromList(UI_ACTOR_TYPES as any, actorType)}</select>
+              <div class="grow">${mainNameField}</div>
+            </div>
+            <div id="recordWarnActor" class="miniWarn" ${okActor ? 'hidden' : ''}>⚠ 이름을 입력해 주세요.</div>
+          </div>
+
+          <div class="field compact">
+            <label>장소</label>
+            <select class="${okPlace ? '' : 'reqWarn'}" data-action="draft-record" data-field="placeText">${renderSelectFromList(PLACE_TYPES as any, placeText)}</select>
+            ${
+              showPlaceOther
+                ? `<input value="${esc(draftRecord.placeOther)}" placeholder="장소 상세(기타)" data-action="draft-record" data-field="placeOther" />`
+                : ''
+            }
+          </div>
+
+          <div class="field compact">
+            <label>보관</label>
+            <select data-action="draft-record" data-field="storeTypeText">${renderSelectFromList(STORE_TYPES as any, storeTypeText)}</select>
+            ${
+              showStoreOther
+                ? `<input value="${esc(draftRecord.storeOther)}" placeholder="보관형태 상세(기타)" data-action="draft-record" data-field="storeOther" />`
+                : ''
+            }
+          </div>
+        </div>
+
+        ${dl('dlNameStudent', STUDENT_NAMES as any)}
+        ${dl('dlNameParent', PARENT_NAMES as any)}
+        ${dl('dlNameAdmin', ADMIN_NAMES as any)}
+
+        <details class="metaMore">
+          <summary>
+            <span>관련자 추가</span>
+            <span class="metaMoreCount">${esc(String((draftRecord.related || []).length))}명</span>
+          </summary>
+          <div class="metaMorePanel">
+            <div class="field" style="margin-bottom:0">
+              <div class="rowInline">
+                <select data-action="draft-record" data-field="relTypeText">${renderSelectFromList(UI_ACTOR_TYPES as any, String(draftRecord.relTypeText || '학부모'))}</select>
+                <div class="grow">${relNameField}</div>
+                ${H.btn('추가', 'add-related', '', 'btn small')}
+              </div>
+              ${relatedList}
+            </div>
+          </div>
+        </details>
+
+        <div class="muted composerBottomHint">시간/주체는 필수예요. 나머지는 필요할 때만 추가하면 돼요.</div>
       </div>
-      <div class="field">
-        <label>주체 이름</label>
-        ${mainNameField}
-      </div>
-    </div>
-
-    <div class="field">
-      <label>내용</label>
-      <textarea rows="4" placeholder="예: 복도에서 언쟁이 있었음 (Ctrl/⌘+Enter 저장)" data-action="draft-record" data-field="summary">${esc(draftRecord.summary)}</textarea>
-    </div>
-
-    <div class="row">
-      <div class="field">
-        <label>장소</label>
-        <select data-action="draft-record" data-field="placeText">${renderSelectFromList(PLACE_TYPES as any, String(draftRecord.placeText || '교실'))}</select>
-      </div>
-      <div class="field">
-        <label>민감도</label>
-        <select data-action="draft-record" data-field="lvText">${renderSelectFromList(LVS as any, String(draftRecord.lvText || 'LV2'))}</select>
-      </div>
-    </div>
-
-    ${
-      showPlaceOther
-        ? `<div class="field">
-            <label>장소 상세(기타)</label>
-            <input value="${esc(draftRecord.placeOther)}" placeholder="예: 운동장/상담실" data-action="draft-record" data-field="placeOther" />
-          </div>`
-        : ''
-    }
-
-    <div class="field">
-      <label>보관형태</label>
-      <select data-action="draft-record" data-field="storeTypeText">${renderSelectFromList(STORE_TYPES as any, String(draftRecord.storeTypeText || '전화'))}</select>
-    </div>
-
-    ${
-      showStoreOther
-        ? `<div class="field">
-            <label>보관형태 상세(기타)</label>
-            <input value="${esc(draftRecord.storeOther)}" placeholder="예: 개인메모/회의록" data-action="draft-record" data-field="storeOther" />
-          </div>`
-        : ''
-    }
-
-    <div class="field" style="margin-top:10px">
-      <label>관련자 추가</label>
-      <div class="rowInline">
-        <select data-action="draft-record" data-field="relTypeText">${renderSelectFromList(UI_ACTOR_TYPES as any, String(draftRecord.relTypeText || '학부모'))}</select>
-        ${relNameField}
-        ${H.btn('추가', 'add-related')}
-      </div>
-      ${relatedList}
-    </div>
-
-    ${dl('dlNameStudent', STUDENT_NAMES as any)}
-    ${dl('dlNameParent', PARENT_NAMES as any)}
-    ${dl('dlNameAdmin', ADMIN_NAMES as any)}
-
-    <div class="rowInline" style="margin-top:12px">
-      ${H.btn('메모 저장', 'save-record', '', 'btn primary')}
-      ${H.btn('비우기', 'clear-record-draft')}
     </div>
   `;
 }
+
 
 /* ==================== CASES ==================== */
 
@@ -601,35 +722,83 @@ function renderCasesMain(selected: CaseItem | null) {
 function renderCaseSidebar(selected: CaseItem | null) {
   if (!selected) return ``;
 
+  const steps = (Array.isArray((selected as any).steps) ? (selected as any).steps : []) as StepItem[];
+  const sorted = steps
+    .slice()
+    .sort((a: any, b: any) => String(b?.ts || '').localeCompare(String(a?.ts || '')));
+
+  const stepList = sorted.length
+    ? `
+      <div class="stepMiniList" role="list" aria-label="내 조치 로그 목록">
+        ${sorted
+          .slice(0, 10)
+          .map(
+            (s: any) => `
+          <div class="stepMini" role="listitem">
+            <div class="stepMiniMain">
+              <div class="stepMiniTop">
+                <span class="tag butter miniTag">${esc(trunc(String(s?.name || ''), 18) || '단계')}</span>
+                <span class="stepMiniTime">${s?.ts ? esc(fmt(String(s.ts))) : '—'}</span>
+              </div>
+              <div class="stepMiniNote">${esc(trunc(String(s?.note || ''), 90) || '')}</div>
+            </div>
+            <div class="stepMiniActs">
+              ${H.btnData('보기', 'view-timeline', { kind: 'step', id: String(s?.id || '') }, 'btn ghost mini')}
+              ${H.btnData('삭제', 'delete-step', { id: String(s?.id || '') }, 'btn ghost mini')}
+            </div>
+          </div>
+        `
+          )
+          .join('')}
+      </div>
+    `
+    : `<div class="muted" style="padding:10px 0;">아직 저장된 내 조치 로그가 없어요.</div>`;
+
   return `
-    <section class="card">
-      <div class="sectionTitle tight">
-        <div>
-          <div class="h2">내 조치 로그(이 묶음)</div>
-          <div class="muted">타임라인 위에 내가 한 대응을 남겨요.</div>
+    <div class="sideStack">
+      <section class="card sideCard actionSide">
+        <div class="sideCardHead">
+          <div>
+            <div class="sideCardTitle">내 조치 로그</div>
+            <div class="muted" style="margin-top:2px">이 묶음에서 저장한 대응</div>
+          </div>
+          <span class="countPill">${esc(String(steps.length))}</span>
         </div>
-      </div>
 
-      <div class="field">
-        <label>시간</label>
-        <input type="datetime-local" value="${esc(draftStep.ts)}" data-action="draft-step" data-field="ts" />
-      </div>
+        <details class="fold actionFold" open>
+          <summary>새 로그 추가</summary>
+          <div class="fold-content">
+            <div class="actionComposer">
+              <div class="actionRow2">
+                <div class="field compact">
+                  <label>시간</label>
+                  <input type="datetime-local" value="${esc(draftStep.ts)}" data-action="draft-step" data-field="ts" />
+                </div>
 
-      <div class="field">
-        <label>단계</label>
-        <input value="${esc(draftStep.name)}" placeholder="예: 1차 안내" data-action="draft-step" data-field="name" />
-      </div>
+                <div class="field compact">
+                  <label>단계</label>
+                  <input value="${esc(draftStep.name)}" placeholder="예: 1차 안내" data-action="draft-step" data-field="name" />
+                </div>
+              </div>
 
-      <div class="field">
-        <label>내용</label>
-        <textarea rows="3" placeholder="짧게 메모 (Ctrl/⌘+Enter 추가)" data-action="draft-step" data-field="note">${esc(draftStep.note)}</textarea>
-      </div>
+              <div class="field compact" style="margin-bottom:0">
+                <label>내용</label>
+                <textarea rows="3" class="actionTa" placeholder="짧게 메모 (Ctrl/⌘+Enter 추가)" data-action="draft-step" data-field="note">${esc(draftStep.note)}</textarea>
+              </div>
 
-      <div class="rowInline">
-        ${H.btn('내 조치 로그 추가', 'add-step', '', 'btn primary')}
-        ${H.btn('대응 가이드 재생성', 'regen-advisors')}
-      </div>
-    </section>
+              <div class="actionActions">
+                ${H.btn('추가', 'add-step', '', 'btn primary small')}
+                ${H.btn('가이드 재생성', 'regen-advisors', '', 'btn small')}
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="miniSep"></div>
+        <div class="muted" style="font-size:12px; margin:10px 0 8px">최근 로그</div>
+        ${stepList}
+      </section>
+    </div>
   `;
 }
 
@@ -656,7 +825,7 @@ function renderCaseCreateModal() {
             )
             .join('')}
         </div>`
-      : `<div class="muted" style="margin-top:6px">Actor가 없으면 <b>${esc(UI_OTHER_ACTOR_LABEL)} / 없음</b>을 추가해 주세요.</div>`;
+      : `<div class="muted" style="margin-top:6px">관련자가 없으면 <b>${esc(UI_OTHER_ACTOR_LABEL)} / 없음</b>을 추가해 주세요.</div>`;
 
   // ✅ Actor 1명 이상일 때만 시작 가능
   const canStart = (draftCase.actors || []).length > 0;
@@ -664,95 +833,188 @@ function renderCaseCreateModal() {
 
   return H.modal(
     'caseCreateModal',
-    H.modalHead('스마트 메모 모으기', '요약을 입력하면 알고리즘이 관련 메모를 모아 타임라인으로 보여줘요.', H.btn('닫기', 'close-case-create')),
+    H.modalHead('스마트 메모 모으기', 'AI가 관련 메모를 자동으로 모아줍니다.', H.btn('닫기', 'close-case-create')),
     `
-      <div class="field" style="margin-top:14px">
-        <label>메모 묶음 요약</label>
-        <textarea rows="5" placeholder="예: 복도에서 언쟁 → 학부모 전화 민원 → 이후 지도…" data-action="draft-case" data-field="query">${esc(draftCase.query)}</textarea>
+      <div class="helperBox aiHelp" style="margin-bottom:14px; margin-top:0;">
+        <b>사용법:</b> 누구의 기록을 모을지 선택하세요. AI가 해당 인물과 관련된 메모를 우선적으로 찾아옵니다.
       </div>
 
-      <div class="row">
-        <div class="field">
-          <label>기간 시작</label>
-          <input type="datetime-local" value="${esc(draftCase.timeFrom)}" data-action="draft-case" data-field="timeFrom" />
+      <div class="field highlight-section">
+        <label style="color:var(--primary-dark); font-size:13px;">① 누구의 기록을 모을까요? (필수)</label>
+        <div class="miniOptionRow">
+          <label class="miniToggle" title="①에서 첫 번째로 추가한 인물(주요 인물)의 record.actor만 모읍니다.">
+            <input type="checkbox" data-action="draft-case" data-field="onlyMainActor" ${((draftCase as any).onlyMainActor ? 'checked' : '')} />
+            <span>해당 학생(주요 인물) 기록만</span>
+          </label>
+          <div class="miniHint">①에서 첫 번째로 추가한 인물 기준</div>
         </div>
-        <div class="field">
-          <label>기간 종료</label>
-          <input type="datetime-local" value="${esc(draftCase.timeTo)}" data-action="draft-case" data-field="timeTo" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label>메모 묶음 이름</label>
-        <input value="${esc(draftCase.title)}" placeholder="예: 3학년 복도 언쟁 민원" data-action="draft-case" data-field="title" />
-      </div>
-
-      <div class="field">
-        <label>Actor 추가</label>
         <div class="rowInline">
-          <select data-action="draft-case" data-field="addTypeText">${renderSelectFromList(UI_ACTOR_TYPES as any, String((draftCase as any).addTypeText || '학생'))}</select>
+          <select data-action="draft-case" data-field="addTypeText" style="flex:0 0 100px;">${renderSelectFromList(UI_ACTOR_TYPES as any, String((draftCase as any).addTypeText || '학생'))}</select>
           ${addNameField}
           ${H.btn('추가', 'add-case-actor')}
         </div>
         ${chips}
       </div>
 
-      <div class="rowInline" style="margin-top:12px">
+      <div class="field" style="margin-top:16px;">
+        <label>② 어떤 사건인가요? (요약/키워드)</label>
+        <textarea rows="3" placeholder="예: 복도에서 언쟁, 급식실 안전사고 등 (비워두면 인물 중심으로만 찾습니다)" data-action="draft-case" data-field="query">${esc(draftCase.query)}</textarea>
+      </div>
+
+      <details class="fold" style="margin-top:12px;">
+        <summary>옵션: 기간 및 제목 직접 설정</summary>
+        <div class="fold-content">
+          <div class="row">
+            <div class="field">
+              <label>기간 시작</label>
+              <input type="datetime-local" value="${esc(draftCase.timeFrom)}" data-action="draft-case" data-field="timeFrom" />
+            </div>
+            <div class="field">
+              <label>기간 종료</label>
+              <input type="datetime-local" value="${esc(draftCase.timeTo)}" data-action="draft-case" data-field="timeTo" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>메모 묶음 제목 (비워두면 자동 생성)</label>
+            <input value="${esc(draftCase.title)}" placeholder="예: 3학년 복도 언쟁 민원" data-action="draft-case" data-field="title" />
+          </div>
+        </div>
+      </details>
+
+      <div class="rowInline" style="margin-top:16px; padding-top:10px; border-top:1px solid var(--grey-200);">
         ${H.btn('메모 모으기 시작', 'create-case', startExtra, 'btn primary aiPrimary')}
         ${H.btn('초기화', 'clear-case-draft')}
       </div>
-
-      <div class="helperBox aiHelp"><b>팁:</b> 메모를 추가한 뒤 <b>업데이트</b>에서 새 후보를 반영할 수 있어요.</div>
     `,
     'modal caseCreateModal'
   );
 }
 
+// ✅ [중요 수정] 업데이트 모달: 기본으로 '전체 목록'을 보여주고, AI 추천 점수가 있으면 상위 노출
 function renderCaseUpdateModal() {
   const c = ui.updateCaseId ? S.cases[ui.updateCaseId] ?? null : null;
-  const candidates =
-    c && ui.updateCandidatesForCaseId === c.id && Array.isArray(ui.updateCandidates) ? ui.updateCandidates : [];
+  const q = String(ui.qUpdate || '').trim();
 
-  const title = c ? trunc(c.title, 40) : '메모 묶음 업데이트';
+  // 1. 현재 케이스에 이미 들어있는 ID 제외
+  const existingIds = new Set(c?.recordIds || []);
+  
+  // 2. AI 추천 정보 맵핑 (id -> {score, reasons, rank})
+  const aiMap = new Map((ui.updateCandidates || []).map((cand) => [cand.id, cand]));
 
-  const list = ui.updateCandidatesLoading
-    ? H.empty('알고리즘이 추가 후보를 찾는 중…')
-    : candidates.length
-      ? `<div class="list" style="margin-top:12px">
-          ${candidates
-            .map(({ id, score, record }: any) => {
-              const r = record as RecordItem;
-              return `
-                <label class="item pickItem">
-                  <div class="pickRow">
-                    <input class="chk" type="checkbox" name="caseUpdPick" value="${esc(id)}" />
-                    <div style="flex:1; min-width:0">
-                      ${H.tags([
-                        `<span class="tag butter">점수 ${esc(score.toFixed(2))}</span>`,
-                        H.tag(trunc(actorShort(r.actor), 18)),
-                        H.tag(placeLabel(r.place, r.placeOther)),
-                      ])}
-                      <div class="title">${esc(r.summary)}</div>
-                      <div class="meta">${esc(fmt(r.ts))}</div>
-                    </div>
-                  </div>
-                </label>
-              `;
-            })
-            .join('')}
-        </div>`
-      : H.empty('현재 기준으로 추가 후보가 없어요.');
+  // 3. 전체 레코드 중 '미포함'된 것들만 추림
+  let items = S.records
+    .filter(r => !existingIds.has(r.id))
+    .map(r => {
+      const aiInfo = aiMap.get(r.id);
+      return {
+        id: r.id,
+        record: r,
+        // AI 추천 정보가 있으면 사용, 없으면 0점
+        score: aiInfo ? aiInfo.score : 0,
+        rank: aiInfo ? aiInfo.rank : null,
+        reasons: aiInfo ? aiInfo.reasons : []
+      };
+    });
+  // 4. 필터(적용된 값) - 적용 버튼을 눌러야 반영
+  const baseTotal = items.length;
 
-  const hint = c ? `추가 후보 ${String(ui.updateCandidatesLoading ? '—' : candidates.length)}개` : '메모 묶음을 찾을 수 없어요.';
+  const fActor = String((ui as any).updFilterActor || '').trim();
+  const fPlace = String((ui as any).updFilterPlace || '').trim();
+  const fKw = String((ui as any).updFilterKeyword || '').trim();
+  const hasAppliedFilters = Boolean(fActor || fPlace || fKw);
+
+  if (fActor) items = items.filter(item => matchLite(actorShort(item.record.actor), fActor));
+  if (fPlace) items = items.filter(item => String(item.record.place || '') === fPlace);
+  if (fKw) items = items.filter(item => matchLite([item.record.summary, actorShort(item.record.actor), placeLabel(item.record.place, item.record.placeOther), item.record.ts].join(' '), fKw));
+
+  const filteredTotal = items.length;
+
+  // 5. 정렬: 점수 높은순 -> 최신 날짜순
+  items.sort((a, b) => {
+    if (Math.abs(b.score - a.score) > 0.01) return b.score - a.score; // 점수 내림차순
+    return String(b.record.ts || '').localeCompare(String(a.record.ts || '')); // 최신순
+  });
+
+  const title = c ? trunc(c.title, 40) : '기록 추가';
+
+  // 필터 바 (입력값=draft, 적용값=applied)
+  const updPlaceSel = String(((ui as any).updFilterPlaceDraft ?? (ui as any).updFilterPlace) || '');
+  const updPlaceOptions =
+    `<option value="" ${!updPlaceSel ? 'selected' : ''}>전체</option>` +
+    (PLACE_TYPES as any as string[]).map((p) => `<option value="${esc(String(p))}" ${String(p) === updPlaceSel ? 'selected' : ''}>${esc(String(p))}</option>`).join('');
+
+  const updActorVal = String(((ui as any).updFilterActorDraft ?? (ui as any).updFilterActor) || '');
+  const updKwVal = String(((ui as any).updFilterKeywordDraft ?? (ui as any).updFilterKeyword) || '');
+
+  const updActorOpts = uniq(S.records.filter(r => !existingIds.has(r.id)).map((r) => actorShort(r.actor))).sort((a, b) => a.localeCompare(b));
+  const updFilterBar = `
+    <section class="card sideCard memoFilterCard" style="margin-top:0; padding:10px 12px">
+      <div class="memoFilterBar">
+        <label class="srOnly" for="updActor">주체</label>
+        <input id="updActor" class="mfInput" placeholder="주체" list="dlUpdateActor"
+          value="${esc(updActorVal)}" data-action="draft-update-filters" data-field="actor" />
+
+        <label class="srOnly" for="updPlace">장소</label>
+        <select id="updPlace" class="mfSelect" data-action="draft-update-filters" data-field="place">${updPlaceOptions}</select>
+
+        <label class="srOnly" for="updKw">키워드</label>
+        <input id="updKw" class="mfInput" placeholder="키워드" value="${esc(updKwVal)}"
+          data-action="draft-update-filters" data-field="keyword" />
+
+        <span class="mfStat muted">
+          ${hasAppliedFilters ? `필터 <b>${esc(String(filteredTotal))}</b>/${esc(String(baseTotal))}` : `총 <b>${esc(String(baseTotal))}</b>개`}
+        </span>
+
+        <button class="btn ghost mfBtn" type="button" data-action="apply-update-filters">적용</button>
+        <button class="btn ghost mfBtn" type="button" data-action="clear-update-filters">초기화</button>
+      </div>
+
+      ${dl('dlUpdateActor', updActorOpts)}
+    </section>
+  `;
+
+  
+  // 6. 목록 렌더링
+  const listHtml = items.length
+    ? `<div class="list" style="margin-top:12px">
+        ${items.map((item) => {
+          const { id, score, record, reasons, rank } = item;
+          
+          const tags = [];
+          // AI 점수가 유의미하게 있을 때만 뱃지 표시
+          if (score > 0) {
+            tags.push(`<span class="tag butter">#${rank ?? '?'} 점수 ${esc(score.toFixed(2))}</span>`);
+            if (reasons) reasons.forEach((t: string) => tags.push(`<span class="tag aiReason">${esc(t)}</span>`));
+          }
+          tags.push(H.tag(trunc(actorShort(record.actor), 18)));
+          tags.push(H.tag(placeLabel(record.place, record.placeOther)));
+
+          return `
+            <label class="item pickItem">
+              <div class="pickRow">
+                <input class="chk" type="checkbox" name="caseUpdPick" value="${esc(id)}" ${((ui.updatePickIds||[]) as any).includes(id) ? "checked" : ""} data-action="toggle-update-pick" data-field="pick" />
+                <div style="flex:1; min-width:0">
+                  ${H.tags(tags)}
+                  <div class="title" style="margin-top:4px">${esc(record.summary)}</div>
+                  <div class="meta">${esc(fmt(record.ts))}</div>
+                </div>
+              </div>
+            </label>
+          `;
+        }).join('')}
+      </div>`
+    : H.empty('추가할 수 있는 메모가 없어요.');
+
+  // 안내 메시지: 로딩 중이면 표시하되, 데이터는 보여줌(이미 있는 데이터)
+  const loadingMsg = ui.updateCandidatesLoading ? '<span class="muted" style="font-size:12px; margin-left:8px;">(AI 점수 계산 중...)</span>' : '';
 
   return H.modal(
     'caseUpdateModal',
-    H.modalHead(
-      '메모 묶음 업데이트',
-      `${title} · ${hint}`,
-      `<div class="rowInline">${H.btn('닫기', 'close-case-update')}${H.btn('선택한 후보 추가', 'apply-case-update', '', 'btn primary')}</div>`
-    ),
-    list
+    H.modalHead('기록 추가', `${title}${loadingMsg}`, `<div class="rowInline">${H.btn('닫기', 'close-case-update')}${H.btn('선택한 항목 추가', 'apply-case-update', '', 'btn primary')}</div>`),
+    `
+      ${updFilterBar}${listHtml}
+    `
   );
 }
 
@@ -778,39 +1040,48 @@ function renderTimelineDetailModal() {
       title = trunc(r.summary, 40);
 
       const caseActors = (c.actors || []).slice();
-      const caseQuery = (c.query || '').trim();
       const scoreMap = (c.scoreByRecordId || {}) as Record<string, number>;
 
-      // === 점수 규칙(엔진 기준) ===
-      // 1) main actor 일치: +2.5
-      // 2) related actor 일치: 인당 +1.0
-      // 3) 텍스트 유사도: (hitCount / queryTokenCount) * 2.0
-      //    - hit: query 토큰이 summary 문자열에 부분 포함되면 hit (형태 변화에도 대응)
+      // === Rust 엔진 스냅샷(구성요소) 우선 ===
+      // 케이스 생성/업데이트 시 Rust가 계산한 RankedComponents를 case.componentsByRecordId에 저장해두고,
+      // 상세 모달에서는 그 값을 "그대로" 표시합니다. (구버전 케이스는 없을 수 있어요)
       const caseActorKeys = caseActors.filter((a) => String(a?.name || '').trim()).map(actorKey);
 
+      const compMap = ((c as any).componentsByRecordId || {}) as Record<string, any>;
+      const comp = compMap[r.id] as any | undefined;
+
+      const caseQuery = (c.query || '').trim();
       const qTokens = caseQuery ? tokenizeEngineLike(caseQuery) : [];
-      const summaryLower = String(r.summary || '').toLowerCase();
+      const summaryNorm = normEngineLike(String(r.summary || ''));
 
       let hitCount = 0;
       const hitTokensForUi: string[] = [];
       for (const qt of qTokens) {
-        if (qt.length >= 2 && summaryLower.includes(qt)) {
-          hitCount += 1; // ✅ query 토큰 기준 (중복 가능)
-          if (!hitTokensForUi.includes(qt)) hitTokensForUi.push(qt); // UI 표시는 중복 제거
+        if (qt.length >= 2 && summaryNorm.includes(qt)) {
+          hitCount += 1;
+          if (!hitTokensForUi.includes(qt)) hitTokensForUi.push(qt);
         }
       }
-      const textSim = qTokens.length ? hitCount / qTokens.length : 0;
-      const W_TEXT = 2.0;
-      const keywordScore = textSim * W_TEXT;
+
+      // comp가 있으면 그 값을 "진짜 값"으로 사용 (UI 재계산은 표시용)
+      if (comp && typeof comp.qHit === 'number') hitCount = comp.qHit;
+
+      const textSim = comp && typeof comp.textSim === 'number' ? comp.textSim : (qTokens.length ? hitCount / qTokens.length : 0);
+
+      const W_TEXT = comp && typeof comp.wText === 'number' ? comp.wText : 2.0;
+      const keywordScore = comp && typeof comp.keywordScore === 'number' ? comp.keywordScore : (textSim * W_TEXT);
 
       const mainActorKey = actorKey(r.actor);
-      const mainActorMatch = caseActorKeys.includes(mainActorKey);
-      const W_ACTOR = 2.5;
-      const actorScore = mainActorMatch ? W_ACTOR : 0;
+      const mainActorMatch = comp && typeof comp.actorMatch === 'boolean' ? comp.actorMatch : caseActorKeys.includes(mainActorKey);
+
+      const W_ACTOR = comp && typeof comp.wActor === 'number' ? comp.wActor : 2.5;
+      const actorScore = comp && typeof comp.actorScore === 'number' ? comp.actorScore : (mainActorMatch ? W_ACTOR : 0);
 
       const relatedMatches = (Array.isArray(r.related) ? r.related : []).filter((ra) => caseActorKeys.includes(actorKey(ra)));
-      const W_RELATED = 1.0;
-      const relatedScore = relatedMatches.length * W_RELATED;
+      const W_RELATED = comp && typeof comp.wRelated === 'number' ? comp.wRelated : 1.0;
+
+      const relatedHitCount = comp && typeof comp.relatedHits === 'number' ? comp.relatedHits : relatedMatches.length;
+      const relatedScore = comp && typeof comp.relatedScore === 'number' ? comp.relatedScore : (relatedHitCount * W_RELATED);
 
       const engineScore = keywordScore + actorScore + relatedScore;
 
@@ -823,9 +1094,11 @@ function renderTimelineDetailModal() {
       const hasRange = !!((c as any).timeFrom || (c as any).timeTo);
       const inSnapshot = Array.isArray((c as any).recordIds) && (c as any).recordIds.includes(r.id);
 
-      // 포함 판정(엔진 기준)
-      const MIN_TEXT_SIM = 0.2;
-      const includeByRule = mainActorMatch || relatedMatches.length > 0 || (qTokens.length ? textSim >= MIN_TEXT_SIM : true);
+      // 포함 판정(엔진 기준: Rust가 보내준 threshold 사용)
+      const MIN_TEXT_SIM = comp && typeof comp.minTextSim === 'number' ? comp.minTextSim : 0.34;
+      const MIN_SCORE = comp && typeof comp.minScore === 'number' ? comp.minScore : 0.8;
+      const includeLogic = mainActorMatch || relatedHitCount > 0 || (qTokens.length ? textSim >= MIN_TEXT_SIM : true);
+      const includeByRule = (!hasRange || within) && includeLogic && engineScore >= MIN_SCORE;
 
       // 디버그: 실제 매칭된 actor들(표시용)
       const matchedActorsPretty = uniq(
@@ -845,7 +1118,7 @@ function renderTimelineDetailModal() {
             '점수 산출 근거',
             `
               <div class="muted" style="margin-top:6px">
-                아래 값은 <b>현재 엔진 규칙</b>으로 재계산한 근거예요. (저장된 스냅샷 점수와 다를 수 있어요)
+                아래 값은 <b>Rust 엔진이 계산해 저장한 구성요소(스냅샷)</b> 기준으로 표시해요. ${comp ? '' : '<span class="muted">(구버전 케이스라 구성요소 스냅샷이 없어서, 일부는 UI에서 보조 계산으로 표시될 수 있어요)</span>'}
               </div>
 
               <div style="margin-top:10px" class="detailRow"><div class="k">스냅샷 포함</div><div class="v">${esc(inSnapshot ? '예 (recordIds 포함)' : '아니오')}</div></div>
@@ -857,7 +1130,7 @@ function renderTimelineDetailModal() {
                   ${esc(scoreToShow.toFixed(2))}
                   ${
                     typeof storedScore === 'number' && Math.abs(storedScore - engineScore) > 0.01
-                      ? ` <span class="muted" style="font-weight:650">(재계산 ${engineScore.toFixed(2)})</span>`
+                      ? ` <span class="muted" style="font-weight:650">(참고: 계산 ${engineScore.toFixed(2)})</span>`
                       : ''
                   }
                 </div>
@@ -885,7 +1158,7 @@ function renderTimelineDetailModal() {
                   <div class="k">관련자 일치</div>
                   <div class="v">
                     +${esc(relatedScore.toFixed(2))}
-                    (${esc(String(relatedMatches.length))}명${
+                    (${esc(String(relatedHitCount))}명${
                       relatedMatches.length ? ` · ${esc(uniq(relatedMatches.map(actorShort)).slice(0, 8).join(', '))}` : ''
                     })
                   </div>
@@ -897,8 +1170,8 @@ function renderTimelineDetailModal() {
                 <div class="muted">
                   포함 조건: (1) 기간 필터 통과(설정 시) AND (2) <b>주 Actor 일치 OR 관련자 포함 OR 키워드 유사도(sim ≥ ${MIN_TEXT_SIM.toFixed(
                     2
-                  )})</b>
-                  ${qTokens.length ? '' : '<span class="muted">(요약이 비어있으면 점수 0이어도 후보가 될 수 있음)</span>'}
+                  )})</b> AND (3) <b>총점 ≥ ${esc(MIN_SCORE.toFixed(2))}</b>
+                  ${qTokens.length ? '' : '<span class="muted">(요약이 비어있어도, Actor/관련자 매칭이 없으면 점수가 낮아 제외될 수 있어요)</span>'}
                 </div>
 
                 <div class="detailRow" style="margin-top:10px">
@@ -973,18 +1246,10 @@ function renderTimelineDetailModal() {
 
 
 function renderDefenseIntro() {
-  return `
-    <div class="defenseIntro">
-      <div class="defenseIntroTitle">메모가 쌓이면, 알고리즘이 <b>메모 묶음 타임라인</b>으로 모아줘요.</div>
-      <div class="defenseIntroGrid">
-        <div class="dCard"><div class="dI">🧺</div><div><div class="dT">메모</div><div class="dS">일단 계속 쌓아두기</div></div></div>
-        <div class="dCard"><div class="dI">🧾</div><div><div class="dT">선별</div><div class="dS">관련 메모만 자동 선별</div></div></div>
-        <div class="dCard"><div class="dI">🛡️</div><div><div class="dT">묶음 보기</div><div class="dS">타임라인/내 조치/대응 가이드</div></div></div>
-      </div>
-      <div class="muted" style="margin-top:10px">* 메모 추가 후, 각 묶음에서 <b>업데이트</b>를 눌러 새 후보를 반영할 수 있어요.</div>
-    </div>
-  `;
+  // (removed) Intro banner shown in screenshots.
+  return ``;
 }
+
 
 function renderCaseCard(c: CaseItem) {
   const mapped = recordsForCase(S.records, c).length;
@@ -996,7 +1261,6 @@ function renderCaseCard(c: CaseItem) {
     <article class="item ${isSelected ? 'selected' : ''}">
       ${H.tags([
         `<span class="tag ai">${esc('AI')}</span>`,
-        `<span class="tag butter">선별 메모 ${esc(String(mapped))}개</span>`,
         H.tag(hasRange ? '기간' : '기간없음'),
       ])}
       <div class="title">${esc((c as any).title)}</div>
@@ -1009,80 +1273,74 @@ function renderCaseCard(c: CaseItem) {
   `;
 }
 
-function renderDefenseFlow(c: CaseItem, mappedCount: number, totalEvents: number) {
-  const totalRecords = S.records.length;
-  const steps = (((c as any).steps) || []).length;
-  const advisors = ((((c as any).advisors) || []) as any[]).filter((a) => a && a.state !== 'dismissed').length;
-  const maxResults = Math.max(1, Math.min(400, Number((c as any).maxResults ?? 80) || 80));
-  const pct = Math.round(Math.min(1, mappedCount / maxResults) * 100);
-
-  return `
-    <div class="defenseFlow">
-      <div class="flowNode">
-        <div class="nodeTop"><span class="nodeIcon">🧺</span><div><div class="nodeTitle">메모</div><div class="nodeSub">내 메모 전체</div></div></div>
-        <div class="nodeNum">${esc(String(totalRecords))}개</div>
-      </div>
-      <div class="flowArrow" aria-hidden="true">→</div>
-      <div class="flowNode primary">
-        <div class="nodeTop"><span class="nodeIcon">🧾</span><div><div class="nodeTitle">선별 메모</div><div class="nodeSub">AI가 포함한 메모</div></div></div>
-        <div class="nodeNum">${esc(String(mappedCount))}개</div>
-        <div class="bar" aria-label="선별 포함률"><div class="barFill" style="width:${esc(String(pct))}%"></div></div>
-        <div class="barMeta">포함률 ${esc(String(pct))}%</div>
-      </div>
-      <div class="flowArrow" aria-hidden="true">→</div>
-      <div class="flowNode">
-        <div class="nodeTop"><span class="nodeIcon">🛡️</span><div><div class="nodeTitle">메모 묶음</div><div class="nodeSub">타임라인/내 조치/대응 가이드</div></div></div>
-        <div class="nodeNums">
-          <span class="miniStat">타임라인 <b>${esc(String(totalEvents))}</b></span>
-          <span class="miniStat">내 조치 <b>${esc(String(steps))}</b></span>
-          <span class="miniStat">가이드 <b>${esc(String(advisors))}</b></span>
-        </div>
-      </div>
-    </div>
-  `;
+function renderCaseStatsInline(c: CaseItem, mappedCount: number, totalEvents: number) {
+  // (removed) Stats pills shown in screenshots.
+  return ``;
 }
+
 
 function renderCaseTimeline(c: CaseItem) {
   const { events, mappedCount, hasRange } = buildCaseTimeline(c, S.records, '');
-  const filtered = ui.qTimeline.trim()
-    ? events.filter((ev: any) => {
-        if (ev.kind === 'record') {
-          const r = ev.record as RecordItem;
-          return matchLite([r.summary, actorShort(r.actor), placeLabel(r.place, r.placeOther), r.ts].join(' '), ui.qTimeline);
-        }
-        if (ev.kind === 'advisor') {
-          const a = ev.advisor as AdvisorItem;
-          return matchLite([a.title, a.body, String((a as any).level), a.ts].join(' '), ui.qTimeline);
-        }
-        const s = ev.step as StepItem;
-        return matchLite([s.name, s.note, s.ts].join(' '), ui.qTimeline);
-      })
-    : events;
+  // 타임라인 검색 UI 제거(스크린샷 영역 제거 요청)
+  const filtered = events;
 
   return `
     <div class="sectionTitle">
-      <div>
+      <div class="caseTitleLeft">
         <div class="h2">${esc((c as any).title)}</div>
-        <div class="muted"><span class="badgeAI">AI 선별</span> 메모 ${esc(String(mappedCount))}개</div>
+        <div class="muted"><span class="badgeAI">AI 선별</span> 관련 메모 자동 선별</div>
         ${hasRange ? `<div class="muted" style="margin-top:8px">기간: ${esc((c as any).timeFrom ? fmt((c as any).timeFrom) : '—')} ~ ${esc((c as any).timeTo ? fmt((c as any).timeTo) : '—')}</div>` : ''}
         ${((c as any).query || '').trim() ? `<div class="muted" style="margin-top:8px">요약: ${esc(trunc((c as any).query || '', 90))}</div>` : ''}
       </div>
 
-      <div class="aiTopActions">
-        ${H.btn('업데이트', 'open-case-update')}
-        ${H.btn('증빙자료출력', 'open-paper')}
-        ${H.btn('목록으로', 'clear-case')}
+      <div class="caseTitleRight">
+        <div class="aiTopActions">
+          ${H.btn('기록추가', 'open-case-update')}
+          ${H.btn('증빙자료출력', 'open-paper')}
+          ${H.btn('목록으로', 'clear-case')}
+        </div>
       </div>
     </div>
 
-    ${renderDefenseFlow(c, mappedCount, events.length)}
-
-    <div class="miniSearch" style="margin-bottom:14px">
-      <input class="searchInput" placeholder="이 타임라인에서 검색(표시만)…" value="${esc(ui.qTimeline)}" data-action="search-timeline" data-field="q" />
-    </div>
-
-    ${filtered.length ? `<div class="timeline">${filtered.map(renderTimelineEvent).join('')}</div>` : `<div class="empty">표시할 항목이 없어요.</div>`}
+    ${filtered.length ? renderTimelineWithDays(filtered) : `<div class="empty">표시할 항목이 없어요.</div>`}
   `;
+}
+
+function fmtDay(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return String(iso || '').slice(0, 10);
+  // 예: 2026. 02. 16. (일)
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const w = d.toLocaleDateString('ko-KR', { weekday: 'short' });
+  return `${y}. ${m}. ${day}. (${w})`;
+}
+
+function eventTs(ev: any): string {
+  try {
+    if (!ev) return '';
+    if (ev.kind === 'record') return String(ev?.record?.ts || '');
+    if (ev.kind === 'advisor') return String(ev?.advisor?.ts || '');
+    return String(ev?.step?.ts || '');
+  } catch {
+    return '';
+  }
+}
+
+function renderTimelineWithDays(events: any[]) {
+  let lastDay = '';
+  const parts: string[] = [];
+  for (const ev of events || []) {
+    const ts = eventTs(ev);
+    const dayKey = ts ? String(ts).slice(0, 10) : '';
+    if (dayKey && dayKey !== lastDay) {
+      parts.push(`<div class="tDay"><span class="tDayPill">${esc(fmtDay(ts))}</span></div>`);
+      lastDay = dayKey;
+    }
+    parts.push(renderTimelineEvent(ev));
+  }
+  return `<div class="timelineWrap"><div class="timeline timelineEm">${parts.join('')}</div></div>`;
 }
 
 function renderTimelineEvent(ev: any) {
@@ -1102,6 +1360,7 @@ function renderTimelineEvent(ev: any) {
           <div class="meta">${esc(fmt(r.ts))}</div>
           <div class="actionsRow" style="margin-top:12px">
             ${H.btnData('자세히', 'view-timeline', { kind: 'record', id: r.id })}
+            ${H.btnData('묶음에서 제외', 'remove-record-from-case', { id: r.id }, 'btn ghost')}
           </div>
         </div>
       </div>

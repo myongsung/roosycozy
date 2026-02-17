@@ -74,6 +74,19 @@ fn ensure_pdf_ext(mut p: PathBuf) -> PathBuf {
   p
 }
 
+
+fn ensure_json_ext(mut p: PathBuf) -> PathBuf {
+  let has_json = p
+    .extension()
+    .and_then(|e| e.to_str())
+    .map(|e| e.eq_ignore_ascii_case("json"))
+    .unwrap_or(false);
+  if !has_json {
+    p.set_extension("json");
+  }
+  p
+}
+
 fn ensure_parent_dir(p: &Path) -> Result<(), String> {
   if let Some(parent) = p.parent() {
     std::fs::create_dir_all(parent).map_err(|e| format!("cannot create output directory: {e}"))?;
@@ -307,6 +320,36 @@ pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
   // 출력
   doc.render_to_file(&out_path)
     .map_err(|e| format!("pdf render failed: {e}"))?;
+
+  Ok(out_path.to_string_lossy().to_string())
+}
+
+
+/* -------------------- Backup export (JSON) -------------------- */
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportBackupArgs {
+  /// saveDialog로 받은 전체 경로
+  #[serde(default, alias = "fileName", alias = "filePath", alias = "path", alias = "savePath", alias = "outputPath")]
+  pub file_name: Option<String>,
+  pub json: String,
+}
+
+#[tauri::command]
+pub fn export_backup_json(args: ExportBackupArgs) -> Result<String, String> {
+  let file_name = args
+    .file_name
+    .as_ref()
+    .map(|s| s.trim())
+    .filter(|s| !s.is_empty())
+    .ok_or_else(|| "fileName(전체 경로)가 필요해요. 프론트에서 saveDialog 결과를 넘겨주세요.".to_string())?;
+
+  let out_path = ensure_json_ext(PathBuf::from(file_name));
+  ensure_parent_dir(&out_path)?;
+
+  std::fs::write(&out_path, args.json)
+    .map_err(|e| format!("backup write failed: {e}"))?;
 
   Ok(out_path.to_string_lossy().to_string())
 }

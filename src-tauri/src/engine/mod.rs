@@ -1,50 +1,22 @@
-// src-tauri/src/engine/mod.rs
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashSet;
-use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH}; // 시간 처리를 위한 표준 라이브러리 추가
 
-static UID_SEQ: AtomicU64 = AtomicU64::new(1);
+/* -------------------- tiny helpers -------------------- */
 
-fn uid(prefix: &str) -> String {
-  let t = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .unwrap_or_default()
-    .as_millis();
-  let n = UID_SEQ.fetch_add(1, AtomicOrdering::Relaxed);
-  format!("{prefix}_{t}_{n}")
-}
-
-fn is_word_char(ch: char) -> bool {
-  ch.is_ascii_alphanumeric()
-    || ('가' <= ch && ch <= '힣')
-    || ('ㄱ' <= ch && ch <= 'ㅎ')
-    || ('ㅏ' <= ch && ch <= 'ㅣ')
-}
-
-fn tokenize(s: &str) -> Vec<String> {
-  let mut out: Vec<String> = Vec::new();
-  let mut cur = String::new();
-  for ch in s.chars() {
-    let c = ch.to_ascii_lowercase();
-    if is_word_char(c) {
-      cur.push(c);
-    } else if !cur.is_empty() {
-      if cur.len() >= 2 {
-        out.push(cur.clone());
-      }
-      cur.clear();
-    }
-  }
-  if !cur.is_empty() && cur.len() >= 2 {
-    out.push(cur);
-  }
-  out
+fn norm(s: &str) -> String {
+  s.to_lowercase()
+    .replace('\u{200B}', "")
+    .replace('\u{200C}', "")
+    .replace('\u{200D}', "")
+    .replace('\u{FEFF}', "")
+    .split_whitespace()
+    .collect::<Vec<_>>()
+    .join(" ")
 }
 
 fn within_range(ts: &str, from: &str, to: &str) -> bool {
-  // ts/from/to가 ISO-8601이면 문자열 비교로 범위 체크가 안전합니다.
   if !from.is_empty() && ts < from {
     return false;
   }
@@ -54,14 +26,42 @@ fn within_range(ts: &str, from: &str, to: &str) -> bool {
   true
 }
 
-fn norm(s: &str) -> String {
-  s.trim().to_lowercase()
+fn is_word_char(cp: u32) -> bool {
+  let is_ascii_num = cp >= 0x30 && cp <= 0x39;
+  let is_ascii_upper = cp >= 0x41 && cp <= 0x5A;
+  let is_ascii_lower = cp >= 0x61 && cp <= 0x7A;
+  let is_hangul_syllable = cp >= 0xAC00 && cp <= 0xD7A3;
+  let is_hangul_jamo1 = cp >= 0x3131 && cp <= 0x314E;
+  let is_hangul_jamo2 = cp >= 0x314F && cp <= 0x3163;
+  is_ascii_num || is_ascii_upper || is_ascii_lower || is_hangul_syllable || is_hangul_jamo1 || is_hangul_jamo2
 }
 
-// query 토큰이 summary 문자열에 "부분 포함"되면 hit로 인정 (한국어/활용형에 훨씬 강함)
-fn text_similarity_ratio(q_tokens: &[String], summary: &str) -> f32 {
+fn tokenize(s: &str) -> Vec<String> {
+  let mut out: Vec<String> = Vec::new();
+  let mut cur = String::new();
+
+  for ch in s.chars() {
+    let cp = ch as u32;
+    if is_word_char(cp) {
+      cur.push(ch);
+    } else {
+      let t = norm(&cur);
+      if t.len() >= 2 {
+        out.push(t);
+      }
+      cur.clear();
+    }
+  }
+  let t = norm(&cur);
+  if t.len() >= 2 {
+    out.push(t);
+  }
+  out
+}
+
+fn text_similarity_stats(q_tokens: &[String], summary: &str) -> (usize, usize, f32) {
   if q_tokens.is_empty() {
-    return 0.0;
+    return (0, 0, 0.0);
   }
   let s = norm(summary);
   let mut hit = 0usize;
@@ -70,7 +70,9 @@ fn text_similarity_ratio(q_tokens: &[String], summary: &str) -> f32 {
       hit += 1;
     }
   }
-  hit as f32 / q_tokens.len() as f32
+  let total = q_tokens.len();
+  let ratio = hit as f32 / total as f32;
+  (hit, total, ratio)
 }
 
 /* -------------------- shared types (proto) -------------------- */
@@ -124,27 +126,22 @@ pub struct CaseItem {
 
   #[serde(default)]
   pub actors: Vec<ActorRef>,
-
-  // extra fields from UI may come in — serde will ignore them if not declared
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RankWeights {
   #[serde(default)]
-  pub actor: Option<f32>,   // record.actor 가 case.actor 중 하나면 가산
+  pub actor: Option<f32>,
   #[serde(default)]
-  pub related: Option<f32>, // record.related 에 case.actor 가 포함되면 가산
+  pub related: Option<f32>,
   #[serde(default)]
-  pub text: Option<f32>,    // 키워드 유사도(0~1)에 곱해지는 가중치
-  #[serde(default)]
-  pub time: Option<f32>,    // (프로토) 미사용
+  pub text: Option<f32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RankOpts {
-  // TS에서 {limit: n} 으로 보내는 경우가 많아서 alias로 수용
   #[serde(default, alias = "limit", alias = "maxResults")]
   pub max_results: Option<u32>,
 
@@ -154,9 +151,32 @@ pub struct RankOpts {
   #[serde(default, alias = "minScore")]
   pub min_score: Option<f32>,
 
-  // query가 있을 때 "이 정도 유사도면 포함" (0~1)
   #[serde(default, alias = "minTextSim")]
   pub min_text_sim: Option<f32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct RankedComponents {
+  pub keyword_score: f32,
+  pub text_sim: f32,
+  pub q_hit: u32,
+  pub q_total: u32,
+
+  pub actor_score: f32,
+  pub actor_match: bool,
+  pub is_main_actor: bool,
+
+  pub related_score: f32,
+  pub related_hits: u32,
+
+  pub in_range: Option<bool>,
+
+  pub w_actor: f32,
+  pub w_related: f32,
+  pub w_text: f32,
+  pub min_score: f32,
+  pub min_text_sim: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -164,35 +184,20 @@ pub struct RankOpts {
 pub struct RankedHit {
   pub id: String,
   pub score: f32,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AdvisorItem {
-  pub id: String,
-  pub ts: String,
-  pub title: String,
-  pub body: String,
-  pub level: String, // "info" | "warn" | "critical"
+  pub rank: u32,
   #[serde(default)]
-  pub tags: Vec<String>,
-  pub state: String, // "active" | "done" | "dismissed"
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub rule_id: Option<String>,
+  pub reasons: Vec<String>,
+  #[serde(default)]
+  pub components: RankedComponents,
 }
 
 /* -------------------- core: rank -------------------- */
 
-// 요구사항 반영:
-// 1) 메인 Actor(= case_item.actors[0]) record는 반드시 포함 (단, max_results를 넘기면 최신순 k개)
-// 2) 관련자 포함(record.related) 여부는 가중치 랭킹에 반영
-// 3) 키워드 유사도(부분 포함 기반)가 일정 이상이면 포함
 pub fn rank_records_for_case(
   records: &[RecordItem],
   case_item: &CaseItem,
   opts: Option<RankOpts>,
 ) -> Vec<RankedHit> {
-  // ----- 옵션/기본값 -----
   let (k, w_actor, w_related, w_text, min_score, min_text_sim) = {
     let k = opts
       .as_ref()
@@ -215,7 +220,6 @@ pub fn rank_records_for_case(
   let q = case_item.query.trim();
   let q_tokens = if q.is_empty() { vec![] } else { tokenize(q) };
 
-  // case actor 이름 집합(타입은 흔들릴 수 있어서 name 위주)
   let case_actor_names: HashSet<String> = case_item
     .actors
     .iter()
@@ -223,22 +227,33 @@ pub fn rank_records_for_case(
     .filter(|s| !s.is_empty())
     .collect();
 
-  // 메인 actor = actors[0]
   let main_actor_name = case_item
     .actors
     .get(0)
     .map(|a| norm(&a.name))
     .filter(|s| !s.is_empty());
 
-  // (id, score, ts) 보관
-  let mut main_hits: Vec<(String, f32, String)> = Vec::new();
-  let mut candidates: Vec<(String, f32, String)> = Vec::new();
+  let has_range = !case_item.time_from.is_empty() || !case_item.time_to.is_empty();
+
+  #[derive(Clone)]
+  struct Tmp {
+    id: String,
+    score: f32,
+    ts: String,
+    reasons: Vec<String>,
+    components: RankedComponents,
+  }
+
+  let mut main_hits: Vec<Tmp> = Vec::new();
+  let mut candidates: Vec<Tmp> = Vec::new();
 
   for r in records {
-    // time range 필터
-    if (!case_item.time_from.is_empty() || !case_item.time_to.is_empty())
-      && !within_range(&r.ts, &case_item.time_from, &case_item.time_to)
-    {
+    let in_range = if has_range {
+      within_range(&r.ts, &case_item.time_from, &case_item.time_to)
+    } else {
+      true
+    };
+    if has_range && !in_range {
       continue;
     }
 
@@ -250,7 +265,6 @@ pub fn rank_records_for_case(
       .map(|m| &r_actor_name == m)
       .unwrap_or(false);
 
-    // 2) related hit
     let mut related_hits = 0usize;
     for ra in &r.related {
       let rn = norm(&ra.name);
@@ -259,87 +273,154 @@ pub fn rank_records_for_case(
       }
     }
 
-    // 3) text similarity (0~1)
-    let sim = text_similarity_ratio(&q_tokens, &r.summary);
+    let (q_hit, q_total, sim) = text_similarity_stats(&q_tokens, &r.summary);
 
-    // 점수 계산(랭킹용)
-    let mut score: f32 = 0.0;
-    if actor_match_any {
-      score += w_actor;
-    }
-    score += (related_hits as f32) * w_related;
-    score += sim * w_text;
+    let actor_score = if actor_match_any { w_actor } else { 0.0 };
+    let related_score = (related_hits as f32) * w_related;
+    let keyword_score = sim * w_text;
+    let score: f32 = actor_score + related_score + keyword_score;
 
-    // ----- 포함 규칙 -----
+    let mut reasons: Vec<String> = Vec::new();
+    reasons.push("자동(랭킹)".into());
     if is_main_actor {
-      // 1순위: 메인 actor는 무조건 포함
-      main_hits.push((r.id.clone(), score, r.ts.clone()));
+      reasons.push("주요 당사자(기본 포함)".into());
+    } else if actor_match_any {
+      reasons.push("당사자 일치".into());
+    }
+    if related_hits > 0 {
+      reasons.push(format!("관련자 일치 {}명", related_hits));
+    }
+    if !q_tokens.is_empty() {
+      reasons.push(format!("키워드 {}/{}", q_hit, q_total));
+    }
+    if has_range {
+      reasons.push(if in_range { "기간 내".into() } else { "기간 밖".into() });
+    }
+
+    let components = RankedComponents {
+      keyword_score,
+      text_sim: sim,
+      q_hit: q_hit as u32,
+      q_total: q_total as u32,
+
+      actor_score,
+      actor_match: actor_match_any,
+      is_main_actor,
+
+      related_score,
+      related_hits: related_hits as u32,
+
+      in_range: if has_range { Some(in_range) } else { None },
+
+      w_actor,
+      w_related,
+      w_text,
+      min_score,
+      min_text_sim,
+    };
+
+    let tmp = Tmp {
+      id: r.id.clone(),
+      score,
+      ts: r.ts.clone(),
+      reasons,
+      components,
+    };
+
+    if is_main_actor {
+      main_hits.push(tmp);
       continue;
     }
 
-    // 메인 actor 아닌 경우:
-    // - actor가 case에 포함되어 있거나
-    // - related에 case actor가 있거나
-    // - query가 있을 때 키워드 유사도가 기준 이상이면
     let passes_logic = actor_match_any
       || related_hits > 0
       || (!q_tokens.is_empty() && sim >= min_text_sim);
 
     if passes_logic && score >= min_score {
-      candidates.push((r.id.clone(), score, r.ts.clone()));
+      candidates.push(tmp);
     }
   }
 
-  // ----- 정렬 -----
-  // 메인 actor: 최신순 우선 (동점이면 score desc)
-  main_hits.sort_by(|a, b| match b.2.cmp(&a.2) {
-    Ordering::Equal => match b.1.partial_cmp(&a.1).unwrap_or(Ordering::Equal) {
-      Ordering::Equal => a.0.cmp(&b.0),
+  main_hits.sort_by(|a, b| match b.ts.cmp(&a.ts) {
+    Ordering::Equal => match b.score.partial_cmp(&a.score).unwrap_or(Ordering::Equal) {
+      Ordering::Equal => a.id.cmp(&b.id),
       other => other,
     },
     other => other,
   });
 
-  // 후보: score desc → 최신순 → id
-  candidates.sort_by(|a, b| match b.1.partial_cmp(&a.1).unwrap_or(Ordering::Equal) {
-    Ordering::Equal => match b.2.cmp(&a.2) {
-      Ordering::Equal => a.0.cmp(&b.0),
+  candidates.sort_by(|a, b| match b.score.partial_cmp(&a.score).unwrap_or(Ordering::Equal) {
+    Ordering::Equal => match b.ts.cmp(&a.ts) {
+      Ordering::Equal => a.id.cmp(&b.id),
       other => other,
     },
     other => other,
   });
 
-  // ----- 합치기 -----
-  // UI 성능을 위해 "반드시 포함"이라도 max_results를 넘기면 최신순 k개까지만
-  let mut out: Vec<RankedHit> = Vec::new();
+  let mut merged: Vec<Tmp> = Vec::new();
 
-  // 1) 메인 actor 먼저
-  for (id, score, _) in main_hits.into_iter().take(k) {
-    out.push(RankedHit { id, score });
+  for t in main_hits.into_iter().take(k) {
+    merged.push(t);
   }
 
-  // 2) 남은 슬롯에 후보 채우기
-  if out.len() < k {
-    let remain = k - out.len();
-    for (id, score, _) in candidates.into_iter().take(remain) {
-      // 중복 방지
-      if out.iter().any(|h| h.id == id) {
+  if merged.len() < k {
+    let remain = k - merged.len();
+    for t in candidates.into_iter().take(remain) {
+      if merged.iter().any(|x| x.id == t.id) {
         continue;
       }
-      out.push(RankedHit { id, score });
+      merged.push(t);
     }
   }
 
-  out
+  merged
+    .into_iter()
+    .enumerate()
+    .map(|(i, t)| RankedHit {
+      id: t.id,
+      score: t.score,
+      rank: (i + 1) as u32,
+      reasons: t.reasons,
+      components: t.components,
+    })
+    .collect()
 }
 
 /* -------------------- core: advise -------------------- */
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AdvisorItem {
+  pub id: String,
+  pub ts: String,
+  pub title: String,
+  pub body: String,
+  pub level: String,
+  #[serde(default)]
+  pub tags: Vec<String>,
+  pub state: String,
+  pub rule_id: Option<String>,
+}
+
+// [수정] js_sys::Date::now() 대신 Rust 표준 라이브러리 사용
+fn uid(prefix: &str) -> String {
+  let start = SystemTime::now();
+  let since_the_epoch = start
+    .duration_since(UNIX_EPOCH)
+    .expect("Time went backwards");
+  let timestamp = since_the_epoch.as_millis();
+  format!("{}_{}", prefix, timestamp)
+}
+
+fn chrono_like_now_iso() -> String {
+  // TODO: 실제 ISO8601 문자열이 필요하면 chrono::Utc::now().to_rfc3339() 등을 사용
+  "1970-01-01T00:00:00Z".into()
+}
 
 pub fn generate_advisors_for_case(case_item: &CaseItem, _records: &[RecordItem]) -> Vec<AdvisorItem> {
   let ts = chrono_like_now_iso();
   let mut out: Vec<AdvisorItem> = Vec::new();
 
-  // 아주 단순한 3줄 가이드(프로토용)
   out.push(AdvisorItem {
     id: uid("ADV"),
     ts: ts.clone(),
@@ -354,40 +435,24 @@ pub fn generate_advisors_for_case(case_item: &CaseItem, _records: &[RecordItem])
   out.push(AdvisorItem {
     id: uid("ADV"),
     ts: ts.clone(),
-    title: "커뮤니케이션".into(),
-    body: "추가 소통은 가능한 한 공식 채널/문서로 남기고, 감정 표현은 줄이세요.".into(),
+    title: "상대에게 전달".into(),
+    body: "감정 표현 대신 사실과 조치만 전달하고, 필요하면 외부 전문기관/관리자 경로를 안내하세요.".into(),
     level: "warn".into(),
-    tags: vec!["소통".into()],
+    tags: vec!["대화".into()],
     state: "active".into(),
-    rule_id: Some("proto:comm".into()),
+    rule_id: Some("proto:talk".into()),
   });
 
-  let title_hint = if case_item.title.trim().is_empty() {
-    "케이스"
-  } else {
-    case_item.title.trim()
-  };
   out.push(AdvisorItem {
     id: uid("ADV"),
     ts,
-    title: format!("다음 액션 ({title_hint})"),
-    body: "필요 시 관리자/담당자에게 '요약 3줄 + 타임라인 + 증빙 목록' 형태로 공유할 준비를 하세요.".into(),
+    title: "후속 조치".into(),
+    body: "내부 보고/기록 보관/재발 방지 계획을 남겨두면 추후 방어에 도움이 됩니다.".into(),
     level: "info".into(),
-    tags: vec!["액션".into()],
+    tags: vec!["후속".into()],
     state: "active".into(),
-    rule_id: Some("proto:next".into()),
+    rule_id: Some("proto:follow".into()),
   });
 
   out
-}
-
-// chrono 없이 ISO 비슷하게: "YYYY-MM-DDTHH:MM:SSZ" (정확한 tz는 프로토에서 충분)
-fn chrono_like_now_iso() -> String {
-  // 매우 가벼운 now ISO (UTC)
-  use std::time::{SystemTime, UNIX_EPOCH};
-  let ms = SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .unwrap_or_default()
-    .as_millis();
-  format!("1970-01-01T00:00:{:02}Z", (ms / 1000) % 60)
 }

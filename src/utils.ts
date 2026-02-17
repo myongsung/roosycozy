@@ -174,6 +174,7 @@ const normCase = (raw: any, key: string): CaseItem => {
     id: str(c.id, key),
     title: (trim(c.title) || '케이스') as any,
     actors: arr(c.actors).map(actorRel).filter(Boolean) as ActorRef[],
+    onlyMainActor: !!c.onlyMainActor,
     sensFilter: (c.sensFilter ?? 'any') as CaseSensFilter,
     status: st as CaseStatus,
     createdAt: str(c.createdAt, nowISO()),

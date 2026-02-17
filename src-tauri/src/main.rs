@@ -11,6 +11,7 @@ fn main() {
       commands::engine_rank,
       commands::engine_advise,
       commands::export_case_pdf,
+      commands::export_backup_json,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

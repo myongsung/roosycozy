@@ -1,6 +1,6 @@
 // src/engine_rust.ts
 import { invoke } from '@tauri-apps/api/core';
-import type { CaseItem, RecordItem, AdvisorItem } from './engine';
+import type { CaseItem, RecordItem, AdvisorItem, RankedHit } from './engine';
 
 export async function rustRankRecordsForCase(
   records: RecordItem[],
@@ -11,7 +11,8 @@ export async function rustRankRecordsForCase(
     minScore?: number;
     minTextSim?: number; // 0~1, query 토큰 부분일치 비율
   }
-): Promise<Array<{ id: string; score: number }>> {
+): Promise<RankedHit[]> {
+  // 반환 타입을 RankedHit[]로 지정하여 Rust가 주는 상세 정보(reasons, components 등)를 모두 받습니다.
   return invoke('engine_rank', {
     records,
     caseItem,
@@ -20,9 +21,9 @@ export async function rustRankRecordsForCase(
           maxResults: opts.limit,
           weights: opts.weights,
           minScore: opts.minScore,
-          minTextSim: opts.minTextSim
+          minTextSim: opts.minTextSim,
         }
-      : undefined
+      : undefined,
   });
 }
 
