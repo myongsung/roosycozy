@@ -842,11 +842,11 @@ function renderCaseCreateModal() {
       <div class="field highlight-section">
         <label style="color:var(--primary-dark); font-size:13px;">① 누구의 기록을 모을까요? (필수)</label>
         <div class="miniOptionRow">
-          <label class="miniToggle" title="원하시면 체크하세요. ①에서 첫 번째로 추가한 인물(주요 인물)의 record.actor만 모읍니다.">
+          <label class="miniToggle" title="체크하면 메모에서 주요인물로 추가한 사람의 기록만 모아요.">
             <input type="checkbox" data-action="draft-case" data-field="onlyMainActor" ${((draftCase as any).onlyMainActor ? 'checked' : '')} />
-            <span>해당 학생(주요 인물) 기록만</span>
+            <span>원하는 주요인물 기록만 모으려면 체크!</span>
           </label>
-          <div class="miniHint">원하시면 위 체크박스를 클릭/체크해 주세요. (①에서 첫 번째로 추가한 인물 기준)</div>
+          <div class="miniHint">체크하면 ①에서 첫 번째로 추가한 학생(주요 인물) 기준으로만 찾아요.</div>
         </div>
         <div class="rowInline">
           <select data-action="draft-case" data-field="addTypeText" style="flex:0 0 100px;">${renderSelectFromList(UI_ACTOR_TYPES as any, String((draftCase as any).addTypeText || '학생'))}</select>

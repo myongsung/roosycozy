@@ -37,16 +37,17 @@
   /* surfaces (3 levels) */
   --app-bg: #ffffff;
   --surface: var(--white);
-  --surface-2:#ffffff;
-  --surface-3:#f6f7f9;
+  --surface-1: var(--surface);
+  --surface-2:#fbfcfd;
+  --surface-3:#f4f6f8;
 
   /* borders/shadows */
   --border: var(--grey-200);
   --border-strong: rgba(25,31,40,0.12);
 
-  --shadow-1: none;
-  --shadow-2: none;
-  --shadow-float: none;
+  --shadow-1: 0 1px 2px rgba(15,21,32,0.05), 0 8px 22px rgba(15,21,32,0.06);
+  --shadow-2: 0 2px 6px rgba(15,21,32,0.06), 0 14px 36px rgba(15,21,32,0.08);
+  --shadow-float: 0 18px 55px rgba(15,21,32,0.18), 0 6px 18px rgba(15,21,32,0.10);
 
   /* layout */
   --max-width:1360px;
@@ -69,7 +70,7 @@
   --field-mb:14px;
 
   /* focus */
-  --focus-ring: none;
+  --focus-ring: 0 0 0 4px rgba(22,163,74,0.18);
 }
 
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -98,7 +99,11 @@ button{ appearance:none; -webkit-appearance:none; }
 ::-webkit-scrollbar-thumb{ background:var(--grey-300); border-radius:999px; }
 ::-webkit-scrollbar-thumb:hover{ background:var(--grey-400); }
 
-:focus-visible{ outline:none; box-shadow:none; border-radius: 10px; }
+:focus-visible{
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 @media (prefers-reduced-motion: reduce){
   *{ transition:none !important; animation:none !important; scroll-behavior:auto !important; }
 }
@@ -421,7 +426,7 @@ transform: rotate(-8deg);
   background: var(--surface);
   border-radius: var(--radius-l);
   padding: var(--card-pad);
-  box-shadow:none;
+  box-shadow: var(--shadow-1);
   border: 1px solid rgba(25,31,40,0.05);
   position: relative;
 }
@@ -640,7 +645,7 @@ transform: rotate(-8deg);
 .field textarea:focus{
   background: var(--surface);
   border-color: rgba(22,163,74,0.60);
-  box-shadow:none;
+  box-shadow: var(--focus-ring);
 }
 
 .field select{
@@ -793,12 +798,12 @@ transform: rotate(-8deg);
 .btn.primary{
   background: var(--primary);
   color: var(--white);
-  box-shadow:none;
+  box-shadow: 0 10px 20px rgba(22,163,74,0.18);
 }
 .btn.primary:hover{
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow:none;
+  box-shadow: 0 14px 30px rgba(22,163,74,0.22);
 }
 
 .btn.demo{
@@ -810,7 +815,7 @@ transform: rotate(-8deg);
 .btn.demo:hover{
   background: rgba(255,179,0,0.22);
   transform: translateY(-2px);
-  box-shadow:none;
+  box-shadow: var(--shadow-1);
 }
 
 .btn.danger{
@@ -821,7 +826,7 @@ transform: rotate(-8deg);
 .btn.danger:hover{
   background: #dc2626;
   transform: translateY(-2px);
-  box-shadow:none;
+  box-shadow: var(--shadow-1);
 }
 
 .btn:not(.primary):not(.ghost):not(.demo):not(.danger){
@@ -833,7 +838,7 @@ transform: rotate(-8deg);
   background: var(--grey-150);
   color: var(--grey-900);
   transform: translateY(-1px);
-  box-shadow:none;
+  box-shadow: var(--shadow-1);
 }
 
 .btn.ghost{
@@ -1053,11 +1058,58 @@ dialog.modal{
   width:92%;
   max-width:540px;
   background: var(--surface);
-  box-shadow:none;
+  box-shadow: var(--shadow-float);
   border: 1px solid rgba(25,31,40,0.08);
+}
+
+/* modal responsive padding */
+@media (max-width: 560px){
+  dialog.modal{
+    padding: 18px;
+    border-radius: 18px;
+  }
+  dialog.modal#recordsListModal .modalHead,
+  dialog.modal#caseUpdateModal .modalHead{
+    top: -18px;
+    margin: -18px -18px 0;
+    padding: 12px 18px 10px;
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+  }
+
+/* modal head refinement */
+dialog.modal .modalHead{ align-items:flex-start; }
+dialog.modal .modalHead .h2{
+  font-size: 18px;
+  padding-left: 0;
+  margin: 0 0 4px;
+  letter-spacing: -0.4px;
+  line-height: 1.22;
+}
+dialog.modal .modalHead .muted{
+  font-size: 13px;
+  color: var(--grey-600);
+  line-height: 1.45;
+}
+dialog.modal .modalHead .btn{
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+}
+dialog.modal .modalHead .btn.ghost{
+  background: rgba(25,31,40,0.03);
+  border: 1px solid rgba(25,31,40,0.08);
+  color: var(--grey-800);
+}
+dialog.modal .modalHead .btn.ghost:hover{
+  background: rgba(25,31,40,0.05);
+  border-color: rgba(25,31,40,0.12);
+}
 }
 dialog.modal::backdrop{
   background: rgba(25,31,40,0.42);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
 }
 .modalHead{
   display:flex;
@@ -1065,6 +1117,7 @@ dialog.modal::backdrop{
   align-items:flex-start;
   gap:14px;
 }
+
 
 
 /* Restore: file paste / drop */
@@ -1101,7 +1154,7 @@ dialog.modal::backdrop{
 }
 .dropZone.isDrag{
   border-color: var(--primary);
-  box-shadow:none;
+  box-shadow: var(--focus-ring);
 }
 
 /* Case Create Modal: larger + scrollable */
@@ -1702,7 +1755,7 @@ dialog.modal#caseUpdateModal .modalHead{
   border-top-left-radius: var(--radius-l);
   border-top-right-radius: var(--radius-l);
 
-  box-shadow:none;
+  box-shadow: var(--shadow-1);
 }
 
 /* ===================== Responsive ===================== */
@@ -1903,41 +1956,52 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 
 
 
-/* --- Smart memo gather: only main actor toggle (compact) --- */
+/* --- Smart memo gather: only main actor toggle (designer) --- */
 .miniOptionRow{
   display:flex;
-  align-items:center;
-  justify-content:space-between;
+  align-items:flex-start;
+  justify-content:flex-start;
   gap:10px;
-  margin-top:6px;
+  margin-top:10px;
+  flex-wrap:wrap;
 }
 .miniToggle{
   display:inline-flex;
   align-items:center;
-  gap:8px;
-  font-size:12px;
-  font-weight:900;
-  color: var(--grey-700);
+  gap:10px;
+  font-size:12.5px;
+  font-weight:950;
+  color: var(--grey-800);
   cursor:pointer;
   user-select:none;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(25,31,40,0.03);
+  border: 1px solid rgba(25,31,40,0.06);
+  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+.miniToggle:hover{
+  background: rgba(25,31,40,0.05);
+  border-color: rgba(25,31,40,0.10);
 }
 .miniToggle input{
   -webkit-appearance:none;
   appearance:none;
-  width:16px;
-  height:16px;
+  width:18px;
+  height:18px;
   border-radius:6px;
   border: 1px solid var(--border);
-  background: var(--surface-1);
+  background: var(--surface);
   display:inline-grid;
   place-items:center;
   margin:0;
   box-shadow:none;
+  flex: 0 0 auto;
 }
 .miniToggle input::after{
   content:"";
-  width:8px;
-  height:8px;
+  width:9px;
+  height:9px;
   border-radius:3px;
   transform: scale(0);
   transition: transform 120ms ease;
@@ -1948,13 +2012,24 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   background: rgba(22,163,74,0.10);
 }
 .miniToggle input:checked::after{ transform: scale(1); }
+.miniToggle input:focus-visible{ box-shadow: var(--focus-ring); }
+
 .miniHint{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
   font-size:12px;
-  color: var(--grey-500);
-  white-space:nowrap;
+  color: var(--grey-600);
+  line-height:1.35;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(22,163,74,0.06);
+  border: 1px solid rgba(22,163,74,0.16);
+  white-space:normal;
 }
-@media (max-width: 1020px){
-  .miniHint{ display:none; }
+@media (max-width: 560px){
+  .miniToggle{ padding:6px 8px; }
+  .miniHint{ padding:6px 8px; }
 }
 /* ===================== Memo Composer v2 ===================== */
 
@@ -2695,9 +2770,3 @@ textarea.actionTa{
 .paperPickItem:hover{ transform:none; }
 .intakeSrc:hover{ transform:none; }
 .btn:hover{ transform:none; }
-
-:focus-visible{
-  outline: 2px solid rgba(22,163,74,0.55);
-  outline-offset: 2px;
-  box-shadow:none;
-}
