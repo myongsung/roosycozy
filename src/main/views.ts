@@ -46,6 +46,8 @@ const H = {
   tag: (label: string, cls = 'tag') => `<span class="${cls}">${esc(label)}</span>`,
   chips: (items: string[]) =>
     items.length ? `<div class="chips">${items.map((x) => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : `<div class="muted">—</div>`,
+  chipsMini: (items: string[]) =>
+    items.length ? `<div class="chips mini">${items.map((x) => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : '',
 };
 const dl = (id: string, values: string[]) =>
   `<datalist id="${id}">${values.map((v) => `<option value="${esc(v)}"></option>`).join('')}</datalist>`;
@@ -183,16 +185,16 @@ export function render() {
               <span class="segNo">1</span><span class="segTxt">메모하기</span>
             </button>
             <button class="flowSeg ${S.tab === 'cases' ? 'active' : ''}" data-action="tab" data-tab="cases" type="button" ${S.tab === 'cases' ? 'aria-current="step"' : ''}>
-              <span class="segNo">2</span><span class="segTxt">메모묶음보기</span>
+              <span class="segNo">2</span><span class="segTxt">메모 묶음 보기</span>
             </button>
-            <button class="flowSeg" data-action="open-paper-picker" type="button" title="${hasCases ? '증빙자료를 출력할 메모 묶음을 고르세요' : '증빙자료 출력 화면을 열 수 있어요(빈 상태)'}">
-              <span class="segNo">3</span><span class="segTxt">증빙자료출력</span>
+            <button class="flowSeg" data-action="${hasCases ? 'open-paper-picker' : 'open-case-create'}" type="button" title="${hasCases ? '증빙자료를 출력할 메모 묶음을 고르세요' : '먼저 “스마트 모으기”로 메모 묶음을 만든 뒤 출력할 수 있어요'}">
+              <span class="segNo">3</span><span class="segTxt">증빙자료 출력</span>
             </button>
           </nav>
 
           <div class="hdrActions">
             <div class="hdrPrimary">
-              ${H.btn('<span class="emIco" aria-hidden="true">🚨</span><span class="emLbl">스마트 메모 묶기</span>', 'open-case-create', ' title="비상 시 스마트 메모 묶기(관련 메모 자동 묶기)" aria-label="스마트 메모 묶기"', 'btn hdrEmergency pulse')}
+              ${H.btn('<span class="emIco" aria-hidden="true">✨</span><span class="emLbl">스마트 모으기</span>', 'open-case-create', ' title="관련 메모를 자동으로 선별해 묶음을 만들어요" aria-label="스마트 모으기"', 'btn hdrCta')}
               ${/* H.btn('샘플', 'load-sample', 'title="샘플 불러오기(현재 데이터 덮어쓰기)"', 'btn hdrSub') */''}
             </div>
 
@@ -265,7 +267,7 @@ function renderPaperPickModal() {
 
   const actions = `
     <div class="rowInline">
-      ${H.btn('스마트 메모 모으기', 'paper-open-case-create', '', 'btn')}
+      ${H.btn('스마트 모으기', 'paper-open-case-create', '', 'btn')}
       ${H.btn('닫기', 'close-paper-picker')}
     </div>
   `;
@@ -304,7 +306,7 @@ function renderPaperPickModal() {
         아직 메모 묶음이 없어요. 먼저 메모를 모아 묶음을 만든 뒤 증빙자료를 출력할 수 있어요.
       </div>
       <div class="rowInline" style="justify-content:flex-end; margin-top:10px">
-        ${H.btn('✨ 스마트 메모 모으기', 'paper-open-case-create', '', 'btn primary')}
+        ${H.btn('✨ 스마트 모으기', 'paper-open-case-create', '', 'btn primary')}
       </div>
     `;
 
@@ -485,7 +487,7 @@ function renderRecordSidebar() {
             ${hasFilters ? `필터 <b>${esc(String(filtered.length))}</b>/${esc(String(all.length))}` : `총 <b>${esc(String(all.length))}</b>개`}
           </span>
 
-          <button class="btn ghost mfBtn" type="button" data-action="apply-record-filters">적용</button>
+          <button class="btn ghost mfBtn" type="button" data-action="apply-record-filters" title="Enter로도 적용할 수 있어요">적용</button>
         </div>
 
         ${dl('dlFilterActor', actorOpts)}
@@ -617,7 +619,11 @@ function renderRecordEntryForm() {
         <div class="metaInputs">
           <div class="field compact">
             <label>시간 <span class="reqStar">*</span></label>
-            <input id="recordTs" class="${okTs ? '' : 'reqWarn'}" type="datetime-local" value="${esc(draftRecord.ts)}" data-action="draft-record" data-field="ts" />
+            
+              <div class="rowInline compactRow">
+                <input id="recordTs" class="${okTs ? '' : 'reqWarn'}" type="datetime-local" value="${esc(draftRecord.ts)}" data-action="draft-record" data-field="ts" />
+                <button class="btn ghost small" type="button" data-action="set-record-now" title="지금 시간으로">방금</button>
+              </div>
             <div id="recordWarnTs" class="miniWarn" ${okTs ? 'hidden' : ''}>⚠ 시간을 선택해 주세요.</div>
           </div>
 
@@ -688,13 +694,13 @@ function renderCasesMain(selected: CaseItem | null) {
     return `
       <div class="sectionTitle">
         <div>
-          <div class="h2">메모묶음보기</div>
+          <div class="h2">메모 묶음 보기</div>
           <div class="muted">요약을 입력하면 알고리즘이 관련 메모를 자동 선별해 메모 묶음 타임라인으로 모아줘요.</div>
         </div>
       </div>
       ${renderDefenseIntro()}
       <div class="empty">아직 메모 묶음이 없어요. 아래 버튼으로 시작해보세요.
-        <div style="margin-top:12px">${H.btn('✨ 스마트 메모 모으기', 'open-case-create', '', 'btn primary aiPrimary')}</div>
+        <div style="margin-top:12px">${H.btn('✨ 스마트 모으기', 'open-case-create', '', 'btn primary aiPrimary')}</div>
       </div>
     `;
   }
@@ -703,7 +709,7 @@ function renderCasesMain(selected: CaseItem | null) {
     return `
       <div class="sectionTitle">
         <div>
-          <div class="h2">메모묶음보기</div>
+          <div class="h2">메모 묶음 보기</div>
           <div class="muted">메모 묶음을 열면 관련 메모가 시간순 타임라인으로 보여요.</div>
         </div>
         ${/* <div class="miniSearch">
@@ -833,7 +839,7 @@ function renderCaseCreateModal() {
 
   return H.modal(
     'caseCreateModal',
-    H.modalHead('스마트 메모 모으기', 'AI가 관련 메모를 자동으로 모아줍니다.', H.btn('닫기', 'close-case-create')),
+    H.modalHead('스마트 모으기', 'AI가 관련 메모를 자동으로 모아줍니다.', H.btn('닫기', 'close-case-create')),
     `
       <div class="helperBox aiHelp" style="margin-bottom:14px; margin-top:0;">
         <b>사용법:</b> 누구의 기록을 모을지 선택하세요. AI가 해당 인물과 관련된 메모를 우선적으로 찾아옵니다.
@@ -966,7 +972,7 @@ function renderCaseUpdateModal() {
           ${hasAppliedFilters ? `필터 <b>${esc(String(filteredTotal))}</b>/${esc(String(baseTotal))}` : `총 <b>${esc(String(baseTotal))}</b>개`}
         </span>
 
-        <button class="btn ghost mfBtn" type="button" data-action="apply-update-filters">적용</button>
+        <button class="btn ghost mfBtn" type="button" data-action="apply-update-filters" title="Enter로도 적용할 수 있어요">적용</button>
         <button class="btn ghost mfBtn" type="button" data-action="clear-update-filters">초기화</button>
       </div>
 
@@ -1284,6 +1290,13 @@ function renderCaseTimeline(c: CaseItem) {
   // 타임라인 검색 UI 제거(스크린샷 영역 제거 요청)
   const filtered = events;
 
+  const ctx = {
+    actors: ((c as any).actors || []) as ActorRef[],
+    queryTokens: tokenizeLite(String((c as any).query || '')),
+    timeFrom: String((c as any).timeFrom || ''),
+    timeTo: String((c as any).timeTo || ''),
+  };
+
   return `
     <div class="sectionTitle">
       <div class="caseTitleLeft">
@@ -1296,13 +1309,13 @@ function renderCaseTimeline(c: CaseItem) {
       <div class="caseTitleRight">
         <div class="aiTopActions">
           ${H.btn('기록추가', 'open-case-update')}
-          ${H.btn('증빙자료출력', 'open-paper')}
+          ${H.btn('증빙자료 출력', 'open-paper')}
           ${H.btn('목록으로', 'clear-case')}
         </div>
       </div>
     </div>
 
-    ${filtered.length ? renderTimelineWithDays(filtered) : `<div class="empty">표시할 항목이 없어요.</div>`}
+    ${filtered.length ? renderTimelineWithDays(filtered, ctx) : `<div class="empty">표시할 항목이 없어요.</div>`}
   `;
 }
 
@@ -1328,7 +1341,7 @@ function eventTs(ev: any): string {
   }
 }
 
-function renderTimelineWithDays(events: any[]) {
+function renderTimelineWithDays(events: any[], ctx?: any) {
   let lastDay = '';
   const parts: string[] = [];
   for (const ev of events || []) {
@@ -1338,12 +1351,12 @@ function renderTimelineWithDays(events: any[]) {
       parts.push(`<div class="tDay"><span class="tDayPill">${esc(fmtDay(ts))}</span></div>`);
       lastDay = dayKey;
     }
-    parts.push(renderTimelineEvent(ev));
+    parts.push(renderTimelineEvent(ev, ctx));
   }
   return `<div class="timelineWrap"><div class="timeline timelineEm">${parts.join('')}</div></div>`;
 }
 
-function renderTimelineEvent(ev: any) {
+function renderTimelineEvent(ev: any, ctx?: any) {
   if (ev.kind === 'record') {
     const r = ev.record as RecordItem;
     const score = ev.score as number | undefined;
@@ -1356,6 +1369,23 @@ function renderTimelineEvent(ev: any) {
             H.tag(trunc(actorShort(r.actor), 18)),
             H.tag(placeLabel(r.place, r.placeOther)),
           ])}
+          ${(() => {
+            const reasons: string[] = [];
+            try {
+              const actors = (ctx?.actors || []) as ActorRef[];
+              if (actors.length && actors.some((a) => actorEqLite(a, r.actor))) reasons.push('주체일치');
+              const tf = String(ctx?.timeFrom || '').trim();
+              const tt = String(ctx?.timeTo || '').trim();
+              if ((tf || tt) && isWithinRangeISO(String(r.ts || ''), tf || undefined, tt || undefined)) reasons.push('기간내');
+              const qTokens = (ctx?.queryTokens || []) as string[];
+              if (qTokens.length) {
+                const sum = String(r.summary || '').toLowerCase();
+                const picks = qTokens.filter((t) => t && sum.includes(String(t).toLowerCase())).slice(0, 2);
+                for (const t of picks) reasons.push(`키워드:${t}`);
+              }
+            } catch {}
+            return H.chipsMini(reasons);
+          })()}
           <div class="title">${esc(r.summary)}</div>
           <div class="meta">${esc(fmt(r.ts))}</div>
           <div class="actionsRow" style="margin-top:12px">

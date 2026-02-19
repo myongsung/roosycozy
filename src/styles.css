@@ -266,7 +266,9 @@ border-bottom: 1px solid rgba(25,31,40,0.10);
   background: rgba(22,163,74,1);
   border-color: rgba(22,163,74,0.26);
   color: var(--white);
+  gap: 8px;
 }
+.btn.hdrCta .emIco{ font-size:16px; }
 .btn.hdrCta:hover{
   background: var(--primary-dark);
   transform: translateY(-1px);
@@ -888,6 +890,8 @@ transform: rotate(-8deg);
 /* ===================== Chips & Tags ===================== */
 
 .chips{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+.chips.mini{ gap:8px; margin-top:8px; }
+.chips.mini .chip{ font-size:12px; padding: 6px 10px; }
 .chip{
   display:inline-flex;
   align-items:center;
@@ -929,6 +933,7 @@ transform: rotate(-8deg);
 .tag.lilac{ background: var(--primary-bg); color: var(--primary-dark); border-color: rgba(22,163,74,0.18); }
 .tag.butter{ background: var(--warning-bg); color:#b7791f; border-color: rgba(255,179,0,0.25); }
 .tag.ai{ background: rgba(22,163,74,0.12); color: var(--primary-dark); border: 1px solid rgba(22,163,74,0.18); }
+.tag.aiReason{ background: rgba(37,99,235,0.10); color: rgba(30,64,175,1); border: 1px solid rgba(37,99,235,0.18); }
 .tag.ok{ background: var(--success-bg); color: rgba(5,120,87,1); border-color: rgba(16,185,129,0.22); }
 .tag.bad{ background: var(--danger-bg); color: #b91c1c; border-color: rgba(239,68,68,0.22); }
 

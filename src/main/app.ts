@@ -239,7 +239,24 @@ function bindEvents() {
     'close-logs': () => closeDlg('logsModal'),
     'copy-logs': async () => (await navigator.clipboard.writeText(logs.join('\n')), toast('로그 복사')),
     'clear-logs': () => (logs.splice(0, logs.length), setText('logBox', ''), toast('로그 비우기')),
-    wipe: async () => { if (!(await openConfirm('모든 데이터를 삭제할까요?'))) return; await wipeAll(); setState(defaultState()); (S as any).tab = 'cases'; syncDraftDefaults(); render(); toast('전체 삭제'); log('wipe all'); },
+    wipe: async () => {
+      if (!(await openConfirm('모든 데이터를 삭제할까요?'))) return;
+      const prev = JSON.parse(JSON.stringify(S));
+      await wipeAll();
+      setState(defaultState());
+      (S as any).tab = 'cases';
+      syncDraftDefaults();
+      render();
+      toastUndo('전체 삭제됨', async () => {
+        setState(prev);
+        await saveState(S);
+        syncDraftDefaults();
+        render();
+        toast('복구 완료');
+      });
+      toast('전체 삭제');
+      log('wipe all');
+    },
 
     'record-intake': (btn) => {
       const kind = String(btn.dataset.kind || '').trim(); if (!kind) return;
@@ -265,6 +282,8 @@ function bindEvents() {
     },
     'remove-related': (btn) => { const idx = Number(btn.dataset.idx ?? '-1'); if (!Number.isNaN(idx) && idx >= 0) (draftRecord.related = (draftRecord.related || []).filter((_, i) => i !== idx), render()); },
     'clear-record-draft': () => (Object.assign(draftRecord, DEFAULT_RECORD()), render()),
+
+    'set-record-now': () => { draftRecord.ts = toLocalInputValue(nowISO()); render(); toast('시간: 지금'); log('record ts set now'); },
 
     'save-record': async () => {
       const actorTypeText = String((draftRecord as any).actorTypeText || '').trim();
@@ -307,7 +326,7 @@ function bindEvents() {
       draftRecord.summary = ''; draftRecord.related = []; render();
       (ui as any).lastSavedRecordId = record!.id;
       setText('savedMsg', `“${String(record!.summary || '').trim() || '메모'}” 저장됨`);
-      setText('savedSub', sel ? '선택한 메모 묶음에 자동 반영됐어요.' : '사건(메모 묶음)에 모으려면 위에서 “스마트 메모 모으기”를 사용해요.');
+      setText('savedSub', sel ? '선택한 메모 묶음에 자동 반영됐어요.' : '사건(메모 묶음)에 모으려면 위에서 “스마트 모으기”를 사용해요.');
       openDlg('savedModal'); window.setTimeout(() => closeDlg('savedModal'), 1800);
       toast('저장 완료 ✅'); log('record saved', record!.id);
     },
@@ -628,6 +647,22 @@ function bindEvents() {
       const input = document.getElementById('restoreFile') as HTMLInputElement | null;
       input?.click();
       return;
+    }
+
+
+    // Enter로 필터 적용(메모 필터 / 업데이트 필터)
+    if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+      const ae = document.activeElement as HTMLElement | null;
+      if (ae?.closest('[data-action="draft-record-filters"]')) {
+        e.preventDefault();
+        (document.querySelector('[data-action="apply-record-filters"]') as HTMLButtonElement | null)?.click();
+        return;
+      }
+      if (ae?.closest('[data-action="draft-update-filters"]')) {
+        e.preventDefault();
+        (document.querySelector('[data-action="apply-update-filters"]') as HTMLButtonElement | null)?.click();
+        return;
+      }
     }
 
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
