@@ -661,7 +661,7 @@ function renderRecordEntryForm() {
         ${dl('dlNameParent', PARENT_NAMES as any)}
         ${dl('dlNameAdmin', ADMIN_NAMES as any)}
 
-        <details class="metaMore">
+        <details id="recordRelatedDetails" class="metaMore" ${ui.recRelatedOpen ? 'open' : ''}>
           <summary>
             <span>관련자 추가</span>
             <span class="metaMoreCount">${esc(String((draftRecord.related || []).length))}명</span>

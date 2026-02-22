@@ -79,7 +79,14 @@ function updateRecordComposerUI() {
   if (elActorRow) elActorRow.classList.toggle('reqWarn', !okActor);
 }
 
+// 렌더 전: render()가 DOM을 갈아엎기 때문에, <details> 같은 transient UI 상태를 저장해둔다.
+function captureTransientUI() {
+  const det = document.getElementById('recordRelatedDetails') as HTMLDetailsElement | null;
+  if (det) ui.recRelatedOpen = !!det.open;
+}
+
 const render = () => {
+  captureTransientUI();
   _isRerendering = true;
   renderView();
   syncDialogs();
@@ -278,7 +285,9 @@ function bindEvents() {
       if (!typeText || !name) return;
       draftRecord.relNameChoice = OTHER;
       draftRecord.related = addActorToList(draftRecord.related || [], { type, name });
-      draftRecord.relNameOther = ''; render(); toast('관련자 추가'); log('related added', name);
+      draftRecord.relNameOther = '';
+      ui.recRelatedOpen = true;
+      render(); toast('관련자 추가'); log('related added', name);
     },
     'remove-related': (btn) => { const idx = Number(btn.dataset.idx ?? '-1'); if (!Number.isNaN(idx) && idx >= 0) (draftRecord.related = (draftRecord.related || []).filter((_, i) => i !== idx), render()); },
     'clear-record-draft': () => (Object.assign(draftRecord, DEFAULT_RECORD()), render()),
@@ -323,7 +332,17 @@ function bindEvents() {
       const sel = getSelectedCase();
       if (sel) S.cases[sel.id] = await addRecordsToCase(sel, S.records, [record!.id]);
       await saveState(S);
-      draftRecord.summary = ''; draftRecord.related = []; render();
+
+      // 저장 후 입력폼을 '깔끔하게' 비워서 다음 입력에서 주체/관련자 값이 섞이지 않게 한다.
+      draftRecord.summary = '';
+      draftRecord.actorNameChoice = OTHER;
+      draftRecord.actorNameOther = '';
+      draftRecord.relNameChoice = OTHER;
+      draftRecord.relNameOther = '';
+      draftRecord.related = [];
+      // 다음 메모가 빠르게 들어가도록 시간을 "지금"으로 갱신
+      draftRecord.ts = toLocalInputValue(nowISO());
+      render();
       (ui as any).lastSavedRecordId = record!.id;
       setText('savedMsg', `“${String(record!.summary || '').trim() || '메모'}” 저장됨`);
       setText('savedSub', sel ? '선택한 메모 묶음에 자동 반영됐어요.' : '사건(메모 묶음)에 모으려면 위에서 “스마트 모으기”를 사용해요.');
@@ -569,9 +588,27 @@ function bindEvents() {
 
   /* ---------- input/change routing ---------- */
   const rec: Record<string, (v: string) => void> = {
-    actorTypeText: (v) => { const t = actorTypeInternalFromText(v); draftRecord.actorType = t; (draftRecord as any).actorTypeText = actorTypeTextFromInternal(t); render(); },
+    actorTypeText: (v) => {
+      const t = actorTypeInternalFromText(v);
+      draftRecord.actorType = t;
+      (draftRecord as any).actorTypeText = actorTypeTextFromInternal(t);
+      // 타입 변경 시 이전 이름이 남아 다른 분류로 저장되는 걸 방지
+      draftRecord.actorNameChoice = OTHER;
+      draftRecord.actorNameOther = '';
+      render();
+    },
     actorNameOther: (v) => (draftRecord.actorNameChoice = OTHER, draftRecord.actorNameOther = v),
-    relTypeText: (v) => { const t = actorTypeInternalFromText(v); draftRecord.relType = t; (draftRecord as any).relTypeText = actorTypeTextFromInternal(t); render(); },
+    relTypeText: (v) => {
+      const t = actorTypeInternalFromText(v);
+      const prev = draftRecord.relType;
+      draftRecord.relType = t;
+      (draftRecord as any).relTypeText = actorTypeTextFromInternal(t);
+      // 타입 전환 시 이전 선택값(예: 학생1)이 남아 다른 분류로 잘못 들어가는 걸 방지
+      if (t !== prev) { draftRecord.relNameChoice = OTHER; draftRecord.relNameOther = ''; }
+      // 관련자 추가 패널이 리렌더 때문에 접히지 않도록 유지
+      ui.recRelatedOpen = true;
+      render();
+    },
     relNameOther: (v) => (draftRecord.relNameChoice = OTHER, draftRecord.relNameOther = v),
     placeText: (v) => { (draftRecord as any).placeText = v; draftRecord.place = (PLACE_TYPES as any).includes(v as any) ? (v as PlaceType) : ('기타' as PlaceType); if (draftRecord.place !== '기타') draftRecord.placeOther = ''; render(); },
     placeOther: (v) => (draftRecord.placeOther = v),

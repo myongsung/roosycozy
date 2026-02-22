@@ -13,6 +13,7 @@ export const ui = {
   qRecords: '',
   qTimeline: '',
   qUpdate: '', // [추가] 업데이트 모달 내 검색어
+  recRelatedOpen: false, // 메모하기 > 관련자 추가(details) 열림 상태
   // 메모 필터(사이드바) - draft는 입력값, applied는 적용된 값
   recFilterActor: '', recFilterPlace: '', recFilterKeyword: '',
   recFilterActorDraft: '', recFilterPlaceDraft: '', recFilterKeywordDraft: '',
