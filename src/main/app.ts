@@ -692,11 +692,21 @@ function syncDraftDefaults() {
 
 export function initApp() {
   bindEvents(); ensurePaperStyles(); syncDraftDefaults();
-  (S as any).tab = 'cases'; S.tab = 'cases'; render();
+
+  const focusRecordComposer = () => window.setTimeout(() => {
+    (document.getElementById('recordSummary') as HTMLTextAreaElement | null)?.focus();
+  }, 0);
+
+  // ✅ 앱 실행 시 첫 화면: 메모하기(records)
+  (S as any).tab = 'records'; S.tab = 'records'; render(); focusRecordComposer();
+
   (async () => {
     try { setState(await loadState()); log('state loaded'); }
     catch (e) { log('load failed', e); setState(defaultState()); }
-    if (!S.tab) (S as any).tab = 'cases';
-    syncDraftDefaults(); render();
+
+    // ✅ 로컬에 마지막 탭이 무엇이었든, 실행 시작은 records로 고정
+    (S as any).tab = 'records'; S.tab = 'records';
+
+    syncDraftDefaults(); render(); focusRecordComposer();
   })();
 }
