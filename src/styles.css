@@ -74,7 +74,7 @@
 }
 
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html,body{ height:100%; background:#ffffff; }
+html,body{ height:100%; background:#ffffff; overflow-x:hidden; }
 body{
   margin:0;
   font-family:var(--font-family);
@@ -162,8 +162,10 @@ button{ appearance:none; -webkit-appearance:none; }
   z-index: 120;
 
   /* full-bleed header background */
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
+  left: 0;
+  right: 0;
+  width: 100%;
+  margin-left: 0;
 
   background: #ffffff;
 border-bottom: 1px solid rgba(25,31,40,0.10);
@@ -1778,9 +1780,8 @@ dialog.modal#caseUpdateModal .modalHead{
 }
 
 @media (max-width: 960px){
-.topbarRow{ flex-wrap:wrap; height:auto; padding: 6px 0;
-  .topbarInner{ flex-wrap:wrap; height:auto; padding:8px 20px; }
-}
+  .topbarRow{ flex-wrap:wrap; height:auto; padding: 6px 0; }
+  .topbarInner{ flex-wrap:wrap; height:auto; padding: 8px 20px; }
 
   .brand .taglineSmall{ display:none; }
   nav.flowSlim{
@@ -2515,8 +2516,14 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 
 /* Make action log (left) narrow and give the case/timeline panel (right) much more room */
 .grid.caseGrid{
+  /* left: action log / right: timeline */
   grid-template-columns: clamp(320px, 26vw, 440px) minmax(0, 1fr);
+  grid-template-areas: "side main";
 }
+.grid.caseGrid > main{ grid-area: main; }
+.grid.caseGrid > .side{ grid-area: side; }
+
+
 
 /* Action log: compact panel */
 .actionSide{
@@ -2571,7 +2578,12 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 .btn.mini{ height: 30px; padding: 0 10px; border-radius: 10px; font-size: 12px; }
 
 @media (max-width: 820px){
-  .grid.caseGrid{ grid-template-columns: 1fr; }
+  .grid.caseGrid{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "main"
+      "side";
+  }
   .stepMiniList{ max-height: none; }
 }
 /* ==========================================================================

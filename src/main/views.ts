@@ -170,7 +170,9 @@ export function render() {
     ? 'grid recGrid'
     : (showCaseSide ? 'grid caseGrid' : 'grid oneCol');
 
-  const gridInner = `<main class="card">${mainHtml}</main><aside class="side">${sideHtml}</aside>`;
+  const gridInner = (isCases && showCaseSide)
+    ? `<aside class="side">${sideHtml}</aside><main class="card">${mainHtml}</main>`
+    : `<main class="card">${mainHtml}</main><aside class="side">${sideHtml}</aside>`;
 
   $app.innerHTML = `
     <div class="container">
