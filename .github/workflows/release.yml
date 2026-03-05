@@ -15,10 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 🚨 수정됨: lts/* 대신 명확하게 Node.js 20버전(가장 안정적인 최신 LTS)을 고정하여 에러를 방지합니다.
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -36,12 +37,11 @@ jobs:
           tagName: v1.0.${{ github.run_number }}
           releaseName: "App Build v1.0.${{ github.run_number }}"
           
-          # 🚨 핵심 추가: 앱 내부 버전을 깃허브 릴리즈 버전과 똑같이 강제로 맞춥니다!
+          # 앱 내부 버전을 깃허브 릴리즈 버전과 똑같이 강제로 맞춰 무한 업데이트를 방지합니다.
           appVersion: "1.0.${{ github.run_number }}"
           
           releaseBody: "Automated Windows build."
-          # 🚨 주의: draft가 true면 관리자가 수동으로 'Publish'를 눌러야 유저에게 업데이트가 배포됩니다.
-          releaseDraft: true 
+          releaseDraft: true # 빌드 후 깃허브에서 'Publish release'를 수동으로 눌러야 배포됩니다.
           prerelease: false
           args: --no-bundle
           uploadPlainBinary: true
@@ -57,10 +57,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 태그 이름을 v1.0... 으로 동일하게 맞췄습니다.
           gh release upload v1.0.${{ github.run_number }} src-tauri/target/release/roosycozy-x86_64-pc-windows-msvc.zip
 
-      # ✅ 4. (기존) 포터블 exe Workflow Artifacts 업로드 (테스트용)
+      # ✅ 4. 포터블 exe Workflow Artifacts 업로드 (테스트 및 보관용)
       - name: upload portable exe artifact
         uses: actions/upload-artifact@v4
         with:
@@ -68,12 +67,13 @@ jobs:
           path: src-tauri/target/release/*.exe
           if-no-files-found: error
 
-      # ✅ 5. (기존) 설치형 번들 수집 (만약을 대비함)
-      - name: upload installer artifacts (if any)
+      # ✅ 5. 설치형 번들 수집 (추후 MSI/NSIS 빌드 시 대비용)
+      - name: upload installer artifacts
         uses: actions/upload-artifact@v4
         with:
           name: roosycozy-installers
           path: |
             src-tauri/target/release/bundle/nsis/*.exe
             src-tauri/target/release/bundle/msi/*.msi
-          if-no-files-found: warn
+          # 🚨 수정됨: 포터블 exe만 빌드하므로 설치형 파일이 없어도 액션 로그에 노란색 경고가 뜨지 않게 합니다.
+          if-no-files-found: ignore
