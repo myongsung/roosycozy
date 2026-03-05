@@ -33,7 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: v${{ github.run_number }}
+          tagName: v1.0.${{ github.run_number }}
           releaseName: "App Build #${{ github.run_number }}"
           releaseBody: "Automated Windows build."
           # 🚨 주의: draft가 true면 관리자가 수동으로 'Publish'를 눌러야 유저에게 업데이트가 배포됩니다.
