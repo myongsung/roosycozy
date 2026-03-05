@@ -28,13 +28,13 @@ jobs:
 
       # ✅ 1. Tauri 빌드 및 GitHub Release 초안(Draft) 생성
       - name: build the app (portable exe + draft release)
-        id: tauri_build # ID를 추가하여 다른 스텝에서 참조할 수 있게 함 (선택사항)
+        id: tauri_build
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: v1.0.${{ github.run_number }}
-          releaseName: "App Build #${{ github.run_number }}"
+          releaseName: "App Build v1.0.${{ github.run_number }}"
           releaseBody: "Automated Windows build."
           # 🚨 주의: draft가 true면 관리자가 수동으로 'Publish'를 눌러야 유저에게 업데이트가 배포됩니다.
           # 자동 배포를 원하시면 이 값을 false로 변경하세요.
@@ -47,8 +47,6 @@ jobs:
       - name: Compress portable exe for auto-updater
         run: |
           cd src-tauri/target/release
-          # 실행 파일 이름이 다를 경우 roosycozy.exe 부분을 실제 파일명으로 변경하세요.
-          # self_update가 기본적으로 인식하기 쉬운 표준 이름(-x86_64-pc-windows-msvc)으로 압축합니다.
           Compress-Archive -Path roosycozy.exe -DestinationPath roosycozy-x86_64-pc-windows-msvc.zip
 
       # ✅ 3. 생성된 .zip 파일을 방금 생성된 GitHub Release에 추가 업로드
@@ -56,8 +54,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # tauri-action에서 사용한 tagName과 동일한 릴리즈에 업로드합니다.
-          gh release upload v${{ github.run_number }} src-tauri/target/release/roosycozy-x86_64-pc-windows-msvc.zip
+          # 👇 여기가 수정되었습니다! 태그 이름을 v1.0... 으로 동일하게 맞췄습니다.
+          gh release upload v1.0.${{ github.run_number }} src-tauri/target/release/roosycozy-x86_64-pc-windows-msvc.zip
 
       # ✅ 4. (기존) 포터블 exe Workflow Artifacts 업로드 (테스트용)
       - name: upload portable exe artifact
