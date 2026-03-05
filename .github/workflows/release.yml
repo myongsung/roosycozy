@@ -35,9 +35,12 @@ jobs:
         with:
           tagName: v1.0.${{ github.run_number }}
           releaseName: "App Build v1.0.${{ github.run_number }}"
+          
+          # 🚨 핵심 추가: 앱 내부 버전을 깃허브 릴리즈 버전과 똑같이 강제로 맞춥니다!
+          appVersion: "1.0.${{ github.run_number }}"
+          
           releaseBody: "Automated Windows build."
           # 🚨 주의: draft가 true면 관리자가 수동으로 'Publish'를 눌러야 유저에게 업데이트가 배포됩니다.
-          # 자동 배포를 원하시면 이 값을 false로 변경하세요.
           releaseDraft: true 
           prerelease: false
           args: --no-bundle
@@ -54,7 +57,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 👇 여기가 수정되었습니다! 태그 이름을 v1.0... 으로 동일하게 맞췄습니다.
+          # 태그 이름을 v1.0... 으로 동일하게 맞췄습니다.
           gh release upload v1.0.${{ github.run_number }} src-tauri/target/release/roosycozy-x86_64-pc-windows-msvc.zip
 
       # ✅ 4. (기존) 포터블 exe Workflow Artifacts 업로드 (테스트용)
