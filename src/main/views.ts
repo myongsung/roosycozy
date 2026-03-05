@@ -179,7 +179,7 @@ export function render() {
       <header class="topbar ${isAI ? 'aiFocus' : ''}">
         <div class="topbarInner">
           <div class="brand">
-            <div class="name"><span class="brandAccent">R</span>oosycozy <span class="brandAccent">L</span>ite</div>
+            <div class="name"><span class="brandAccent">r</span>oosycozy <span class="brandAccent">L</span>ite</div>
           </div>
 
           <nav class="flowSlim" aria-label="흐름">
