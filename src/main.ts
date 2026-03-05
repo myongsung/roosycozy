@@ -4,13 +4,11 @@ import { initApp } from './main/app';
 
 // ✅ 1. 화면 우측 하단에 알림(Toast)을 띄우는 함수
 function showUpdateToast(message: string, autoHide: boolean = false) {
-  // 이미 알림창이 있다면 내용을 업데이트
   let toast = document.getElementById('update-toast');
   
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'update-toast';
-    // 알림창 스타일링 (원하는 대로 CSS 수정 가능)
     toast.style.position = 'fixed';
     toast.style.bottom = '20px';
     toast.style.right = '20px';
@@ -29,7 +27,6 @@ function showUpdateToast(message: string, autoHide: boolean = false) {
   toast.innerText = message;
   toast.style.opacity = '1';
 
-  // autoHide가 true면 3초 뒤에 사라짐
   if (autoHide) {
     setTimeout(() => {
       if (toast) toast.style.opacity = '0';
@@ -42,27 +39,29 @@ function showUpdateToast(message: string, autoHide: boolean = false) {
 // ✅ 2. 업데이트 확인 및 진행 로직
 async function checkAndUpdateApp() {
   try {
-    // 업데이트 시작 시 사용자에게 알림 (사라지지 않고 계속 떠있음)
     const toast = showUpdateToast("🔄 새 버전을 확인하고 다운로드 중입니다...");
     
-    // Rust의 check_and_update 함수 호출 (이 동안 백그라운드에서 다운로드 진행)
     const result = await invoke<string>('check_and_update');
     
     if (result.includes("업데이트 완료")) {
-      // 다운로드가 완료되면 알림 내용 변경
       showUpdateToast("✅ 업데이트 완료! 적용을 위해 앱을 재시작해주세요.");
       
-      // 사용자에게 확실히 인지시키기 위해 alert 창도 띄움
       setTimeout(() => {
         alert("새 버전 다운로드 및 교체가 완료되었습니다!\n적용을 위해 앱을 닫습니다. 다시 실행해주세요.");
       }, 500);
     } else {
-      // 이미 최신 버전이라면 조용히 알림창 숨기기
       toast.style.opacity = '0';
     }
   } catch (error) {
     console.error("업데이트 에러:", error);
-    // 에러 발생 시 3초간 에러 메시지 띄웠다가 숨김
+    
+    // 🚨 핵심 추가: 윈도우 환경에서 에러 원인을 보기 위해 팝업을 띄웁니다!
+    // 맥 환경에서의 에러(No asset found)는 알림창을 띄우지 않고 무시하는 로직도 함께 넣었습니다.
+    const errMsg = String(error);
+    if (!errMsg.includes("No asset found for target")) {
+        alert(`[에러 원인 파악용 팝업]\n\n${errMsg}`);
+    }
+
     showUpdateToast("❌ 업데이트 확인 중 오류가 발생했습니다.", true);
   }
 }
