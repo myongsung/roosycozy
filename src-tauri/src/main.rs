@@ -4,18 +4,21 @@ mod engine;
 mod commands;
 
 use self_update::backends::github::Update;
-use tauri::command;
+use tauri::{command, AppHandle}; // ✅ AppHandle을 추가로 가져옵니다.
 use std::fs;
 
-// ✅ 1. 업데이트 확인 및 실행 커맨드
+// ✅ 1. 업데이트 확인 및 실행 커맨드 (app: AppHandle 매개변수 추가)
 #[command]
-fn check_and_update() -> Result<String, String> {
+fn check_and_update(app: AppHandle) -> Result<String, String> {
+    // 🚨 핵심 수정: 고정된 Cargo.toml 버전 대신, 깃허브 액션이 주입한 '진짜 현재 버전'을 가져옵니다.
+    let app_version = app.package_info().version.to_string();
+
     let status = Update::configure()
         .repo_owner("myongsung") // 깃허브 아이디
-        .repo_name("roosycozy") // 예: roosycozy (자신의 레포 이름으로 변경하세요)
+        .repo_name("roosycozy") // 레포지토리 이름
         .bin_name("roosycozy.exe") // 다운로드 받아 압축을 풀었을 때 나오는 실제 실행 파일 이름
         .show_download_progress(true)
-        .current_version(env!("CARGO_PKG_VERSION")) // Cargo.toml의 버전을 현재 버전으로 인식
+        .current_version(&app_version) // ✅ 동적으로 가져온 버전을 여기에 넣습니다!
         .build()
         .map_err(|e| format!("업데이트 설정 오류: {}", e))?
         .update()
