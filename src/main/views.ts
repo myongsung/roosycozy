@@ -18,6 +18,9 @@ import { renderCasePaperModal } from './paper';
 
 const ENABLE_BACKUP_RESTORE = true; // backup/restore (JSON copy/paste) UI disabled
 
+// Vite/Tauri asset URL resolution (works when the image sits next to views.ts)
+const INDIE_EVENT_BANNER_URL = new URL('./indie-event-banner.png', import.meta.url).href;
+
 
 /** ultra-light view helpers (single-file) */
 const H = {
@@ -215,6 +218,8 @@ export function render() {
         </div>
       </header>
 
+      ${renderIndieEventBanner()}
+
       <section class="${gridClass}">${gridInner}</section>
 
       <footer class="footer">
@@ -232,6 +237,7 @@ export function render() {
       ${renderPaperPickModal()}
       ${renderCasePaperModal()}
       ${renderCaseUpdateModal()}
+      ${renderIndieEventModal()}
 
       <div class="toast" id="toast" role="status" aria-live="polite">
         <span class="toastMsg"></span>
@@ -247,6 +253,85 @@ export function render() {
   installToastPortal();
   portalToast();
 
+}
+
+function renderIndieEventBanner() {
+  return `
+    <section class="promoRibbonSection" aria-label="3월 인디 후기 이벤트">
+      <button
+        class="promoRibbonCard"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="indieEventModal"
+        onclick="document.getElementById('indieEventModal')?.showModal()"
+      >
+        <div class="promoRibbonImageWrap">
+          <img
+            class="promoRibbonImage"
+            src="${INDIE_EVENT_BANNER_URL}"
+            alt="선생님들의 3월을 커피로 응원드립니다. 인디 후기 이벤트"
+            loading="eager"
+          />
+        </div>
+        <div class="promoRibbonOverlay">
+          <span class="promoRibbonBadge">클릭해서 자세히 보기</span>
+        </div>
+      </button>
+    </section>
+  `;
+}
+
+function renderIndieEventModal() {
+  return `
+    <dialog class="modal promoEventModal" id="indieEventModal" onclick="if(event.target===this)this.close()">
+      <div class="promoEventShell">
+        <div class="promoEventHero">
+          <img
+            class="promoEventHeroImg"
+            src="${INDIE_EVENT_BANNER_URL}"
+            alt="선생님들의 3월을 커피로 응원드립니다. 인디 후기 이벤트"
+          />
+        </div>
+
+        <div class="promoEventBody">
+          <div class="promoEventEyebrow">☕ 인디 후기 이벤트</div>
+          <div class="promoEventTitle">선생님들의 바쁜 3월을 Roosycozy가 응원합니다.</div>
+
+          <div class="promoEventLead">
+            새학기 정신없이 달리고 계실 선생님들께 작은 응원을 전하고 싶어요.
+            아래처럼 참여해 주시면 시원한 커피쿠폰을 선물로 드려요.
+          </div>
+
+          <div class="promoEventPanel">
+            <div class="promoEventPanelTitle">참여 방법</div>
+            <ol class="promoEventSteps">
+              <li>~3/20까지 인디스쿨 <b>(함께해요 → 추천해요 → 도구)</b>에 간단한 소개글이나 사용 후기글을 작성해 주세요.</li> www.roosycozy.com 링크가 포함되면 더 좋아요!
+              <li>작성 후 인디스쿨 <b>'roosycozy'</b>에게 쪽지를 보내 주세요.</li>
+              <li>확인되면 <b>시원한 커피쿠폰</b>을 선물로 드려요.</li>
+            </ol>
+          </div>
+
+          <div class="promoEventHighlight">
+            새학기 모두 화이팅 하세요!<br />
+            선생님 곁의 언제나 든든한 보호막, <b>roosycozy</b>가 있습니다.
+          </div>
+
+          <div class="promoEventActions">
+            <form method="dialog">
+              <button class="btn ghost" type="submit">닫기</button>
+            </form>
+            <button
+              class="btn primary promoEventCloseBtn"
+              type="button"
+              onclick="document.getElementById('indieEventModal')?.close()"
+            >
+              확인했어요
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+  `;
 }
 
 /* ==================== COMMON MODALS ==================== */

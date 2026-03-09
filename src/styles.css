@@ -2787,3 +2787,276 @@ textarea.actionTa{
 .paperPickItem:hover{ transform:none; }
 .intakeSrc:hover{ transform:none; }
 .btn:hover{ transform:none; }
+/* ===================== Indie Event Banner + Modal ===================== */
+
+.promoRibbonSection{
+  position: relative;
+  margin: 10px 0 0;
+}
+.promoRibbonSection::before,
+.promoRibbonSection::after{
+  content:"";
+  position:absolute;
+  border-radius:999px;
+  pointer-events:none;
+  filter: blur(12px);
+  opacity:.5;
+}
+.promoRibbonSection::before{
+  width: 72px;
+  height: 72px;
+  right: 20px;
+  top: 8px;
+  background: rgba(255,183,197,0.22);
+}
+.promoRibbonSection::after{
+  width: 92px;
+  height: 92px;
+  left: 16px;
+  top: 12px;
+  background: rgba(183,239,223,0.24);
+}
+
+.promoRibbonCard{
+  position: relative;
+  display:block;
+  width:100%;
+  padding:0;
+  overflow:hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(25,31,40,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92));
+  box-shadow: 0 8px 20px rgba(15,21,32,0.06), 0 2px 8px rgba(15,21,32,0.04);
+  transition: transform .18s ease, box-shadow .22s ease, border-color .18s ease;
+}
+.promoRibbonCard:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(15,21,32,0.08), 0 4px 12px rgba(15,21,32,0.05);
+  border-color: rgba(22,163,74,0.16);
+}
+.promoRibbonCard:focus-visible{
+  box-shadow: var(--focus-ring), 0 12px 24px rgba(15,21,32,0.08);
+}
+
+.promoRibbonImageWrap{
+  position: relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  height: clamp(64px, 7vw, 88px);
+  padding: 4px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.95), rgba(252,248,255,0.88)),
+    linear-gradient(90deg, rgba(255,191,214,0.22), rgba(198,245,229,0.22));
+}
+.promoRibbonImage{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit: contain;
+  object-position: center center;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.92);
+}
+.promoRibbonOverlay{
+  position:absolute;
+  right: 12px;
+  bottom: 10px;
+  display:flex;
+  justify-content:flex-end;
+  pointer-events:none;
+}
+.promoRibbonBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.88);
+  border: 1px solid rgba(25,31,40,0.08);
+  color: var(--grey-800);
+  font-size: 11px;
+  font-weight: 950;
+  box-shadow: 0 4px 12px rgba(15,21,32,0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.promoRibbonBadge::before{
+  content:"☕";
+  font-size: 14px;
+}
+
+.promoEventModal{
+  max-width: 700px !important;
+  max-height: min(88vh, 820px);
+  padding: 0 !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.promoEventModal::-webkit-scrollbar{
+  width: 10px;
+}
+.promoEventModal::-webkit-scrollbar-thumb{
+  background: rgba(25,31,40,0.16);
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.88);
+}
+.promoEventModal::-webkit-scrollbar-track{
+  background: transparent;
+}
+
+.promoEventShell{
+  display:flex;
+  flex-direction:column;
+  background:
+    radial-gradient(circle at top right, rgba(183,239,223,0.26), transparent 32%),
+    radial-gradient(circle at top left, rgba(255,191,214,0.24), transparent 36%),
+    linear-gradient(180deg, #fffdfd 0%, #ffffff 100%);
+}
+.promoEventHero{
+  padding: 16px 16px 0;
+}
+.promoEventHeroImg{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius: 22px;
+  border: 1px solid rgba(25,31,40,0.06);
+}
+.promoEventBody{
+  padding: 18px 28px 28px;
+}
+.promoEventEyebrow{
+  display:inline-flex;
+  align-items:center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(22,163,74,0.10);
+  color: var(--primary-dark);
+  border: 1px solid rgba(22,163,74,0.18);
+  font-size: 12px;
+  font-weight: 950;
+}
+.promoEventTitle{
+  margin-top: 14px;
+  font-size: 28px;
+  line-height: 1.28;
+  letter-spacing: -0.8px;
+  font-weight: 950;
+  color: var(--grey-900);
+}
+.promoEventLead{
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.72;
+  color: var(--grey-700);
+}
+.promoEventPanel{
+  margin-top: 18px;
+  padding: 18px 18px 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.82);
+  border: 1px solid rgba(25,31,40,0.08);
+  box-shadow: 0 10px 24px rgba(15,21,32,0.05);
+}
+.promoEventPanelTitle{
+  font-size: 14px;
+  font-weight: 950;
+  color: var(--grey-900);
+  margin-bottom: 10px;
+}
+.promoEventSteps{
+  margin: 0;
+  padding-left: 20px;
+  display:grid;
+  gap: 10px;
+  color: var(--grey-800);
+  font-size: 15px;
+  line-height: 1.7;
+}
+.promoEventSteps li::marker{
+  color: var(--primary);
+  font-weight: 950;
+}
+.promoEventHighlight{
+  margin-top: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,240,246,0.88), rgba(239,252,246,0.92));
+  border: 1px solid rgba(255,191,214,0.34);
+  color: var(--grey-800);
+  font-size: 15px;
+  line-height: 1.72;
+}
+.promoEventActions{
+  margin-top: 20px;
+  display:flex;
+  justify-content:flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.promoEventActions form{
+  margin:0;
+}
+.promoEventCloseBtn{
+  min-width: 132px;
+}
+
+@media (max-width: 860px){
+  .promoRibbonSection{
+    margin-top: 8px;
+  }
+  .promoRibbonImageWrap{
+    height: 72px;
+  }
+  .promoRibbonOverlay{
+    right: 10px;
+    bottom: 8px;
+  }
+}
+
+@media (max-width: 640px){
+  .promoRibbonSection{
+    margin: 8px 0 0;
+  }
+  .promoRibbonImageWrap{
+    height: 60px;
+    padding: 3px;
+  }
+  .promoRibbonImage{
+    border-radius: 12px;
+  }
+  .promoRibbonBadge{
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+  .promoEventBody{
+    padding: 16px 18px 20px;
+  }
+  .promoEventTitle{
+    font-size: 22px;
+  }
+  .promoEventLead,
+  .promoEventSteps,
+  .promoEventHighlight{
+    font-size: 14px;
+  }
+  .promoEventPanel{
+    padding: 15px 14px 14px;
+    border-radius: 18px;
+  }
+  .promoEventActions{
+    justify-content: stretch;
+  }
+  .promoEventActions .btn,
+  .promoEventActions form,
+  .promoEventActions form .btn{
+    width: 100%;
+  }
+}

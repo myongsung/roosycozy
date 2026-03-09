@@ -37,7 +37,8 @@ export const ui = {
   flashStepTimer: null as number | null,
 };
 
-export const UI_OTHER_ACTOR_LABEL = '기타/외부인';
+export const UI_OTHER_ACTOR_LABEL = '직접입력';
+export const LEGACY_UI_OTHER_ACTOR_LABEL = '기타/외부인';
 export const UI_ACTOR_TYPES = ['학생', '학부모', UI_OTHER_ACTOR_LABEL, '관리자', '동료교사'] as const;
 export const ACTOR_TYPES: ActorType[] = ['관리자', '학부모', '학생', '동료교사', '외부인', '기타'];
 export const LVS: Sensitivity[] = ['LV1', 'LV2', 'LV3', 'LV4', 'LV5'];
@@ -53,9 +54,13 @@ export const actorTypeTextFromInternal = (t: ActorType) => {
   const v = String(t || '').trim();
   return v === '외부인' || v === '기타' ? UI_OTHER_ACTOR_LABEL : (v || UI_OTHER_ACTOR_LABEL);
 };
-export const actorTypeInternalFromText = (v: string): ActorType => {
+export const normalizeActorTypeTextUI = (v: string) => {
   const s = String(v || '').trim();
-  if (!s || s === UI_OTHER_ACTOR_LABEL || s === '외부인' || s === '기타') return '외부인' as ActorType;
+  return s === LEGACY_UI_OTHER_ACTOR_LABEL || s === '외부인' || s === '기타' ? UI_OTHER_ACTOR_LABEL : s;
+};
+export const actorTypeInternalFromText = (v: string): ActorType => {
+  const s = normalizeActorTypeTextUI(v);
+  if (!s || s === UI_OTHER_ACTOR_LABEL) return '외부인' as ActorType;
   return ((ACTOR_TYPES as any).includes(s) ? s : '외부인') as ActorType;
 };
 export const nameDatalistIdForActorTypeText = (typeText: string) => {
@@ -66,15 +71,19 @@ export const nameDatalistIdForActorTypeText = (typeText: string) => {
 export const opt = (value: string, label: string, selected: string) =>
   `<option value="${esc(value)}" ${value === selected ? 'selected' : ''}>${esc(label)}</option>`;
 export const renderSelectOptions = (opts: { value: string; label: string }[], selected: string) => {
-  const sel = String(selected ?? '');
-  const merged = opts.some((o) => o.value === sel) ? opts : [{ value: sel, label: sel }, ...opts];
+  const sel = normalizeActorTypeTextUI(String(selected ?? ''));
+  const normalizedOpts = opts.map((o) => ({
+    value: normalizeActorTypeTextUI(o.value),
+    label: normalizeActorTypeTextUI(o.label),
+  }));
+  const merged = normalizedOpts.some((o) => o.value === sel) ? normalizedOpts : [{ value: sel, label: sel }, ...normalizedOpts];
   return merged.map((o) => opt(o.value, o.label, sel)).join('');
 };
 export const renderSelectFromList = (values: readonly string[], selected: string) =>
   renderSelectOptions((values || []).map((v) => ({ value: v, label: v })), selected);
 export const renderSelectFromListWithPlaceholder = (values: readonly string[], selected: string, placeholder: string) => {
-  const sel = String(selected || '');
-  const base = (values || []).slice();
+  const sel = normalizeActorTypeTextUI(String(selected || ''));
+  const base = (values || []).map((v) => normalizeActorTypeTextUI(v)).filter((v, i, arr) => arr.indexOf(v) === i);
   const merged = sel && !base.includes(sel) ? [sel, ...base] : base;
   return `<option value="" ${!sel ? 'selected' : ''} disabled>${esc(placeholder)}</option>` + merged.map((v) => opt(v, v, sel)).join('');
 };
