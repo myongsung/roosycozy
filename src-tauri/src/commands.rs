@@ -2,8 +2,17 @@
 use crate::engine;
 use engine::{AdvisorItem, CaseItem, RankOpts, RankedHit, RecordItem};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::fs;
 use std::path::{Path, PathBuf};
+
+use base64::{engine::general_purpose::STANDARD as B64, Engine as _};
+use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
+use rand_core::OsRng;
+use sha2::{Digest, Sha256};
+use tauri::{AppHandle, Manager};
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
 
 // genpdf의 .styled()/.padded()/.framed() 등을 쓰려면 Element 트레이트가 스코프에 있어야 함
 use genpdf::Element;
@@ -22,6 +31,187 @@ pub fn engine_advise(records: Vec<RecordItem>, case_item: CaseItem) -> Result<Ve
   Ok(engine::generate_advisors_for_case(&case_item, &records))
 }
 
+
+
+fn bytes_to_hex(bytes: &[u8]) -> String {
+  bytes.iter().map(|b| format!("{:02x}", b)).collect::<String>()
+}
+
+fn payload_sha256_hex(payload: &str) -> String {
+  let mut hasher = Sha256::new();
+  hasher.update(payload.as_bytes());
+  bytes_to_hex(&hasher.finalize())
+}
+
+fn signer_fingerprint_hex(public_key: &VerifyingKey) -> String {
+  let mut hasher = Sha256::new();
+  hasher.update(public_key.as_bytes());
+  bytes_to_hex(&hasher.finalize())
+}
+
+fn signer_store_dir(app: &AppHandle) -> Result<PathBuf, String> {
+  let dir = app
+    .path()
+    .app_data_dir()
+    .map_err(|e| format!("app data dir unavailable: {e}"))?
+    .join("security");
+  fs::create_dir_all(&dir).map_err(|e| format!("cannot create security dir: {e}"))?;
+  Ok(dir)
+}
+
+fn signer_key_path(app: &AppHandle) -> Result<PathBuf, String> {
+  Ok(signer_store_dir(app)?.join("device_ed25519.key"))
+}
+
+fn load_or_create_signing_key(app: &AppHandle) -> Result<SigningKey, String> {
+  let path = signer_key_path(app)?;
+  if path.exists() {
+    let raw = fs::read_to_string(&path).map_err(|e| format!("cannot read signing key: {e}"))?;
+    let key_bytes = B64
+      .decode(raw.trim())
+      .map_err(|e| format!("stored signing key decode failed: {e}"))?;
+    let arr: [u8; 32] = key_bytes
+      .try_into()
+      .map_err(|_| "stored signing key length is invalid".to_string())?;
+    return Ok(SigningKey::from_bytes(&arr));
+  }
+
+  let signing_key = SigningKey::generate(&mut OsRng);
+  let encoded = B64.encode(signing_key.to_bytes());
+  fs::write(&path, encoded).map_err(|e| format!("cannot write signing key: {e}"))?;
+  #[cfg(unix)]
+  {
+    let perms = fs::Permissions::from_mode(0o600);
+    let _ = fs::set_permissions(&path, perms);
+  }
+  Ok(signing_key)
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeviceSignerInfo {
+  pub algorithm: String,
+  pub signer_fingerprint: String,
+  pub signer_public_key: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SignIntegrityPayloadArgs {
+  pub payload: String,
+  #[serde(default)]
+  pub label: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SignIntegrityPayloadResult {
+  pub algorithm: String,
+  pub payload_sha256: String,
+  pub signature: String,
+  pub signer_fingerprint: String,
+  pub signer_public_key: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct VerifyIntegrityPayloadArgs {
+  pub payload: String,
+  pub signature: String,
+  pub signer_public_key: String,
+  #[serde(default)]
+  pub signer_fingerprint: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct VerifyIntegrityPayloadResult {
+  pub valid: bool,
+  pub code: String,
+  pub message: String,
+  pub algorithm: String,
+  pub payload_sha256: String,
+  pub signer_fingerprint: String,
+}
+
+#[tauri::command]
+pub fn get_device_signer_info(app: AppHandle) -> Result<DeviceSignerInfo, String> {
+  let signing_key = load_or_create_signing_key(&app)?;
+  let verifying_key = signing_key.verifying_key();
+  Ok(DeviceSignerInfo {
+    algorithm: "rust-ed25519-v1".to_string(),
+    signer_fingerprint: signer_fingerprint_hex(&verifying_key),
+    signer_public_key: B64.encode(verifying_key.to_bytes()),
+  })
+}
+
+#[tauri::command]
+pub fn sign_integrity_payload(app: AppHandle, args: SignIntegrityPayloadArgs) -> Result<SignIntegrityPayloadResult, String> {
+  let _ = args.label.as_deref();
+  let signing_key = load_or_create_signing_key(&app)?;
+  let verifying_key = signing_key.verifying_key();
+  let signature = signing_key.sign(args.payload.as_bytes());
+  Ok(SignIntegrityPayloadResult {
+    algorithm: "rust-ed25519-v1".to_string(),
+    payload_sha256: payload_sha256_hex(&args.payload),
+    signature: B64.encode(signature.to_bytes()),
+    signer_fingerprint: signer_fingerprint_hex(&verifying_key),
+    signer_public_key: B64.encode(verifying_key.to_bytes()),
+  })
+}
+
+#[tauri::command]
+pub fn verify_integrity_payload(args: VerifyIntegrityPayloadArgs) -> Result<VerifyIntegrityPayloadResult, String> {
+  let payload_sha256 = payload_sha256_hex(&args.payload);
+  let public_key_bytes = B64
+    .decode(args.signer_public_key.trim())
+    .map_err(|e| format!("public key decode failed: {e}"))?;
+  let public_key_arr: [u8; 32] = public_key_bytes
+    .try_into()
+    .map_err(|_| "public key length is invalid".to_string())?;
+  let verifying_key = VerifyingKey::from_bytes(&public_key_arr)
+    .map_err(|e| format!("public key parse failed: {e}"))?;
+
+  let signature_bytes = B64
+    .decode(args.signature.trim())
+    .map_err(|e| format!("signature decode failed: {e}"))?;
+  let signature = Signature::from_slice(&signature_bytes)
+    .map_err(|e| format!("signature parse failed: {e}"))?;
+
+  let computed_fingerprint = signer_fingerprint_hex(&verifying_key);
+  if let Some(expected) = args.signer_fingerprint.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+    if expected != computed_fingerprint {
+      return Ok(VerifyIntegrityPayloadResult {
+        valid: false,
+        code: "fingerprint-mismatch".to_string(),
+        message: "서명 공개키의 지문이 저장된 지문과 일치하지 않아요.".to_string(),
+        algorithm: "rust-ed25519-v1".to_string(),
+        payload_sha256,
+        signer_fingerprint: computed_fingerprint,
+      });
+    }
+  }
+
+  match verifying_key.verify(args.payload.as_bytes(), &signature) {
+    Ok(_) => Ok(VerifyIntegrityPayloadResult {
+      valid: true,
+      code: "ok".to_string(),
+      message: "Rust Ed25519 서명이 확인됐어요.".to_string(),
+      algorithm: "rust-ed25519-v1".to_string(),
+      payload_sha256,
+      signer_fingerprint: computed_fingerprint,
+    }),
+    Err(_) => Ok(VerifyIntegrityPayloadResult {
+      valid: false,
+      code: "signature-invalid".to_string(),
+      message: "서명값이 현재 payload와 맞지 않아요.".to_string(),
+      algorithm: "rust-ed25519-v1".to_string(),
+      payload_sha256,
+      signer_fingerprint: computed_fingerprint,
+    }),
+  }
+}
+
 /* -------------------- PDF export (case paper) -------------------- */
 
 #[derive(Debug, Clone, Deserialize)]
@@ -35,6 +225,11 @@ pub struct PaperRecordRow {
   pub summary: String,
   pub id: String,
   pub reason: Option<String>,
+  pub original_sealed_at: Option<String>,
+  pub last_sealed_at: Option<String>,
+  pub revision_count: Option<u32>,
+  pub integrity_hash: Option<String>,
+  pub revision_trail: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -460,11 +655,26 @@ pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
         format!("{actor} / {place}")
       };
 
+      let rev_count = r.revision_count.unwrap_or(0);
+      let amend_count = rev_count.saturating_sub(1);
+      let original_sealed_at = r.original_sealed_at.as_deref().map(clean).unwrap_or("-");
+      let last_sealed_at = r.last_sealed_at.as_deref().map(clean).unwrap_or("-");
+      let integrity_hash = r.integrity_hash.as_deref().map(clean).unwrap_or("-");
+      let mut summary_block = summary.to_string();
+      if rev_count > 0 || original_sealed_at != "-" || last_sealed_at != "-" {
+        summary_block.push_str(&format!("\n입력/봉인: {original_sealed_at} / 최종 수정봉인: {last_sealed_at}"));
+        if amend_count > 0 {
+          summary_block.push_str(&format!("\n수정이력: 정정 {amend_count}회 / REV {rev_count} / {integrity_hash}"));
+        } else {
+          summary_block.push_str(&format!("\n수정이력: 원본 / REV {rev_count} / {integrity_hash}"));
+        }
+      }
+
       let mut row = table.row();
       row.push_element(elements::Paragraph::new(format!("{no}")).styled(s_table.clone()).padded(1.0));
       row.push_element(elements::Paragraph::new(when.to_string()).styled(s_table.clone()).padded(1.0));
       row.push_element(elements::Paragraph::new(kind).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(summary.to_string()).styled(s_table.clone()).padded(1.0));
+      row.push_element(elements::Paragraph::new(summary_block).styled(s_table.clone()).padded(1.0));
       row.push_element(elements::Paragraph::new(actor_place).styled(s_table.clone()).padded(1.0));
       row.push_element(elements::Paragraph::new(lv.to_string()).styled(s_table.clone()).padded(1.0));
       row.push().map_err(|e| format!("timeline table row invalid: {e}"))?;
@@ -561,11 +771,54 @@ pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
           .styled(s_meta.clone())
       );
 
+      let rev_count = r.revision_count.unwrap_or(0);
+      let amend_count = rev_count.saturating_sub(1);
+      let has_integrity_meta = rev_count > 0
+        || r.original_sealed_at.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false)
+        || r.last_sealed_at.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false)
+        || r.integrity_hash.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false);
+
+      if has_integrity_meta {
+        doc.push(elements::Paragraph::new("  7) 봉인/수정 메타").styled(s_meta.clone()));
+        if let Some(original) = &r.original_sealed_at {
+          let v = original.trim();
+          if !v.is_empty() {
+            doc.push(elements::Paragraph::new(format!("      - 최초 입력봉인: {}", clean(v))).styled(s_meta.clone()));
+          }
+        }
+        if let Some(last) = &r.last_sealed_at {
+          let v = last.trim();
+          if !v.is_empty() {
+            doc.push(elements::Paragraph::new(format!("      - 최종 수정봉인: {}", clean(v))).styled(s_meta.clone()));
+          }
+        }
+        if rev_count > 0 {
+          let rev_line = if amend_count > 0 {
+            format!("      - 수정이력: 정정 {amend_count}회 / REV {rev_count}")
+          } else {
+            format!("      - 수정이력: 원본 / REV {rev_count}")
+          };
+          doc.push(elements::Paragraph::new(rev_line).styled(s_meta.clone()));
+        }
+        if let Some(hash) = &r.integrity_hash {
+          let v = hash.trim();
+          if !v.is_empty() {
+            let pretty = wrap_every(v, 24);
+            doc.push(elements::Paragraph::new(format!("      - 현재 해시: {pretty}")).styled(s_meta.clone()));
+          }
+        }
+        if let Some(trail) = &r.revision_trail {
+          for line in trail.iter().map(|s| s.trim()).filter(|s| !s.is_empty()).take(6) {
+            doc.push(elements::Paragraph::new(format!("      - {line}")).styled(s_meta.clone()));
+          }
+        }
+      }
+
       if let Some(reason) = &r.reason {
         let rr = reason.trim();
         if !rr.is_empty() {
           doc.push(
-            elements::Paragraph::new(format!("  7) 포함근거: {rr}"))
+            elements::Paragraph::new(format!("  8) 포함근거: {rr}"))
               .styled(s_meta.clone())
           );
         }

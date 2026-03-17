@@ -1,4 +1,4 @@
-import { nowISO, toLocalInputValue, esc, mustGetEl, defaultState } from '../utils';
+import { nowISO, toLocalInputValue, esc, mustGetEl, defaultState, ensureRecordV8 } from '../utils';
 import type { AppState } from '../utils';
 import type { Sensitivity, ActorType, ActorRef, StoreType, PlaceType, CaseSensFilter, CaseStatus, CaseItem, CaseUpdateCandidate, RecordItem } from '../engine';
 import { OTHER } from '../engine';
@@ -13,7 +13,11 @@ export const ui = {
   qRecords: '',
   qTimeline: '',
   qUpdate: '', // [추가] 업데이트 모달 내 검색어
-  recRelatedOpen: false, // 메모하기 > 관련자 추가(details) 열림 상태
+  evidenceTab: 'write' as 'write' | 'list',
+  caseTab: 'create' as 'create' | 'list' | 'print',
+  settingsOpen: false,
+  recRelatedOpen: false, // 증거기록하기 > 관련자 추가(details) 열림 상태
+  recEditRelatedOpen: false, // 증거 수정 > 관련자 추가(details) 열림 상태
   // 메모 필터(사이드바) - draft는 입력값, applied는 적용된 값
   recFilterActor: '', recFilterPlace: '', recFilterKeyword: '',
   recFilterActorDraft: '', recFilterPlaceDraft: '', recFilterKeywordDraft: '',
@@ -22,8 +26,11 @@ export const ui = {
   updFilterActorDraft: '', updFilterPlaceDraft: '', updFilterKeywordDraft: '',
   updatePickIds: [] as string[],
   viewRecordId: null as string | null,
+  recordEditId: null as string | null,
+  recordModalTab: 'current' as 'current' | 'history' | 'edit',
   recordsListOpen: false,
   caseCreateOpen: false,
+  recordComposerOpen: false,
   viewTimelineItem: null as TimelineTarget | null,
   paperCaseId: null as string | null,
   paperHash: null as string | null,
@@ -33,6 +40,7 @@ export const ui = {
   updateCandidatesForCaseId: null as string | null,
   updateCandidates: null as CaseUpdateCandidate[] | null,
   updateCandidatesLoading: false,
+  signatureModalMode: null as null | 'create' | 'amend',
   flashStepId: null as string | null,
   flashStepTimer: null as number | null,
 };
@@ -87,7 +95,7 @@ export const renderSelectFromListWithPlaceholder = (values: readonly string[], s
   const merged = sel && !base.includes(sel) ? [sel, ...base] : base;
   return `<option value="" ${!sel ? 'selected' : ''} disabled>${esc(placeholder)}</option>` + merged.map((v) => opt(v, v, sel)).join('');
 };
-export const renderNameFieldForType = (args: { typeText: string; value: string; action: 'draft-record' | 'draft-case'; field: string; placeholder: string; }) => {
+export const renderNameFieldForType = (args: { typeText: string; value: string; action: 'draft-record' | 'draft-record-edit' | 'draft-case'; field: string; placeholder: string; }) => {
   const t = String(args.typeText || '').trim();
   const v = String(args.value || '');
   const common = `data-action="${esc(args.action)}" data-field="${esc(args.field)}"`;
@@ -185,7 +193,7 @@ const openDlg = (id: string) => { const d = dlg(id); d && !d.open && d.showModal
 const closeDlg = (id: string) => { const d = dlg(id); d?.open && d.close(); };
 
 export const openRecordModal = () => openDlg('recordModal');
-export const closeRecordModal = () => { ui.viewRecordId = null; closeDlg('recordModal'); };
+export const closeRecordModal = () => { ui.viewRecordId = null; ui.recordEditId = null; ui.recordModalTab = 'current'; ui.recEditRelatedOpen = false; closeDlg('recordModal'); };
 export const openRecordsListModal = () => {
   // Legacy: 이전에는 "전체 목록"을 dialog로 열었지만,
   // 현재 UI에서는 우측 목록이 항상 보일 수 있어요.
@@ -242,7 +250,7 @@ export const closeCaseUpdateModal = () => {
 };
 
 /* drafts */
-export const draftRecord = {
+const RECORD_DRAFT_BASE = () => ({
   intake: '상담' as const,
   actorTypeText: '학생', actorType: '학생' as ActorType, actorNameChoice: OTHER, actorNameOther: '',
   relTypeText: '학부모', relType: '학부모' as ActorType, relNameChoice: OTHER, relNameOther: '', related: [] as ActorRef[],
@@ -251,7 +259,42 @@ export const draftRecord = {
   lvText: 'LV2', lv: 'LV2' as Sensitivity,
   ts: toLocalInputValue(nowISO()),
   summary: '',
-};
+  signerLabel: '전자서명',
+  sealReason: '',
+});
+export const draftRecord = RECORD_DRAFT_BASE();
+export const draftRecordEdit = RECORD_DRAFT_BASE();
+
+export function resetRecordEditDraft() {
+  Object.assign(draftRecordEdit, RECORD_DRAFT_BASE());
+}
+
+export function loadRecordEditDraft(record: any) {
+  const r = ensureRecordV8(record) as any;
+  draftRecordEdit.intake = '상담';
+  draftRecordEdit.actorType = (r.actor?.type || '외부인') as ActorType;
+  draftRecordEdit.actorTypeText = actorTypeTextFromInternal(draftRecordEdit.actorType);
+  draftRecordEdit.actorNameChoice = OTHER;
+  draftRecordEdit.actorNameOther = String(r.actor?.name || '');
+  draftRecordEdit.relTypeText = '학부모';
+  draftRecordEdit.relType = '학부모' as ActorType;
+  draftRecordEdit.relNameChoice = OTHER;
+  draftRecordEdit.relNameOther = '';
+  draftRecordEdit.related = Array.isArray(r.related) ? JSON.parse(JSON.stringify(r.related)) : [];
+  draftRecordEdit.place = (r.place || '교실') as PlaceType;
+  draftRecordEdit.placeText = String(r.place || '교실');
+  draftRecordEdit.placeOther = String(r.placeOther || '');
+  draftRecordEdit.storeType = (r.storeType || '전화') as StoreType;
+  draftRecordEdit.storeTypeText = String(r.storeType || '전화');
+  draftRecordEdit.storeOther = String(r.storeOther || '');
+  draftRecordEdit.lv = (r.lv || 'LV2') as Sensitivity;
+  draftRecordEdit.lvText = String(r.lv || 'LV2');
+  draftRecordEdit.ts = toLocalInputValue(String(r.ts || nowISO()));
+  draftRecordEdit.summary = String(r.summary || '');
+  draftRecordEdit.signerLabel = '전자서명';
+  draftRecordEdit.sealReason = '';
+}
+
 export const draftCase = {
   title: '', query: '', timeFrom: '', timeTo: '', maxResults: 80,
   onlyMainActor: false,

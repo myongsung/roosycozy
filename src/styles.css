@@ -21,18 +21,18 @@
   --white:#ffffff;
 
   /* brand */
-  --primary:#16a34a;
-  --primary-dark:#15803d;
-  --primary-bg:#eafaf0;
-  --primary-soft:rgba(22,163,74,0.10);
+  --primary:#111827;
+  --primary-dark:#111827;
+  --primary-bg:#f3f4f6;
+  --primary-soft:rgba(17,24,39,0.08);
 
   /* semantics */
-  --success:#10b981;
-  --success-bg:rgba(16,185,129,0.10);
-  --danger:#ef4444;
-  --danger-bg:rgba(239,68,68,0.10);
-  --warning:#ffb300;
-  --warning-bg:#fff8e1;
+  --success:#4b5563;
+  --success-bg:rgba(17,24,39,0.06);
+  --danger:#111827;
+  --danger-bg:rgba(17,24,39,0.08);
+  --warning:#6b7280;
+  --warning-bg:#f3f4f6;
 
   /* surfaces (3 levels) */
   --app-bg: #ffffff;
@@ -70,7 +70,7 @@
   --field-mb:14px;
 
   /* focus */
-  --focus-ring: 0 0 0 4px rgba(22,163,74,0.18);
+  --focus-ring: 0 0 0 4px rgba(17,24,39,0.14);
 }
 
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -92,7 +92,7 @@ input,textarea,select{ outline:none; }
 select{ appearance:none; -webkit-appearance:none; }
 button{ appearance:none; -webkit-appearance:none; }
 
-::selection{ background:rgba(22,163,74,0.18); }
+::selection{ background:rgba(17,24,39,0.12); }
 
 ::-webkit-scrollbar{ width:8px; height:8px; }
 ::-webkit-scrollbar-track{ background:transparent; }
@@ -173,7 +173,7 @@ border-bottom: 1px solid rgba(25,31,40,0.10);
 
 .topbar.aiFocus{
   background: #ffffff;
-  border-bottom-color: rgba(22,163,74,0.14);
+  border-bottom-color: rgba(17,24,39,0.14);
 }
 
 .topbarRow{
@@ -265,8 +265,8 @@ border-bottom: 1px solid rgba(25,31,40,0.10);
   box-shadow:none;
 }
 .btn.hdrCta{
-  background: rgba(22,163,74,1);
-  border-color: rgba(22,163,74,0.26);
+  background: rgba(17,24,39,1);
+  border-color: rgba(17,24,39,0.26);
   color: var(--white);
   gap: 8px;
 }
@@ -286,9 +286,9 @@ border-bottom: 1px solid rgba(25,31,40,0.10);
   font-weight: 950;
   letter-spacing:-0.2px;
 
-  background: rgba(239,68,68,1);
+  background: rgba(17,24,39,1);
   color: #fff;
-  border: 1px solid rgba(239,68,68,0.34);
+  border: 1px solid rgba(17,24,39,0.34);
   box-shadow:none;
 
   display:inline-flex;
@@ -309,7 +309,7 @@ transform: rotate(-8deg);
 .btn.hdrEmergency:hover{
   transform: translateY(-1px);
   box-shadow:none;
-  border-color: rgba(239,68,68,0.55);
+  border-color: rgba(17,24,39,0.55);
 }
 .btn.hdrEmergency:active{
   transform: translateY(0px);
@@ -391,9 +391,9 @@ transform: rotate(-8deg);
 .toolBtn:hover{ transform: translateY(-1px); box-shadow:none; }
 .toolBtn:active{ transform: translateY(0px); }
 .toolBtn.danger{
-  background: rgba(239,68,68,0.06);
-  border-color: rgba(239,68,68,0.20);
-  color:#b91c1c;
+  background: rgba(17,24,39,0.06);
+  border-color: rgba(17,24,39,0.20);
+  color:#111827;
 }
 .toolIco{
   width:18px;
@@ -417,7 +417,7 @@ transform: rotate(-8deg);
 .toolbar .iconBtn:hover{
   transform: translateY(-1px);
   box-shadow:none;
-  border-color: rgba(22,163,74,0.18);
+  border-color: rgba(17,24,39,0.18);
 }
 .toolbar .iconBtn:active{
   transform: translateY(0px);
@@ -471,7 +471,7 @@ transform: rotate(-8deg);
   bottom: 6px;
   width: 4px;
   border-radius: 999px;
-  background: rgba(22,163,74,1);
+  background: rgba(17,24,39,1);
 }
 .sectionTitle .muted{
   font-size:13px;
@@ -528,8 +528,8 @@ transform: rotate(-8deg);
   margin: 0 -2px;
 }
 .statPill.ai{
-  border-color: rgba(22,163,74,0.28);
-  background: rgba(22,163,74,0.06);
+  border-color: rgba(17,24,39,0.28);
+  background: rgba(17,24,39,0.06);
   color: var(--primary-dark);
 }
 @media (max-width: 1040px){
@@ -571,8 +571,8 @@ transform: rotate(-8deg);
   border-radius:999px;
   font-size:12px;
   font-weight: 950;
-  background: rgba(22,163,74,0.12);
-  border: 1px solid rgba(22,163,74,0.22);
+  background: rgba(17,24,39,0.12);
+  border: 1px solid rgba(17,24,39,0.22);
   color: var(--primary-dark);
   margin-right:6px;
 }
@@ -591,7 +591,7 @@ transform: rotate(-8deg);
 }
 .searchInput:focus{
   background: var(--surface);
-  border-color: rgba(22,163,74,0.55);
+  border-color: rgba(17,24,39,0.55);
   box-shadow:none;
 }
 
@@ -617,7 +617,7 @@ transform: rotate(-8deg);
   font-weight: 950;
   color: var(--danger);
   background: var(--danger-bg);
-  border: 1px solid rgba(239,68,68,0.25);
+  border: 1px solid rgba(17,24,39,0.25);
   padding: 2px 8px;
   border-radius:999px;
 }
@@ -648,7 +648,7 @@ transform: rotate(-8deg);
 .field select:focus,
 .field textarea:focus{
   background: var(--surface);
-  border-color: rgba(22,163,74,0.60);
+  border-color: rgba(17,24,39,0.60);
   box-shadow: var(--focus-ring);
 }
 
@@ -771,8 +771,8 @@ transform: rotate(-8deg);
   line-height:1.45;
 }
 .aiHelp{
-  border-color: rgba(22,163,74,0.24);
-  background: rgba(22,163,74,0.07);
+  border-color: rgba(17,24,39,0.24);
+  background: rgba(17,24,39,0.07);
 }
 
 /* ===================== Buttons ===================== */
@@ -802,22 +802,22 @@ transform: rotate(-8deg);
 .btn.primary{
   background: var(--primary);
   color: var(--white);
-  box-shadow: 0 10px 20px rgba(22,163,74,0.18);
+  box-shadow: 0 10px 20px rgba(17,24,39,0.18);
 }
 .btn.primary:hover{
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(22,163,74,0.22);
+  box-shadow: 0 14px 30px rgba(17,24,39,0.22);
 }
 
 .btn.demo{
   background: var(--warning-bg);
-  color: #b7791f;
-  border-color: rgba(255,179,0,0.35);
+  color: #4b5563;
+  border-color: rgba(17,24,39,0.35);
   box-shadow:none;
 }
 .btn.demo:hover{
-  background: rgba(255,179,0,0.22);
+  background: rgba(17,24,39,0.22);
   transform: translateY(-2px);
   box-shadow: var(--shadow-1);
 }
@@ -828,17 +828,17 @@ transform: rotate(-8deg);
   box-shadow:none;
 }
 .btn.danger:hover{
-  background: #dc2626;
+  background: #111827;
   transform: translateY(-2px);
   box-shadow: var(--shadow-1);
 }
 
-.btn:not(.primary):not(.ghost):not(.demo):not(.danger){
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger):not(.saveCta){
   background: var(--surface-2);
   color: var(--grey-800);
   border-color: var(--border);
 }
-.btn:not(.primary):not(.ghost):not(.demo):not(.danger):hover{
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger):not(.saveCta):hover{
   background: var(--grey-150);
   color: var(--grey-900);
   transform: translateY(-1px);
@@ -870,7 +870,7 @@ transform: rotate(-8deg);
 /* ===================== AI Card emphasis ===================== */
 
 .aiCard{
-  border: 1px solid rgba(22,163,74,0.22);
+  border: 1px solid rgba(17,24,39,0.22);
   box-shadow:none;
 }
 .aiCard::before{
@@ -879,7 +879,7 @@ transform: rotate(-8deg);
   inset:0;
   border-radius: var(--radius-l);
   padding: 1px;
-  background: rgba(22,163,74,0.10);
+  background: rgba(17,24,39,0.10);
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -932,12 +932,12 @@ transform: rotate(-8deg);
   align-items:center;
   border: 1px solid rgba(25,31,40,0.06);
 }
-.tag.lilac{ background: var(--primary-bg); color: var(--primary-dark); border-color: rgba(22,163,74,0.18); }
-.tag.butter{ background: var(--warning-bg); color:#b7791f; border-color: rgba(255,179,0,0.25); }
-.tag.ai{ background: rgba(22,163,74,0.12); color: var(--primary-dark); border: 1px solid rgba(22,163,74,0.18); }
-.tag.aiReason{ background: rgba(37,99,235,0.10); color: rgba(30,64,175,1); border: 1px solid rgba(37,99,235,0.18); }
-.tag.ok{ background: var(--success-bg); color: rgba(5,120,87,1); border-color: rgba(16,185,129,0.22); }
-.tag.bad{ background: var(--danger-bg); color: #b91c1c; border-color: rgba(239,68,68,0.22); }
+.tag.lilac{ background: var(--primary-bg); color: var(--primary-dark); border-color: rgba(17,24,39,0.18); }
+.tag.butter{ background: var(--warning-bg); color:#4b5563; border-color: rgba(17,24,39,0.25); }
+.tag.ai{ background: rgba(17,24,39,0.12); color: var(--primary-dark); border: 1px solid rgba(17,24,39,0.18); }
+.tag.aiReason{ background: rgba(17,24,39,0.10); color: rgba(17,24,39,1); border: 1px solid rgba(17,24,39,0.18); }
+.tag.ok{ background: var(--success-bg); color: rgba(17,24,39,1); border-color: rgba(17,24,39,0.22); }
+.tag.bad{ background: var(--danger-bg); color: #111827; border-color: rgba(17,24,39,0.22); }
 
 .title{ font-size:16px; font-weight: 950; color: var(--grey-900); line-height:1.5; margin-bottom:8px; }
 .meta{ font-size:12px; color: var(--grey-500); }
@@ -965,16 +965,16 @@ transform: rotate(-8deg);
   background: rgba(25,31,40,0.08);
 }
 .item:hover{
-  border-color: rgba(22,163,74,0.55);
+  border-color: rgba(17,24,39,0.55);
   box-shadow:none;
   transform: translateY(-2px);
 }
 .item.selected{
-  border-color: rgba(22,163,74,0.85);
+  border-color: rgba(17,24,39,0.85);
   box-shadow:none;
 }
 .item.selected::before{
-  background: rgba(22,163,74,1);
+  background: rgba(17,24,39,1);
 }
 
 .empty{
@@ -1037,8 +1037,8 @@ transform: rotate(-8deg);
   box-shadow:none;
 }
 .tCard.advisorCard{
-  background: rgba(22,163,74,0.07);
-  border-color: rgba(22,163,74,0.22);
+  background: rgba(17,24,39,0.07);
+  border-color: rgba(17,24,39,0.22);
 }
 .tItem .dot.advisorDot{ border-color: var(--primary-dark); background: var(--primary-bg); }
 .tCard.advisorCard.done{ opacity: 0.82; }
@@ -1046,7 +1046,7 @@ transform: rotate(-8deg);
 
 .tCard.stepCard{
   background: var(--warning-bg);
-  border-color: rgba(255,179,0,0.35);
+  border-color: rgba(17,24,39,0.35);
 }
 .tItem .dot.stepDot{ border-color: var(--warning); }
 
@@ -1293,7 +1293,7 @@ dialog.modal.caseCreateModal{
   left: 16px; right: 16px; top: 0;
   height: 2px;
   border-radius:999px;
-  background: rgba(22,163,74,0.26);
+  background: rgba(17,24,39,0.26);
   opacity: .6;
 }
 .intakeHead{
@@ -1319,8 +1319,8 @@ dialog.modal.caseCreateModal{
   align-items:center;
   padding: 6px 10px;
   border-radius:999px;
-  background: rgba(22,163,74,0.10);
-  border: 1px solid rgba(22,163,74,0.22);
+  background: rgba(17,24,39,0.10);
+  border: 1px solid rgba(17,24,39,0.22);
   color: var(--primary-dark);
   font-weight: 950;
   font-size:12px;
@@ -1347,7 +1347,7 @@ dialog.modal.caseCreateModal{
   position:absolute;
   inset:0;
   border-radius:16px;
-  background: rgba(22,163,74,0.05);
+  background: rgba(17,24,39,0.05);
   opacity: 0;
   transition: opacity .18s ease;
   pointer-events:none;
@@ -1355,11 +1355,11 @@ dialog.modal.caseCreateModal{
 .intakeSrc:hover{
   transform: translateY(-2px);
   box-shadow:none;
-  border-color: rgba(22,163,74,0.24);
+  border-color: rgba(17,24,39,0.24);
 }
 .intakeSrc:hover::before{ opacity: 1; }
 .intakeSrc.active{
-  border-color: rgba(22,163,74,0.60);
+  border-color: rgba(17,24,39,0.60);
   box-shadow:none;
 }
 .intakeSrc .ic{
@@ -1373,7 +1373,7 @@ dialog.modal.caseCreateModal{
   margin-bottom:8px;
   font-size:16px;
 }
-.intakeSrc.active .ic{ background: rgba(22,163,74,0.14); }
+.intakeSrc.active .ic{ background: rgba(17,24,39,0.14); }
 .intakeSrc .tx{
   display:block;
   font-weight: 950;
@@ -1401,8 +1401,8 @@ dialog.modal.caseCreateModal{
   border-radius:999px;
   font-weight: 950;
   font-size:12px;
-  background: rgba(22,163,74,0.10);
-  border: 1px solid rgba(22,163,74,0.22);
+  background: rgba(17,24,39,0.10);
+  border: 1px solid rgba(17,24,39,0.22);
   color: var(--primary-dark);
   box-shadow:none;
 }
@@ -1438,7 +1438,7 @@ dialog.modal.caseCreateModal{
   position: relative;
 }
 .flowNode.primary{
-  border-color: rgba(22,163,74,0.35);
+  border-color: rgba(17,24,39,0.35);
   box-shadow:none;
 }
 .flowNode.primary::before{
@@ -1447,7 +1447,7 @@ dialog.modal.caseCreateModal{
   left: 12px; right: 12px; top: 0;
   height: 2px;
   border-radius:999px;
-  background: rgba(22,163,74,0.55);
+  background: rgba(17,24,39,0.55);
 }
 .flowArrow{
   display:flex;
@@ -1492,7 +1492,7 @@ dialog.modal.caseCreateModal{
 }
 .barFill{
   height:100%;
-  background: rgba(22,163,74,1);
+  background: rgba(17,24,39,1);
   border-radius:999px;
 }
 .barMeta{
@@ -1541,9 +1541,9 @@ dialog.modal.caseCreateModal{
 }
 .defenseFlow.compact .pill b{ font-weight: 950; color: var(--grey-900); }
 .defenseFlow.compact .pillPrimary{
-  background: rgba(22,163,74,0.10);
-  border-color: rgba(22,163,74,0.25);
-  color: rgba(22,101,52,1);
+  background: rgba(17,24,39,0.10);
+  border-color: rgba(17,24,39,0.25);
+  color: rgba(17,24,39,1);
 }
 .defenseFlow.compact .pillSubtle{
   background: rgba(15,23,42,0.04);
@@ -1551,8 +1551,8 @@ dialog.modal.caseCreateModal{
 
 /* intro blocks */
 .defenseIntro{
-  border: 1px solid rgba(22,163,74,0.18);
-  background: rgba(22,163,74,0.05);
+  border: 1px solid rgba(17,24,39,0.18);
+  background: rgba(17,24,39,0.05);
   border-radius: var(--radius-l);
   padding:12px;
   margin-top:12px;
@@ -1628,7 +1628,7 @@ nav.flowSlim{
 
 .flowSeg.active{
   background: rgba(255,255,255,0.95);
-  border-color: rgba(22,163,74,0.18);
+  border-color: rgba(17,24,39,0.18);
   color: var(--grey-900);
 }
 .flowSeg.ready:not(.active){
@@ -1648,7 +1648,7 @@ nav.flowSlim{
   background: rgba(0,0,0,0.06);
 }
 .flowSeg.active .segNo{
-  background: rgba(22,163,74,0.14);
+  background: rgba(17,24,39,0.14);
   color: var(--primary-dark);
 }
 .flowSeg.ready:not(.active) .segNo{
@@ -1688,7 +1688,7 @@ dialog.modal.paperPickModal{
 .paperPickItem:hover{
   transform: translateY(-1px);
   box-shadow:none;
-  border-color: rgba(22,163,74,0.32);
+  border-color: rgba(17,24,39,0.32);
 }
 .paperPickItem:active{
   transform: translateY(0px);
@@ -1729,8 +1729,8 @@ dialog.modal.paperPickModal{
 
 /* highlight section */
 .highlight-section{
-  background: rgba(22,163,74,0.05);
-  border: 1px solid rgba(22,163,74,0.16);
+  background: rgba(17,24,39,0.05);
+  border: 1px solid rgba(17,24,39,0.16);
   border-radius: var(--radius-m);
   padding:16px;
 }
@@ -2011,11 +2011,11 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   border-radius:3px;
   transform: scale(0);
   transition: transform 120ms ease;
-  background: rgba(22,163,74,0.95);
+  background: rgba(17,24,39,0.95);
 }
 .miniToggle input:checked{
-  border-color: rgba(22,163,74,0.35);
-  background: rgba(22,163,74,0.10);
+  border-color: rgba(17,24,39,0.35);
+  background: rgba(17,24,39,0.10);
 }
 .miniToggle input:checked::after{ transform: scale(1); }
 .miniToggle input:focus-visible{ box-shadow: var(--focus-ring); }
@@ -2029,8 +2029,8 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   line-height:1.35;
   padding:6px 10px;
   border-radius:999px;
-  background: rgba(22,163,74,0.06);
-  border: 1px solid rgba(22,163,74,0.16);
+  background: rgba(17,24,39,0.06);
+  border: 1px solid rgba(17,24,39,0.16);
   white-space:normal;
 }
 @media (max-width: 560px){
@@ -2078,13 +2078,13 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   background: rgba(25,31,40,0.03);
 }
 .savePill.warn{
-  border-color: rgba(245,158,11,0.30);
-  background: rgba(245,158,11,0.10);
+  border-color: rgba(17,24,39,0.30);
+  background: rgba(17,24,39,0.10);
 }
 
 .savePill.ready{
-  border-color: rgba(16,185,129,0.28);
-  background: rgba(16,185,129,0.06);
+  border-color: rgba(17,24,39,0.28);
+  background: rgba(17,24,39,0.06);
 }
 .kbdHint{
   display:block;
@@ -2118,12 +2118,12 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   background: rgba(25,31,40,0.03);
 }
 .qPill.ok{
-  border-color: rgba(16,185,129,0.25);
-  background: rgba(16,185,129,0.06);
+  border-color: rgba(17,24,39,0.25);
+  background: rgba(17,24,39,0.06);
 }
 .qPill.warn{
-  border-color: rgba(245,158,11,0.30);
-  background: rgba(245,158,11,0.08);
+  border-color: rgba(17,24,39,0.30);
+  background: rgba(17,24,39,0.08);
 }
 .qPill .qHint{
   font-weight: 850;
@@ -2167,12 +2167,12 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   white-space:nowrap;
 }
 .metaChip.ok{
-  border-color: rgba(16,185,129,0.28);
-  background: rgba(16,185,129,0.06);
+  border-color: rgba(17,24,39,0.28);
+  background: rgba(17,24,39,0.06);
 }
 .metaChip.warn{
-  border-color: rgba(245,158,11,0.30);
-  background: rgba(245,158,11,0.08);
+  border-color: rgba(17,24,39,0.30);
+  background: rgba(17,24,39,0.08);
 }
 
 .metaPanel{
@@ -2215,7 +2215,7 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 }
 
 
-/* memo filter: single-line bar (메모하기 > 메모 필터) */
+/* memo filter: compact horizontal bar (증거 필터 / 증거조회&수정 필터) */
 .memoFilterCard .memoFilterBar{
   display:flex;
   align-items:center;
@@ -2246,7 +2246,7 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 .memoFilterCard .mfInput:focus,
 .memoFilterCard .mfSelect:focus{
   background: var(--surface);
-  border-color: rgba(22,163,74,0.60);
+  border-color: rgba(17,24,39,0.60);
   box-shadow:none;
 }
 .memoFilterCard .mfStat{
@@ -2259,6 +2259,62 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 }
 
 .memoFilterCard .mfBtn{ height:34px; padding: 0 12px; border-radius:999px; }
+
+.compactFilterCard .compactFilterBar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+}
+
+.compactFilterCard .mfFields{
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) 108px minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+}
+
+.compactFilterCard .mfField{
+  min-width:0;
+}
+
+.compactFilterCard .mfField .mfInput,
+.compactFilterCard .mfField .mfSelect{
+  width:100%;
+}
+
+.compactFilterCard .mfActions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.compactFilterCard .mfActions .mfStat{
+  margin-left:0;
+  margin-right:auto;
+}
+
+.compactFilterCard .mfBtn{
+  min-width:72px;
+  white-space:nowrap;
+}
+
+@media (max-width: 900px){
+  .compactFilterCard .compactFilterBar{
+    grid-template-columns:1fr;
+  }
+
+  .compactFilterCard .mfFields{
+    grid-template-columns:minmax(0,1fr) 108px;
+  }
+
+  .compactFilterCard .mfFieldKeyword{
+    grid-column:1 / -1;
+  }
+}
 
 .recMini{
   border: 1px solid rgba(25,31,40,0.08);
@@ -2329,7 +2385,7 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   letter-spacing:-0.2px;
   color: #fff;
   background: var(--primary);
-  border: 1px solid rgba(22,163,74,0.28);
+  border: 1px solid rgba(17,24,39,0.28);
   box-shadow:none;
   display:inline-flex;
   align-items:center;
@@ -2376,9 +2432,9 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   border-radius: 14px;
   font-size:12px;
   font-weight: 950;
-  color: rgba(146,64,14,1);
-  border: 1px solid rgba(245,158,11,0.28);
-  background: rgba(245,158,11,0.10);
+  color: rgba(17,24,39,1);
+  border: 1px solid rgba(17,24,39,0.28);
+  background: rgba(17,24,39,0.10);
 }
 
 .composerBottomHint{
@@ -2399,8 +2455,8 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
   font-size: 13px;
   opacity: .85;
 }
-.metaChip.ok .ico{ background: rgba(16,185,129,0.10); }
-.metaChip.warn .ico{ background: rgba(245,158,11,0.10); }
+.metaChip.ok .ico{ background: rgba(17,24,39,0.10); }
+.metaChip.warn .ico{ background: rgba(17,24,39,0.10); }
 
 /* Small screens: keep CTA compact */
 @media (max-width: 560px){
@@ -2444,23 +2500,23 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 .reqStar{ color: var(--danger); font-weight: 1000; margin-left: 3px; }
 
 .reqWarn{
-  border-color: rgba(245,158,11,0.45) !important;
-  background: rgba(245,158,11,0.06) !important;
+  border-color: rgba(17,24,39,0.45) !important;
+  background: rgba(17,24,39,0.06) !important;
 }
 
 .compactRow{ gap: 8px; align-items:center; }
 .grow{ flex: 1 1 auto; min-width: 0; }
 .compactRow.reqWarn select,
 .compactRow.reqWarn input{
-  border-color: rgba(245,158,11,0.45) !important;
-  background: rgba(245,158,11,0.06) !important;
+  border-color: rgba(17,24,39,0.45) !important;
+  background: rgba(17,24,39,0.06) !important;
 }
 
 .miniWarn{
   margin-top: 6px;
   font-size: 12px;
   font-weight: 900;
-  color: #b7791f;
+  color: #4b5563;
 }
 
 .metaMore{
@@ -2496,8 +2552,8 @@ section.grid.aiSwap{ background: transparent; border: none; padding: 0; }
 }
 
 .metaMore[open]{
-  border-color: rgba(22,163,74,0.18);
-  background: rgba(22,163,74,0.04);
+  border-color: rgba(17,24,39,0.18);
+  background: rgba(17,24,39,0.04);
 }
 .metaMorePanel{
   margin-top: 10px;
@@ -2684,7 +2740,7 @@ textarea.actionTa{
   top: 0;
   height: 2px;
   border-radius: 999px;
-  background: rgba(22,163,74,0.20);
+  background: rgba(17,24,39,0.20);
   opacity: .7;
 }
 
@@ -2695,7 +2751,7 @@ textarea.actionTa{
 .timeline.timelineEm::before{
   left: 22px;
   width: 3px;
-  background: rgba(22,163,74,0.14);
+  background: rgba(17,24,39,0.14);
 }
 .timeline.timelineEm .tItem{ padding-left: 62px; }
 
@@ -2753,10 +2809,10 @@ textarea.actionTa{
   background: rgba(25,31,40,0.10);
 }
 .tCard.advisorCard::before{
-  background: rgba(22,163,74,1);
+  background: rgba(17,24,39,1);
 }
 .tCard.stepCard::before{
-  background: rgba(255,179,0,1);
+  background: rgba(17,24,39,1);
 }
 .tCard:not(.advisorCard):not(.stepCard)::before{
   background: rgba(25,31,40,0.10);
@@ -2807,14 +2863,14 @@ textarea.actionTa{
   height: 72px;
   right: 20px;
   top: 8px;
-  background: rgba(255,183,197,0.22);
+  background: rgba(17,24,39,0.22);
 }
 .promoRibbonSection::after{
   width: 92px;
   height: 92px;
   left: 16px;
   top: 12px;
-  background: rgba(183,239,223,0.24);
+  background: rgba(17,24,39,0.24);
 }
 
 .promoRibbonCard{
@@ -2832,7 +2888,7 @@ textarea.actionTa{
 .promoRibbonCard:hover{
   transform: translateY(-1px);
   box-shadow: 0 12px 24px rgba(15,21,32,0.08), 0 4px 12px rgba(15,21,32,0.05);
-  border-color: rgba(22,163,74,0.16);
+  border-color: rgba(17,24,39,0.16);
 }
 .promoRibbonCard:focus-visible{
   box-shadow: var(--focus-ring), 0 12px 24px rgba(15,21,32,0.08);
@@ -2847,8 +2903,8 @@ textarea.actionTa{
   height: clamp(64px, 7vw, 88px);
   padding: 4px;
   background:
-    linear-gradient(135deg, rgba(255,255,255,0.95), rgba(252,248,255,0.88)),
-    linear-gradient(90deg, rgba(255,191,214,0.22), rgba(198,245,229,0.22));
+    linear-gradient(135deg, rgba(255,255,255,0.95), rgba(242,244,246,0.88)),
+    linear-gradient(90deg, rgba(17,24,39,0.22), rgba(17,24,39,0.22));
 }
 .promoRibbonImage{
   display:block;
@@ -2913,8 +2969,8 @@ textarea.actionTa{
   display:flex;
   flex-direction:column;
   background:
-    radial-gradient(circle at top right, rgba(183,239,223,0.26), transparent 32%),
-    radial-gradient(circle at top left, rgba(255,191,214,0.24), transparent 36%),
+    radial-gradient(circle at top right, rgba(17,24,39,0.26), transparent 32%),
+    radial-gradient(circle at top left, rgba(17,24,39,0.24), transparent 36%),
     linear-gradient(180deg, #fffdfd 0%, #ffffff 100%);
 }
 .promoEventHero{
@@ -2936,9 +2992,9 @@ textarea.actionTa{
   min-height: 30px;
   padding: 0 12px;
   border-radius: 999px;
-  background: rgba(22,163,74,0.10);
+  background: rgba(17,24,39,0.10);
   color: var(--primary-dark);
-  border: 1px solid rgba(22,163,74,0.18);
+  border: 1px solid rgba(17,24,39,0.18);
   font-size: 12px;
   font-weight: 950;
 }
@@ -2987,8 +3043,8 @@ textarea.actionTa{
   margin-top: 16px;
   padding: 16px 18px;
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(255,240,246,0.88), rgba(239,252,246,0.92));
-  border: 1px solid rgba(255,191,214,0.34);
+  background: linear-gradient(135deg, rgba(242,244,246,0.88), rgba(255,255,255,0.92));
+  border: 1px solid rgba(17,24,39,0.34);
   color: var(--grey-800);
   font-size: 15px;
   line-height: 1.72;
@@ -3059,4 +3115,5325 @@ textarea.actionTa{
   .promoEventActions form .btn{
     width: 100%;
   }
+}
+
+/* ===================== Trust / Revision UI ===================== */
+.integrityBadge,
+.integrityCount,
+.revisionBadge,
+.revisionLatest,
+.greenTag,
+.redTag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+}
+.integrityBadge.ok,
+.greenTag{
+  background:rgba(17,24,39,0.10);
+  color:#4b5563;
+  border:1px solid rgba(17,24,39,0.18);
+}
+.integrityBadge.bad,
+.redTag{
+  background:rgba(17,24,39,0.10);
+  color:#111827;
+  border:1px solid rgba(17,24,39,0.18);
+}
+.integrityCount{
+  background:rgba(25,31,40,0.05);
+  color:var(--grey-700);
+  border:1px solid rgba(25,31,40,0.08);
+}
+.recordHero{
+  border:1px solid rgba(25,31,40,0.08);
+  border-radius:18px;
+  background:linear-gradient(180deg,#ffffff 0%, #fafcfb 100%);
+  padding:18px;
+  margin-bottom:16px;
+}
+.recordHeroTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.recordHeroTitle{
+  font-size:19px;
+  font-weight:950;
+  line-height:1.45;
+  color:var(--grey-900);
+}
+.recordHeroBadges{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.recordHeroMeta{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+.recordHeroMetaItem{
+  padding:12px 13px;
+  border-radius:14px;
+  background:rgba(25,31,40,0.03);
+  border:1px solid rgba(25,31,40,0.06);
+}
+.recordHeroMetaItem span,
+.sealK,
+.revisionMeta span,
+.metaK{
+  display:block;
+  font-size:11px;
+  font-weight:800;
+  color:var(--grey-600);
+  margin-bottom:4px;
+}
+.recordHeroMetaItem b,
+.recordHeroMetaItem code,
+.sealMeta b,
+.revisionMeta b,
+.revisionMeta code{
+  font-size:13px;
+  font-weight:900;
+  color:var(--grey-900);
+}
+.recordHeroMetaItem code,
+.revisionMeta code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.trustDetailGrid{
+  margin-bottom:16px;
+}
+.recordSectionHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.recordSectionTitle{
+  font-size:16px;
+  font-weight:950;
+  color:var(--grey-900);
+}
+.recordEditPanel,
+.recordEditHint,
+.recordHistorySection{
+  border:1px solid rgba(25,31,40,0.08);
+  border-radius:18px;
+  background:#fff;
+  padding:16px;
+  margin-top:14px;
+}
+.sealPreview{
+  margin-top:16px;
+  border:1px solid rgba(17,24,39,0.16);
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(17,24,39,0.05) 0%, rgba(17,24,39,0.02) 100%);
+  padding:16px;
+}
+.sealPreviewHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.sealPreviewTitle{
+  font-size:15px;
+  font-weight:950;
+  color:var(--grey-900);
+}
+.sealPreviewGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.sealMeta{
+  padding:12px 13px;
+  background:#fff;
+  border:1px solid rgba(17,24,39,0.12);
+  border-radius:14px;
+}
+.sealPreviewFields{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-top:12px;
+}
+.revisionFeed{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.revisionItem{
+  border:1px solid rgba(25,31,40,0.08);
+  border-radius:16px;
+  background:var(--surface-2);
+  padding:14px;
+}
+.revisionItem.latest{
+  border-color:rgba(17,24,39,0.22);
+  background:linear-gradient(180deg, rgba(17,24,39,0.06) 0%, rgba(17,24,39,0.02) 100%);
+}
+.revisionHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+.revisionHeadLeft{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.revisionBadge.create{
+  background:rgba(17,24,39,0.10);
+  color:#111827;
+  border:1px solid rgba(17,24,39,0.18);
+}
+.revisionBadge.amend{
+  background:rgba(17,24,39,0.14);
+  color:#4b5563;
+  border:1px solid rgba(17,24,39,0.24);
+}
+.revisionBadge.legacy{
+  background:rgba(107,114,128,0.10);
+  color:#5a6472;
+  border:1px solid rgba(107,114,128,0.16);
+}
+.revisionLatest{
+  background:rgba(17,24,39,0.12);
+  color:var(--primary-dark);
+  border:1px solid rgba(17,24,39,0.18);
+}
+.revisionNo{
+  font-size:12px;
+  font-weight:900;
+  color:var(--grey-600);
+}
+.revisionGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.revisionMeta{
+  padding:11px 12px;
+  border-radius:14px;
+  background:#fff;
+  border:1px solid rgba(25,31,40,0.06);
+}
+.revisionMeta.wide{
+  grid-column:1 / -1;
+}
+.revisionSummary{
+  margin-top:10px;
+  padding:12px 13px;
+  border-radius:14px;
+  background:#fff;
+  border:1px dashed rgba(25,31,40,0.10);
+  color:var(--grey-800);
+  white-space:pre-wrap;
+}
+.recMiniTrust{
+  border:1px solid rgba(25,31,40,0.08);
+}
+.recMiniTrust.amended{
+  border-color:rgba(17,24,39,0.22);
+}
+.recMiniTimes{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin-top:10px;
+}
+.recMiniMetaLine{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:12px;
+  color:var(--grey-700);
+}
+.recMiniHash{
+  margin-top:8px;
+  font-size:11px;
+  font-weight:800;
+  color:var(--grey-600);
+  word-break:break-all;
+}
+
+.timelineMetaBlock{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid rgba(25,31,40,0.08);
+  background:rgba(15,21,32,0.02);
+}
+.timelineRevTrail{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.timelineRevLine{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  color:var(--grey-700);
+}
+.timelineRevBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  height:20px;
+  padding:0 8px;
+  border-radius:999px;
+  border:1px solid rgba(25,31,40,0.10);
+  background:#fff;
+  font-weight:900;
+  color:var(--grey-700);
+}
+.timelineRevText{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+@media (max-width: 880px){
+  .recordHeroMeta,
+  .sealPreviewGrid,
+  .sealPreviewFields,
+  .revisionGrid{
+    grid-template-columns:1fr;
+  }
+  .recordHeroTop,
+  .recordSectionHead,
+  .sealPreviewHead{
+    flex-direction:column;
+  }
+}
+
+
+/* ===================== Monochrome header + inline tabs ===================== */
+.topbarCompact{
+  justify-content:flex-end;
+}
+.brandSimple{
+  margin-right:auto;
+  min-width:auto;
+  width:34px;
+  height:34px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:950;
+  color:var(--grey-900);
+  background:var(--surface);
+}
+.topNav{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.topNavBtn,
+.topGearBtn{
+  height:36px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--grey-700);
+  font-weight:900;
+  font-size:14px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.topGearBtn{
+  width:36px;
+  padding:0;
+  font-size:16px;
+}
+.topNavBtn.active,
+.topGearBtn:hover,
+.topNavBtn:hover{
+  color:var(--grey-900);
+  border-color:var(--border-strong);
+  background:var(--surface-2);
+}
+.sectionTabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:4px;
+  margin:0 0 18px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:var(--surface-2);
+}
+.sectionTab{
+  height:38px;
+  padding:0 14px;
+  border-radius:12px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--grey-600);
+  font-weight:900;
+  font-size:14px;
+}
+.sectionTab.active{
+  background:var(--surface);
+  color:var(--grey-900);
+  border-color:var(--border);
+}
+.subTabHint{
+  margin:-4px 0 18px;
+  font-size:13px;
+}
+.settingsGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:10px;
+}
+.settingsAction{
+  text-align:left;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+}
+.settingsActionTitle{
+  font-size:16px;
+  font-weight:900;
+  color:var(--grey-900);
+  margin-bottom:6px;
+}
+.settingsAction.danger{
+  border-color:var(--border-strong);
+}
+.paperPickToolbar{
+  margin-bottom:12px;
+}
+.paperPickSearch{
+  width:100%;
+  max-width:none;
+}
+@media (max-width: 900px){
+  .settingsGrid{ grid-template-columns:1fr; }
+  .topbarCompact{ gap:10px; }
+}
+
+
+/* ==========================================================================
+   Antigravity-inspired minimalist polish
+   - Design-only refresh: keep flows/UX, reduce visual noise, sharpen hierarchy
+   ========================================================================== */
+
+:root{
+  --max-width: 1480px;
+  --header-height: 64px;
+
+  --app-bg: #f7f7f5;
+  --surface: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #fcfcfb;
+  --surface-3: #f2f2ef;
+
+  --grey-950:#111111;
+  --grey-900:#171717;
+  --grey-800:#262626;
+  --grey-700:#525252;
+  --grey-600:#737373;
+  --grey-500:#a3a3a3;
+  --grey-400:#d4d4d4;
+  --grey-300:#e5e5e5;
+  --grey-200:#ededeb;
+  --grey-150:#f4f4f2;
+  --grey-100:#f7f7f5;
+  --grey-50:#fafaf9;
+
+  --primary:#171717;
+  --primary-dark:#111111;
+  --primary-bg:#f2f2ef;
+  --primary-soft:rgba(23,23,23,0.06);
+
+  --success:#3f3f46;
+  --success-bg:rgba(24,24,27,0.05);
+  --danger:#18181b;
+  --danger-bg:rgba(24,24,27,0.06);
+  --warning:#525252;
+  --warning-bg:#f3f3f1;
+
+  --border:#e7e5e4;
+  --border-strong:rgba(23,23,23,0.14);
+  --shadow-1: 0 1px 0 rgba(23,23,23,0.04), 0 12px 30px rgba(23,23,23,0.03);
+  --shadow-2: 0 1px 0 rgba(23,23,23,0.04), 0 20px 42px rgba(23,23,23,0.05);
+  --shadow-float: 0 22px 60px rgba(23,23,23,0.12);
+  --focus-ring: 0 0 0 4px rgba(23,23,23,0.08);
+
+  --radius-l: 24px;
+  --radius-m: 18px;
+  --radius-s: 12px;
+
+  --card-pad: 28px;
+  --card-pad-side: 24px;
+}
+
+html,
+body,
+#app,
+.container{
+  background: var(--app-bg) !important;
+}
+
+body{
+  color: var(--grey-800);
+}
+
+.container{
+  padding: 0 24px 40px;
+}
+
+.topbar{
+  background: rgba(247,247,245,0.86);
+  border-bottom: 1px solid rgba(23,23,23,0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.topbarInner{
+  padding: 12px 24px;
+}
+
+.topbarCompact{
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.brandSimple{
+  margin-right: 0;
+  width: auto;
+  min-width: auto;
+  height: 40px;
+  padding: 0 14px 0 10px;
+  gap: 10px;
+  border: 1px solid rgba(23,23,23,0.08);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.78);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset;
+}
+
+.brandGlyph{
+  position: relative;
+  width: 18px;
+  height: 13px;
+  display: inline-block;
+  background: var(--grey-950);
+  border-radius: 14px 14px 9px 9px;
+  transform: translateY(-1px);
+}
+.brandGlyph::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 7px;
+  height: 7px;
+  border-radius: 0 0 7px 7px;
+  background: rgba(255,255,255,0.96);
+  transform: translateX(-50%);
+}
+.brandWord{
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  letter-spacing: -0.02em;
+  text-transform: lowercase;
+  font-weight: 900;
+  color: var(--grey-900);
+}
+
+.topNav{
+  margin-left: auto;
+  gap: 10px;
+}
+
+.topNavBtn,
+.topGearBtn{
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--grey-600);
+  font-weight: 850;
+  transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
+}
+
+.topNavBtn:hover,
+.topGearBtn:hover{
+  background: rgba(255,255,255,0.82);
+  border-color: rgba(23,23,23,0.08);
+  transform: translateY(-1px);
+}
+
+.topNavBtn.active{
+  color: var(--grey-950);
+  background: #ffffff;
+  border-color: rgba(23,23,23,0.08);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
+}
+
+.topGearBtn{
+  width: 40px;
+  padding: 0;
+  font-size: 15px;
+}
+
+.grid{
+  margin-top: 22px;
+  gap: 22px;
+  align-items: start;
+}
+
+.grid.caseGrid{
+  grid-template-columns: clamp(320px, 25vw, 420px) minmax(0, 1fr);
+}
+
+.side{
+  gap: 16px;
+  top: calc(var(--header-height) + 18px);
+}
+
+.card{
+  padding: var(--card-pad);
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(23,23,23,0.06);
+  box-shadow: var(--shadow-1);
+}
+
+.card::before{
+  display: none;
+}
+
+.side .card{
+  padding: var(--card-pad-side);
+}
+
+.sectionTitle{
+  margin-bottom: 18px;
+}
+
+.sectionTitle .h2{
+  padding-left: 0;
+  margin-bottom: 4px;
+  font-size: 24px;
+  letter-spacing: -0.04em;
+}
+.sectionTitle .h2::before{
+  display: none;
+}
+.sectionTitle .muted{
+  color: var(--grey-600);
+  max-width: 70ch;
+}
+
+.countPill,
+.statPill{
+  border-color: rgba(23,23,23,0.07);
+  background: rgba(250,250,249,0.95);
+  box-shadow: none;
+}
+
+.searchInput{
+  height: 42px;
+  padding: 0 16px;
+  background: rgba(255,255,255,0.9);
+}
+
+.field input,
+.field select,
+.field textarea{
+  background: rgba(250,250,249,0.95);
+  border-color: rgba(23,23,23,0.08);
+  box-shadow: none;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.searchInput:focus{
+  background: #ffffff;
+  border-color: rgba(23,23,23,0.18);
+  box-shadow: var(--focus-ring);
+}
+
+.entryForm,
+.fold,
+.adv,
+.helperBox,
+.settingsAction,
+.paperPickItem,
+.stepMini,
+.tCard,
+.item,
+.empty{
+  box-shadow: none;
+}
+
+.entryForm{
+  border-radius: 22px;
+  border-color: rgba(23,23,23,0.07);
+  background: rgba(255,255,255,0.92);
+}
+
+.adv,
+.fold,
+.helperBox{
+  border-color: rgba(23,23,23,0.06);
+  background: rgba(249,249,247,0.96);
+}
+
+.item,
+.tCard,
+.stepMini,
+.paperPickItem{
+  border-color: rgba(23,23,23,0.07);
+  background: rgba(255,255,255,0.96);
+}
+
+.item::before{
+  background: rgba(23,23,23,0.05);
+}
+
+.item:hover,
+.paperPickItem:hover,
+.stepMini:hover,
+.tCard:hover{
+  transform: translateY(-1px);
+  border-color: rgba(23,23,23,0.12);
+  background: #ffffff;
+}
+
+.item.selected{
+  border-color: rgba(23,23,23,0.18);
+  background: #ffffff;
+}
+.item.selected::before{
+  background: rgba(23,23,23,0.7);
+}
+
+.tags,
+.chips{
+  gap: 8px;
+}
+
+.tag,
+.chip{
+  border-radius: 999px;
+  background: #fafaf9;
+  border-color: rgba(23,23,23,0.08);
+  color: var(--grey-700);
+}
+
+.tag.ai,
+.tag.aiReason,
+.tag.ok,
+.tag.bad,
+.tag.butter,
+.tag.lilac{
+  background: #f5f5f4;
+  color: var(--grey-800);
+  border-color: rgba(23,23,23,0.08);
+}
+
+.btn{
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 14px;
+  box-shadow: none !important;
+}
+
+.btn.primary{
+  background: var(--grey-950);
+  color: #ffffff;
+}
+.btn.primary:hover{
+  background: #0f0f0f;
+}
+
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger){
+  background: #ffffff;
+  border-color: rgba(23,23,23,0.08);
+}
+
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger):hover{
+  background: #fafaf9;
+  border-color: rgba(23,23,23,0.12);
+}
+
+.btn.ghost{
+  color: var(--grey-600);
+}
+.btn.ghost:hover{
+  background: rgba(23,23,23,0.04);
+}
+
+.sectionTabs{
+  padding: 5px;
+  gap: 6px;
+  border-radius: 16px;
+  border-color: rgba(23,23,23,0.07);
+  background: rgba(249,249,247,0.96);
+}
+.sectionTab{
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  font-weight: 850;
+}
+.sectionTab.active{
+  background: #ffffff;
+  border-color: rgba(23,23,23,0.08);
+}
+
+.timeline{
+  gap: 16px;
+}
+.timeline::before{
+  left: 18px;
+  background: rgba(23,23,23,0.08);
+}
+.tItem .dot{
+  border-color: var(--grey-950);
+}
+.tCard.advisorCard{
+  background: rgba(245,245,244,0.96);
+  border-color: rgba(23,23,23,0.08);
+}
+.tCard.stepCard{
+  background: rgba(248,248,247,0.96);
+  border-color: rgba(23,23,23,0.1);
+}
+
+dialog.modal{
+  max-width: 620px;
+  padding: 26px;
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(23,23,23,0.08);
+  box-shadow: var(--shadow-float);
+}
+dialog.modal::backdrop{
+  background: rgba(20,20,20,0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modalHead .h2{
+  letter-spacing: -0.03em;
+}
+.modalHead .muted{
+  color: var(--grey-600);
+}
+
+.settingsAction{
+  border-radius: 18px;
+  border-color: rgba(23,23,23,0.07);
+  background: rgba(249,249,247,0.96);
+}
+.settingsAction:hover{
+  background: #ffffff;
+  border-color: rgba(23,23,23,0.12);
+}
+
+.empty{
+  background: rgba(249,249,247,0.86);
+  border-style: solid;
+  border-color: rgba(23,23,23,0.08);
+}
+.empty::before{
+  color: var(--grey-500);
+}
+
+.footer{
+  margin-top: 22px;
+  padding: 18px 4px 0;
+  border-top: 1px solid rgba(23,23,23,0.06);
+  color: var(--grey-500);
+}
+
+.footerMeta{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  color: var(--grey-700);
+}
+.footerDot{
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(23,23,23,0.24);
+}
+.footerStorage{
+  font-size: 12px;
+}
+
+.toast{
+  background: rgba(23,23,23,0.92);
+  box-shadow: 0 10px 30px rgba(23,23,23,0.12);
+}
+
+@media (max-width: 900px){
+  :root{
+    --header-height: 60px;
+    --card-pad: 22px;
+    --card-pad-side: 20px;
+  }
+
+  .container{
+    padding: 0 16px 32px;
+  }
+
+  .topbarInner{
+    padding: 10px 16px;
+  }
+
+  .brandWord{
+    display: none;
+  }
+
+  .topNav{
+    gap: 8px;
+  }
+
+  .topNavBtn{
+    padding: 0 14px;
+  }
+
+  .grid{
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px){
+  .topbarCompact{
+    flex-wrap: wrap;
+  }
+
+  .brandSimple{
+    order: 1;
+  }
+
+  .topNav{
+    width: 100%;
+    order: 2;
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+
+  .topNavBtn{
+    flex: 1 1 auto;
+  }
+
+  .topGearBtn{
+    flex: 0 0 40px;
+  }
+
+  .footer{
+    gap: 8px;
+  }
+
+  .footerMeta{
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   Case shell + thinner header / stronger Antigravity pass (request follow-up)
+   ========================================================================== */
+
+:root{
+  --header-height: 50px;
+  --app-bg: #f5f5f2;
+  --surface: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #fafaf8;
+  --surface-3: #f1f1ed;
+  --border: rgba(23,23,23,0.075);
+  --border-strong: rgba(23,23,23,0.12);
+  --shadow-1: 0 1px 0 rgba(255,255,255,0.9) inset, 0 10px 24px rgba(23,23,23,0.035);
+  --shadow-2: 0 1px 0 rgba(255,255,255,0.92) inset, 0 16px 34px rgba(23,23,23,0.045);
+  --shadow-float: 0 28px 64px rgba(23,23,23,0.12);
+  --radius-l: 28px;
+  --radius-m: 20px;
+  --radius-s: 12px;
+  --card-pad: 28px;
+  --card-pad-side: 22px;
+}
+
+.container{
+  padding: 0 24px 36px;
+}
+
+.topbar{
+  background: rgba(245,245,242,0.72);
+  border-bottom: 1px solid rgba(23,23,23,0.05);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+}
+
+.topbarInner{
+  height: var(--header-height);
+  padding: 7px 24px;
+}
+
+.topbarCompact{
+  gap: 10px;
+}
+
+.brandSimple{
+  height: 34px;
+  padding: 0 13px 0 10px;
+  gap: 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.88);
+  border: 1px solid rgba(23,23,23,0.07);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.92) inset;
+}
+
+.brandGlyph{
+  width: 16px;
+  height: 11px;
+  border-radius: 11px 11px 8px 8px;
+}
+
+.brandGlyph::after{
+  width: 6px;
+  height: 6px;
+  bottom: -1px;
+}
+
+.brandWord{
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.topNav{
+  gap: 6px;
+}
+
+.topNavBtn,
+.topGearBtn{
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 850;
+  border-radius: 999px;
+  color: var(--grey-600);
+}
+
+.topGearBtn{
+  width: 32px;
+  font-size: 14px;
+}
+
+.topNavBtn:hover,
+.topGearBtn:hover{
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(23,23,23,0.075);
+  transform: translateY(-1px);
+}
+
+.topNavBtn.active{
+  background: #ffffff;
+  color: var(--grey-950);
+  border-color: rgba(23,23,23,0.08);
+}
+
+.caseShell{
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.caseBodyGrid{
+  margin-top: 0;
+}
+
+.caseCommandDeck{
+  padding: 18px 20px 20px;
+  border-radius: 30px;
+  background: rgba(255,255,255,0.74);
+  border: 1px solid rgba(23,23,23,0.06);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 14px 28px rgba(23,23,23,0.04);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.caseCommandHead{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.caseCommandLabel{
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: var(--grey-600);
+}
+
+.caseCountPill{
+  background: rgba(255,255,255,0.88);
+  border-color: rgba(23,23,23,0.06);
+}
+
+.caseCommandDeck .sectionTabs{
+  margin: 0;
+  padding: 4px;
+  gap: 5px;
+  border-radius: 18px;
+  background: rgba(249,249,247,0.92);
+  border-color: rgba(23,23,23,0.06);
+}
+
+.caseCommandDeck .sectionTab{
+  height: 38px;
+  padding: 0 15px;
+  border-radius: 14px;
+  font-weight: 900;
+}
+
+.caseCommandDeck .sectionTab.active{
+  background: #ffffff;
+  border-color: rgba(23,23,23,0.07);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.92) inset;
+}
+
+.caseCommandMeta,
+.caseCommandPanel{
+  margin-top: 14px;
+}
+
+.caseCommandMeta{
+  font-size: 13px;
+}
+
+.caseCommandPanel{
+  padding-top: 14px;
+  border-top: 1px solid rgba(23,23,23,0.06);
+}
+
+.caseCommandPanel .subTabHint{
+  margin: 0 0 14px;
+}
+
+.caseCommandPanel .helperBox{
+  background: rgba(248,248,245,0.88);
+  border-color: rgba(23,23,23,0.05);
+}
+
+.caseCommandPanel .rowInline:last-child{
+  border-top-color: rgba(23,23,23,0.06) !important;
+}
+
+.caseMainTitle{
+  margin-bottom: 16px;
+}
+
+.grid.caseGrid{
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.side{
+  gap: 14px;
+  top: calc(var(--header-height) + 18px);
+}
+
+.card{
+  border-radius: 30px;
+  border: 1px solid rgba(23,23,23,0.06);
+  background: rgba(255,255,255,0.82);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.95) inset, 0 12px 26px rgba(23,23,23,0.035);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.side .card{
+  background: rgba(255,255,255,0.76);
+}
+
+.sectionTitle{
+  margin-bottom: 18px;
+}
+
+.sectionTitle .h2{
+  letter-spacing: -0.04em;
+}
+
+.sideCardHead,
+.actionComposer,
+.fold,
+.caseItem,
+.paperPickItem,
+.tCard,
+.timelineMetaBlock,
+.settingsAction,
+.empty{
+  border-color: rgba(23,23,23,0.06);
+}
+
+.btn.primary{
+  background: #111111;
+}
+
+.btn.primary:hover{
+  background: #090909;
+}
+
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger){
+  background: rgba(255,255,255,0.92);
+}
+
+.footer{
+  margin-top: 18px;
+  padding-top: 16px;
+}
+
+@media (max-width: 900px){
+  :root{
+    --header-height: 48px;
+    --card-pad: 22px;
+    --card-pad-side: 20px;
+  }
+
+  .container{
+    padding: 0 16px 28px;
+  }
+
+  .topbarInner{
+    padding: 7px 16px;
+  }
+
+  .caseCommandDeck{
+    padding: 16px;
+    border-radius: 24px;
+  }
+
+  .grid.caseGrid{
+    grid-template-columns: 1fr;
+  }
+
+  .side{
+    position: static;
+  }
+}
+
+@media (max-width: 640px){
+  .topbarCompact{
+    flex-wrap: nowrap;
+  }
+
+  .brandWord{
+    display: inline-flex;
+  }
+
+  .topNav{
+    width: auto;
+    margin-left: auto;
+    justify-content: flex-end;
+  }
+
+  .topNavBtn{
+    flex: 0 0 auto;
+    padding: 0 12px;
+  }
+
+  .caseCommandHead{
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .caseCommandDeck .sectionTabs{
+    flex-direction: column;
+  }
+
+  .caseCommandDeck .sectionTab{
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+/* ==========================================================================
+   2026-03 minimal cleanup
+   - 사건기록/사건출력은 inline work area only
+   - Simple R mark
+   - Flatter, cleaner, whiter UI
+   ========================================================================== */
+
+:root{
+  --max-width: 1320px;
+  --header-height: 52px;
+  --app-bg: #ffffff;
+  --surface: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #fafafa;
+  --surface-3: #f5f5f5;
+
+  --grey-950:#111111;
+  --grey-900:#181818;
+  --grey-800:#2a2a2a;
+  --grey-700:#5a5a5a;
+  --grey-600:#808080;
+  --grey-500:#a8a8a8;
+  --grey-400:#d8d8d8;
+  --grey-300:#e8e8e8;
+  --grey-200:#efefef;
+  --grey-150:#f5f5f5;
+  --grey-100:#fafafa;
+  --grey-50:#fcfcfc;
+
+  --primary:#151515;
+  --primary-dark:#0d0d0d;
+  --primary-bg:#f6f6f6;
+  --primary-soft:rgba(0,0,0,0.04);
+
+  --border:#ebebeb;
+  --border-strong:rgba(17,17,17,0.12);
+  --shadow-1:none;
+  --shadow-2:none;
+  --shadow-float: 0 20px 48px rgba(17,17,17,0.12);
+
+  --radius-l: 20px;
+  --radius-m: 14px;
+  --radius-s: 10px;
+
+  --card-pad: 22px;
+  --card-pad-side: 20px;
+}
+
+html,
+body,
+#app,
+.container{
+  background: #ffffff !important;
+}
+
+body{
+  color: var(--grey-800);
+}
+
+.container{
+  padding: 0 20px 28px !important;
+}
+
+.topbar{
+  background: rgba(255,255,255,0.96) !important;
+  border-bottom: 1px solid var(--border) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.topbarInner{
+  height: var(--header-height) !important;
+  padding: 8px 20px !important;
+}
+
+.topbarCompact{
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+
+.brandSimple{
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border-radius: 10px !important;
+  border: 1px solid var(--border) !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.brandGlyph{
+  width: auto !important;
+  height: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: none !important;
+  border-radius: 0 !important;
+  transform: none !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  color: var(--grey-950) !important;
+}
+
+.brandGlyph::after{
+  display: none !important;
+}
+
+.brandWord{
+  display: none !important;
+}
+
+.topNav{
+  gap: 6px !important;
+}
+
+.topNavBtn,
+.topGearBtn{
+  height: 32px !important;
+  padding: 0 13px !important;
+  border-radius: 999px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--grey-600) !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.topGearBtn{
+  width: 32px !important;
+  padding: 0 !important;
+}
+
+.topNavBtn:hover,
+.topGearBtn:hover{
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+  color: var(--grey-900) !important;
+  transform: none !important;
+}
+
+.topNavBtn.active{
+  background: #ffffff !important;
+  border-color: var(--border) !important;
+  color: var(--grey-950) !important;
+}
+
+.grid{
+  margin-top: 18px !important;
+  gap: 16px !important;
+}
+
+.grid.caseGrid{
+  grid-template-columns: minmax(300px, 350px) minmax(0, 1fr) !important;
+}
+
+.caseShell{
+  margin-top: 14px !important;
+  gap: 14px !important;
+}
+
+.caseShellSolo{
+  align-items: flex-start;
+}
+
+.caseShellSolo .caseCommandDeck{
+  width: min(760px, 100%) !important;
+}
+
+.caseShellSolo .caseBodyGrid{
+  display: none !important;
+}
+
+.caseCommandDeck,
+.card,
+.side .card{
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.card::before{
+  display: none !important;
+}
+
+.caseCommandDeck{
+  padding: 18px !important;
+}
+
+.caseCommandHead{
+  margin-bottom: 10px !important;
+}
+
+.caseCommandLabel{
+  font-size: 11px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+  color: var(--grey-600) !important;
+}
+
+.countPill,
+.caseCountPill{
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  color: var(--grey-700) !important;
+  box-shadow: none !important;
+}
+
+.sectionTabs,
+.caseCommandDeck .sectionTabs{
+  margin: 0 !important;
+  padding: 4px !important;
+  gap: 6px !important;
+  border-radius: 14px !important;
+  background: var(--surface-2) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.sectionTab,
+.caseCommandDeck .sectionTab{
+  height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  color: var(--grey-600) !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+.sectionTab:hover{
+  background: transparent !important;
+}
+
+.sectionTab.active,
+.caseCommandDeck .sectionTab.active{
+  background: #ffffff !important;
+  border-color: var(--border) !important;
+  color: var(--grey-950) !important;
+  box-shadow: none !important;
+}
+
+.caseCommandMeta,
+.caseCommandPanel{
+  margin-top: 12px !important;
+}
+
+.caseCommandPanel{
+  padding-top: 12px !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+.caseCommandPanel .subTabHint{
+  margin: 0 0 12px !important;
+  font-size: 12px !important;
+}
+
+.helperBox,
+.highlight-section,
+.fold,
+.paperPickItem,
+.settingsAction,
+.empty,
+.tCard,
+.timelineMetaBlock{
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+.helperBox,
+.highlight-section{
+  border-radius: 14px !important;
+}
+
+.highlight-section{
+  padding: 14px !important;
+}
+
+.fold{
+  border-radius: 14px !important;
+}
+
+.paperPickToolbar{
+  margin-bottom: 10px !important;
+}
+
+.paperPickItem{
+  padding: 14px 16px !important;
+  border-radius: 14px !important;
+}
+
+.paperPickItem:hover{
+  background: var(--surface-2) !important;
+  border-color: var(--border-strong) !important;
+  transform: none !important;
+}
+
+.empty{
+  min-height: 140px !important;
+  border-style: dashed !important;
+  background: var(--surface-2) !important;
+}
+
+.sectionTitle{
+  margin-bottom: 14px !important;
+}
+
+.sectionTitle .h2{
+  padding-left: 0 !important;
+  margin-bottom: 4px !important;
+  font-size: 20px !important;
+  letter-spacing: -0.03em !important;
+}
+
+.sectionTitle .h2::before{
+  display: none !important;
+}
+
+.btn{
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+.btn.primary{
+  background: #111111 !important;
+  border-color: #111111 !important;
+  box-shadow: none !important;
+}
+
+.btn.primary:hover{
+  background: #111111 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger){
+  background: #ffffff !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger):hover,
+.btn.ghost:hover,
+.topNavBtn:hover,
+.topGearBtn:hover{
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.searchInput,
+.field input,
+.field select,
+.field textarea{
+  background: #ffffff !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+}
+
+.searchInput:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color: rgba(17,17,17,0.2) !important;
+  box-shadow: 0 0 0 3px rgba(17,17,17,0.04) !important;
+}
+
+.footer{
+  margin-top: 16px !important;
+  padding-top: 14px !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+.footerStorage{
+  color: var(--grey-500) !important;
+}
+
+@media (max-width: 900px){
+  :root{
+    --header-height: 48px;
+    --card-pad: 18px;
+    --card-pad-side: 18px;
+  }
+
+  .container{
+    padding: 0 14px 22px !important;
+  }
+
+  .topbarInner{
+    padding: 8px 14px !important;
+  }
+
+  .grid.caseGrid{
+    grid-template-columns: 1fr !important;
+  }
+
+  .caseShellSolo .caseCommandDeck{
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 640px){
+  .topbarCompact{
+    flex-wrap: nowrap !important;
+  }
+
+  .caseCommandHead{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .caseCommandDeck .sectionTabs{
+    flex-direction: column;
+  }
+
+  .caseCommandDeck .sectionTab{
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ======================================================================
+   Accent refresh — subtle Instagram-like sky/blue/purple gradient
+   적용 원칙: 포인트 컬러는 면 채우기보다 '테두리/라인' 위주로만 사용
+   ====================================================================== */
+
+:root{
+  --accent-sky: rgba(167, 227, 255, 0.88);
+  --accent-blue: rgba(116, 156, 255, 0.92);
+  --accent-purple: rgba(180, 150, 255, 0.90);
+  --accent-line: linear-gradient(135deg,
+    rgba(167, 227, 255, 0.92) 0%,
+    rgba(116, 156, 255, 0.96) 52%,
+    rgba(180, 150, 255, 0.94) 100%);
+  --accent-line-soft: linear-gradient(135deg,
+    rgba(167, 227, 255, 0.42) 0%,
+    rgba(116, 156, 255, 0.48) 52%,
+    rgba(180, 150, 255, 0.46) 100%);
+  --accent-focus: 0 0 0 3px rgba(126, 158, 255, 0.08);
+}
+
+::selection{
+  background: rgba(126, 158, 255, 0.14);
+}
+
+:focus-visible{
+  box-shadow: var(--accent-focus);
+}
+
+.searchInput:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.dropZone.isDrag{
+  border-color: rgba(126, 158, 255, 0.28) !important;
+  box-shadow: var(--accent-focus) !important;
+}
+
+.tab.active,
+.sectionTab.active,
+.caseCommandDeck .sectionTab.active,
+.item.selected,
+.aiCard,
+.badgeAI,
+.tag.ai,
+.tag.aiReason,
+.autoBadge,
+.intakePill,
+.statPill.ai,
+.flowNode.primary,
+.paperPickItem.selected,
+.paperPickItem.active{
+  position: relative;
+  border-color: transparent !important;
+  background-image:
+    linear-gradient(#fff, #fff),
+    var(--accent-line-soft) !important;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.tab.active,
+.sectionTab.active,
+.caseCommandDeck .sectionTab.active,
+.item.selected{
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.96) !important;
+}
+
+.badgeAI,
+.tag.ai,
+.tag.aiReason,
+.autoBadge,
+.intakePill,
+.statPill.ai{
+  color: #374151 !important;
+}
+
+.aiCard::before{
+  background: var(--accent-line-soft) !important;
+  opacity: .95 !important;
+}
+
+.item::before,
+.item.selected::before,
+.tItem .dot,
+.tItem .dot.advisorDot,
+.tItem .dot.stepDot,
+.barFill,
+.flowNode.primary::before,
+.intakeBar::after{
+  background: var(--accent-line) !important;
+}
+
+.tItem .dot,
+.tItem .dot.advisorDot,
+.tItem .dot.stepDot{
+  border-color: transparent !important;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.sectionTitle .h2,
+.title,
+.brandAccent{
+  color: var(--grey-950) !important;
+}
+
+.topbar,
+.topbar.aiFocus{
+  border-bottom: 1px solid transparent !important;
+  background-image:
+    linear-gradient(#fff, #fff),
+    linear-gradient(90deg,
+      rgba(167, 227, 255, 0.34) 0%,
+      rgba(116, 156, 255, 0.42) 48%,
+      rgba(180, 150, 255, 0.36) 100%) !important;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.topNavBtn.active,
+.topGearBtn.active,
+.toolBtn.active,
+.toolBtn[aria-pressed="true"]{
+  border-color: transparent !important;
+  background-image:
+    linear-gradient(#fff, #fff),
+    var(--accent-line-soft) !important;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.helperBox.aiHelp,
+.defenseIntro,
+.tCard.advisorCard{
+  border-color: transparent !important;
+  background-image:
+    linear-gradient(#fff, #fff),
+    linear-gradient(135deg,
+      rgba(167, 227, 255, 0.18) 0%,
+      rgba(116, 156, 255, 0.22) 52%,
+      rgba(180, 150, 255, 0.20) 100%) !important;
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.btn.hdrSub,
+.toolBtn,
+.toolbar .iconBtn,
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger){
+  transition: border-color .18s ease, background .18s ease, transform .12s ease, box-shadow .18s ease;
+}
+
+.btn.hdrSub:hover,
+.toolBtn:hover,
+.toolbar .iconBtn:hover,
+.btn:not(.primary):not(.ghost):not(.demo):not(.danger):hover{
+  border-color: rgba(126, 158, 255, 0.22) !important;
+}
+
+/* ======================================================================
+   Accent tweak v2 — logo border starts carrying the gradient
+   ====================================================================== */
+
+:root{
+  --accent-line-vivid: linear-gradient(135deg,
+    rgba(161, 228, 255, 0.98) 0%,
+    rgba(112, 158, 255, 0.98) 50%,
+    rgba(180, 142, 255, 0.96) 100%);
+  --accent-line-logo: linear-gradient(135deg,
+    rgba(174, 233, 255, 1) 0%,
+    rgba(118, 168, 255, 1) 52%,
+    rgba(186, 147, 255, 0.98) 100%);
+}
+
+.brand.brandSimple,
+.brandSimple{
+  position: relative !important;
+  border: 1px solid transparent !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.98), rgba(255,255,255,0.98)),
+    var(--accent-line-logo) !important;
+  background-origin: border-box !important;
+  background-clip: padding-box, border-box !important;
+  box-shadow:
+    0 6px 18px rgba(112, 158, 255, 0.10),
+    0 1px 0 rgba(255,255,255,0.92) inset !important;
+}
+
+.brand.brandSimple::after,
+.brandSimple::after{
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.72));
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+.brandSimple .brandGlyph,
+.brandGlyph{
+  position: relative !important;
+  z-index: 1 !important;
+  background: var(--accent-line-vivid) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  letter-spacing: -0.02em !important;
+}
+
+.topbar,
+.topbar.aiFocus{
+  background-image:
+    linear-gradient(#fff, #fff),
+    linear-gradient(90deg,
+      rgba(167, 227, 255, 0.46) 0%,
+      rgba(116, 156, 255, 0.56) 48%,
+      rgba(180, 150, 255, 0.46) 100%) !important;
+}
+
+.topNavBtn.active,
+.topGearBtn.active,
+.toolBtn.active,
+.toolBtn[aria-pressed="true"],
+.tab.active,
+.sectionTab.active,
+.caseCommandDeck .sectionTab.active,
+.item.selected{
+  background-image:
+    linear-gradient(#fff, #fff),
+    linear-gradient(135deg,
+      rgba(167, 227, 255, 0.56) 0%,
+      rgba(116, 156, 255, 0.60) 52%,
+      rgba(180, 150, 255, 0.56) 100%) !important;
+}
+
+/* =========================================
+   Header slim / simple override
+   - styles.css 맨 아래에 추가
+   ========================================= */
+:root{
+  --header-height: 40px;
+}
+
+.topbar,
+.topbar.aiFocus{
+  background: rgba(255,255,255,0.96) !important;
+  background-image: none !important;
+  border-bottom: 1px solid rgba(25,31,40,0.08) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.topbarInner{
+  height: var(--header-height) !important;
+  padding: 4px 16px !important;
+  gap: 10px !important;
+}
+
+.topbarCompact{
+  justify-content: space-between !important;
+}
+
+.brand.brandSimple,
+.brandSimple{
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  border-radius: 9px !important;
+  border: 1px solid rgba(25,31,40,0.10) !important;
+  background: #fff !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.brand.brandSimple::after,
+.brandSimple::after{
+  display: none !important;
+}
+
+.brandSimple .brandGlyph,
+.brandGlyph{
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: var(--grey-900) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+}
+
+.topNav{
+  gap: 6px !important;
+}
+
+.topNavBtn,
+.topGearBtn{
+  height: 30px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(25,31,40,0.08) !important;
+  background: transparent !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: var(--grey-600) !important;
+  box-shadow: none !important;
+}
+
+.topNavBtn{
+  padding: 0 10px !important;
+}
+
+.topGearBtn{
+  width: 30px !important;
+  padding: 0 !important;
+  font-size: 13px !important;
+}
+
+.topNavBtn.active{
+  background: #f7f8fa !important;
+  color: var(--grey-900) !important;
+  border-color: rgba(25,31,40,0.12) !important;
+}
+
+.topNavBtn:hover,
+.topGearBtn:hover{
+  background: #f7f8fa !important;
+  color: var(--grey-900) !important;
+  border-color: rgba(25,31,40,0.12) !important;
+  transform: none !important;
+}
+
+section.grid{
+  margin-top: 10px !important;
+}
+
+@media (max-width: 640px){
+  :root{
+    --header-height: 38px;
+  }
+
+  .topbarInner{
+    padding: 4px 12px !important;
+  }
+
+  .topNavBtn{
+    padding: 0 8px !important;
+    font-size: 11.5px !important;
+  }
+}
+
+/* =========================================
+   R logo — Instagram-like gradient border
+   ========================================= */
+.brand.brandSimple,
+.brandSimple{
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.brand.brandSimple::before,
+.brandSimple::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.4px; /* 테두리 두께 */
+  border-radius: inherit;
+  background: conic-gradient(
+    from 210deg,
+    #feda75 0deg,
+    #fa7e1e 55deg,
+    #d62976 135deg,
+    #962fbf 220deg,
+    #4f5bd5 300deg,
+    #feda75 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.brand.brandSimple::after,
+.brandSimple::after{
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 8.5px;
+  background: rgba(255,255,255,0.96);
+  pointer-events: none;
+}
+
+.brandSimple .brandGlyph,
+.brandGlyph{
+  position: relative !important;
+  z-index: 1 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #191f28 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+/* =========================================
+   R logo — pink gradient border
+   thicker ring version
+   ========================================= */
+.brand.brandSimple,
+.brandSimple{
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.brand.brandSimple::before,
+.brandSimple::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2.4px; /* 두꺼운 링 유지 */
+  border-radius: inherit;
+  background: conic-gradient(
+    from 215deg,
+    #ffd3e6 0deg,
+    #ff8fc2 70deg,
+    #ff5ca8 145deg,
+    #e93d8f 220deg,
+    #c93684 300deg,
+    #ffd3e6 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.brand.brandSimple::after,
+.brandSimple::after{
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 7.5px;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.98) 0%,
+    rgba(255,245,250,0.98) 100%
+  );
+  pointer-events: none;
+}
+
+.brandSimple .brandGlyph,
+.brandGlyph{
+  position: relative !important;
+  z-index: 1 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(
+    180deg,
+    #ff6faf 0%,
+    #d93d8c 100%
+  ) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* ======================================================================
+   Header nav refresh — borderless tabs with icons + active underline
+   ====================================================================== */
+.topbarCompact{
+  align-items: center !important;
+}
+
+.topNav{
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+.topNavBtn,
+.topGearBtn{
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--grey-500) !important;
+  transform: none !important;
+}
+
+.topNavBtn{
+  min-width: fit-content !important;
+}
+
+.topGearBtn{
+  width: 22px !important;
+  min-width: 22px !important;
+  gap: 0 !important;
+}
+
+.topNavBtn::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--grey-950);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform .18s ease;
+}
+
+.topNavBtn:hover,
+.topGearBtn:hover{
+  border: none !important;
+  background: transparent !important;
+  color: var(--grey-800) !important;
+}
+
+.topNavBtn.active{
+  color: var(--grey-950) !important;
+}
+
+.topNavBtn.active::after{
+  transform: scaleX(1);
+}
+
+.topNavIcon{
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 16px;
+}
+
+.topNavIcon svg{
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.topNavLabel{
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+@media (max-width: 640px){
+  .topNav{
+    gap: 12px !important;
+  }
+
+  .topNavBtn,
+  .topGearBtn{
+    height: 32px !important;
+    font-size: 12.5px !important;
+  }
+
+  .topNavIcon,
+  .topNavIcon svg{
+    width: 15px;
+    height: 15px;
+  }
+
+  .topNavBtn::after{
+    bottom: -7px;
+  }
+}
+
+/* ==========================================================================
+   2026-03-13 spacing fix
+   - 증거조회&수정하기 탭과 증거 필터 카드 사이 간격 확보
+   - HTML 구조 변경 없이 CSS만으로 적용
+   ========================================================================== */
+.card > .sectionTabs + .sideStack{
+  margin-top: 14px;
+}
+
+@media (max-width: 900px){
+  .card > .sectionTabs + .sideStack{
+    margin-top: 12px;
+  }
+}
+
+/* ===================== Signature Flow ===================== */
+dialog.modal.signatureModal{
+  max-width: 640px;
+}
+.signatureFlow{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  margin-top:10px;
+}
+.signatureHero{
+  border:1px solid rgba(17,24,39,0.10);
+  background:linear-gradient(180deg, rgba(17,24,39,0.05) 0%, rgba(17,24,39,0.02) 100%);
+  border-radius:18px;
+  padding:16px;
+}
+.signatureHeroTitle{
+  font-size:16px;
+  font-weight:950;
+  color:var(--grey-900);
+  margin-bottom:6px;
+}
+.signatureMetaGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.signatureMetaCard{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(17,24,39,0.10);
+  background:#fff;
+}
+.signatureMetaCard.span2{
+  grid-column:1 / -1;
+}
+.signatureMetaK{
+  font-size:12px;
+  font-weight:900;
+  color:var(--grey-600);
+}
+.signatureMetaCard b{
+  font-size:14px;
+  color:var(--grey-900);
+  overflow-wrap:anywhere;
+}
+.signatureFieldGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.signatureActions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+}
+.signSuccessModal{
+  max-width: 460px;
+}
+.signSuccessWrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:10px;
+  padding:10px 4px 2px;
+}
+.signSuccessIcon{
+  width:72px;
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:rgba(17,24,39,0.08);
+  border:1px solid rgba(17,24,39,0.12);
+  color:var(--grey-900);
+  font-size:32px;
+  font-weight:950;
+}
+.signSuccessTitle{
+  font-size:20px;
+  line-height:1.35;
+  font-weight:950;
+  color:var(--grey-900);
+}
+.signSuccessSub{
+  font-size:14px;
+}
+@media (max-width: 720px){
+  .signatureMetaGrid,
+  .signatureFieldGrid{
+    grid-template-columns:1fr;
+  }
+  .signatureActions{
+    flex-direction:column-reverse;
+    align-items:stretch;
+  }
+  .signatureActions .btn{
+    width:100%;
+  }
+}
+
+
+/* ======================================================================
+   2026-03-14 mobile-focused evidence polish
+   - 저장 CTA를 로고 톤의 핑크 그라데이션으로 정리
+   - 증거 상세/수정 모달을 3탭 구조로 정리
+   - 전체 앱 폭을 480px 기준으로 축소해 가독성 강화
+   ====================================================================== */
+:root{
+  --max-width: 480px !important;
+}
+
+.btn.saveCta{
+  background: linear-gradient(135deg, #ff9bc9 0%, #ff5ca8 52%, #d93d8c 100%) !important;
+  border-color: rgba(217, 61, 140, 0.34) !important;
+  color: #fff !important;
+}
+
+.btn.saveCta:hover{
+  background: linear-gradient(135deg, #ff9bc9 0%, #ff5ca8 52%, #d93d8c 100%) !important;
+}
+
+.btn.saveCta .saveKbd{
+  background: rgba(255,255,255,0.18) !important;
+  border-color: rgba(255,255,255,0.24) !important;
+}
+
+.btn.saveCta:disabled{
+  background: linear-gradient(135deg, rgba(255,155,201,0.72) 0%, rgba(255,92,168,0.72) 52%, rgba(217,61,140,0.72) 100%) !important;
+  opacity: .82 !important;
+}
+
+.recordModalTabsWrap{
+  margin-bottom: 14px;
+}
+
+.recordModalTabs{
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch;
+  gap: 6px !important;
+  overflow: hidden;
+}
+
+.recordModalTabs .sectionTab{
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  min-height: 40px;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+.recordCurrentSection{
+  margin-top: 0;
+}
+
+dialog.modal#recordModal,
+dialog.modal.signatureModal,
+dialog.modal#caseUpdateModal,
+dialog.modal#recordsListModal,
+dialog.modal.paperPickModal{
+  width: min(calc(100vw - 24px), 480px) !important;
+  max-width: 480px !important;
+}
+
+.container{
+  max-width: 480px !important;
+  padding: 0 14px 28px !important;
+}
+
+.topbarInner{
+  max-width: 480px !important;
+  padding: 8px 14px !important;
+}
+
+.grid,
+.grid.oneCol,
+.grid.caseGrid,
+.grid.aiSwap{
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+}
+
+.side{
+  position: static !important;
+  top: auto !important;
+}
+
+.card{
+  padding: 16px !important;
+  border-radius: 18px !important;
+}
+
+.sectionTitle{
+  gap: 10px !important;
+}
+
+.sectionTitle .h2{
+  font-size: 19px !important;
+}
+
+.titleActions,
+.caseStatsInline,
+.recordHeroTop,
+.recordSectionHead,
+.sealPreviewHead,
+.modalHead,
+.rowInline{
+  flex-wrap: wrap;
+}
+
+.row,
+.entryGrid,
+.metaInputs,
+.recordHeroMeta,
+.revisionGrid,
+.sealPreviewGrid,
+.sealPreviewFields,
+.signatureMetaGrid,
+.detailGrid,
+.trustDetailGrid,
+.settingsGrid{
+  grid-template-columns: 1fr !important;
+}
+
+.entryForm,
+.recordHero,
+.recordEditPanel,
+.recordEditHint,
+.recordHistorySection,
+.helperBox,
+.memoFilterCard,
+.sideCard,
+.revisionItem{
+  border-radius: 16px !important;
+}
+
+.composerCtas{
+  width: 100%;
+  justify-content: stretch !important;
+}
+
+.composerCtas .btn,
+.composerCtas .saveCta{
+  flex: 1 1 auto;
+}
+
+.btn.saveCta{
+  width: 100%;
+  justify-content: center;
+}
+
+.memoFilterCard .memoFilterBar{
+  gap: 8px !important;
+}
+
+.compactFilterCard .compactFilterBar{
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+
+.compactFilterCard .mfFields{
+  grid-template-columns: minmax(0,1fr) 104px !important;
+}
+
+.compactFilterCard .mfFieldKeyword{
+  grid-column: 1 / -1;
+}
+
+.compactFilterCard .mfActions{
+  justify-content: flex-start !important;
+}
+
+.compactFilterCard .mfStat{
+  order: 1;
+  margin-right: auto;
+}
+
+.compactFilterCard .mfBtn{
+  width: auto;
+  min-width: 68px;
+}
+
+.sideCard > div[style*="max-height"]{
+  max-height: none !important;
+  overflow: visible !important;
+  padding-right: 0 !important;
+}
+
+.recMiniTitle,
+.recordHeroTitle,
+.revisionSummary,
+.detailNote{
+  line-height: 1.6;
+}
+
+.recMiniHash,
+.recordHeroMetaItem code,
+.revisionMeta code{
+  word-break: break-all;
+}
+
+@media (max-width: 520px){
+  dialog.modal{
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .sectionTabs{
+    padding: 5px !important;
+    gap: 6px !important;
+  }
+
+  .sectionTab{
+    min-height: 38px;
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+  }
+
+  .recordModalTabs{
+    gap: 5px !important;
+  }
+
+  .recordModalTabs .sectionTab{
+    min-height: 38px;
+    padding: 8px 8px !important;
+    font-size: 12px !important;
+  }
+
+  .topNav{
+    gap: 8px !important;
+  }
+
+  .topNavBtn,
+  .topGearBtn{
+    min-width: 0;
+    padding-inline: 10px !important;
+  }
+
+  .topNavLabel{
+    font-size: 12px;
+  }
+}
+
+/* ========================================================================== 
+   2026-03-14 case menu horizontal tabs fix
+   - keep 사건 메뉴 tabs horizontal like the evidence tab row
+   ========================================================================== */
+.caseCommandDeck .sectionTabs{
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  flex-wrap: nowrap !important;
+}
+
+.caseCommandDeck .sectionTab{
+  width: 100% !important;
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 640px){
+  .caseCommandDeck .sectionTabs{
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .caseCommandDeck .sectionTab{
+    width: 100% !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+    letter-spacing: -0.01em !important;
+  }
+}
+
+@media (max-width: 520px){
+  .caseCommandDeck .sectionTabs{
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+  }
+
+  .caseCommandDeck .sectionTab{
+    min-height: 38px !important;
+    padding: 8px 6px !important;
+    font-size: 12px !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-14 Mobile minimalist refinement (final)
+   - slimmer typography
+   - tighter component scale
+   - calmer whitespace for small screens
+   ========================================================================== */
+@media (max-width: 900px){
+  .mobileRefined{
+    --header-height: 44px;
+    --card-pad: 16px;
+    --card-pad-side: 16px;
+    --radius-l: 16px;
+    --radius-m: 12px;
+    --radius-s: 9px;
+    padding: 0 12px 20px !important;
+  }
+
+  .mobileRefined .grid,
+  .mobileRefined .grid.caseGrid,
+  .mobileRefined .caseBodyGrid{
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    margin-top: 10px !important;
+  }
+
+  .mobileRefined .card,
+  .mobileRefined .caseCommandDeck,
+  .mobileRefined .side .card{
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .mobileRefined .topbarInner{
+    height: var(--header-height) !important;
+    padding: 6px 12px !important;
+    gap: 8px !important;
+  }
+
+  .mobileRefined .brandSimple{
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    border-radius: 8px !important;
+  }
+
+  .mobileRefined .brandGlyph{
+    font-size: 13px !important;
+  }
+
+  .mobileRefined .topNav{
+    gap: 5px !important;
+  }
+
+  .mobileRefined .topNavBtn,
+  .mobileRefined .topGearBtn{
+    height: 30px !important;
+    padding: 0 9px !important;
+    font-size: 11.5px !important;
+    border-radius: 999px !important;
+  }
+
+  .mobileRefined .topGearBtn{
+    width: 30px !important;
+    padding: 0 !important;
+  }
+
+  .mobileRefined .topNavIcon,
+  .mobileRefined .topNavIcon svg{
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .mobileRefined .topNavBtn::after{
+    bottom: -6px !important;
+    height: 1.5px !important;
+  }
+
+  .mobileRefined .sectionTitle{
+    margin-bottom: 10px !important;
+    gap: 8px !important;
+  }
+
+  .mobileRefined .sectionTitle .h2{
+    font-size: 18px !important;
+    line-height: 1.25 !important;
+    margin-bottom: 3px !important;
+  }
+
+  .mobileRefined .sectionTitle .muted,
+  .mobileRefined .subTabHint,
+  .mobileRefined .meta,
+  .mobileRefined .footerStorage,
+  .mobileRefined .composerSub,
+  .mobileRefined .helperBox,
+  .mobileRefined .entryHint,
+  .mobileRefined .paperPickMeta,
+  .mobileRefined .muted{
+    font-size: 11.5px !important;
+    line-height: 1.45 !important;
+  }
+
+  .mobileRefined .title,
+  .mobileRefined .composerTitle,
+  .mobileRefined .settingsActionTitle,
+  .mobileRefined .paperPickTitle,
+  .mobileRefined .recMiniTitle{
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+  }
+
+  .mobileRefined .countPill,
+  .mobileRefined .statPill,
+  .mobileRefined .tag,
+  .mobileRefined .chip,
+  .mobileRefined .paperPickStat,
+  .mobileRefined .stepMiniTime,
+  .mobileRefined .recMiniMeta,
+  .mobileRefined .recMiniHash,
+  .mobileRefined .timelineRevText,
+  .mobileRefined .savePill{
+    font-size: 11.5px !important;
+  }
+
+  .mobileRefined .countPill,
+  .mobileRefined .statPill{
+    height: 30px !important;
+    padding: 0 10px !important;
+  }
+
+  .mobileRefined .tag{
+    height: 22px !important;
+    padding: 0 8px !important;
+    border-radius: 9px !important;
+  }
+
+  .mobileRefined .chips{
+    gap: 6px !important;
+  }
+
+  .mobileRefined .chip{
+    padding: 6px 9px !important;
+  }
+
+  .mobileRefined .sectionTabs,
+  .mobileRefined .caseCommandDeck .sectionTabs{
+    padding: 3px !important;
+    gap: 5px !important;
+    border-radius: 12px !important;
+  }
+
+  .mobileRefined .sectionTab,
+  .mobileRefined .caseCommandDeck .sectionTab{
+    min-height: 34px !important;
+    height: 34px !important;
+    padding: 0 8px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+  }
+
+  .mobileRefined .field{
+    gap: 6px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .mobileRefined .field label{
+    font-size: 11px !important;
+    gap: 6px !important;
+  }
+
+  .mobileRefined .field input,
+  .mobileRefined .field select,
+  .mobileRefined .field textarea,
+  .mobileRefined .searchInput{
+    font-size: 14px !important;
+  }
+
+  .mobileRefined .field input,
+  .mobileRefined .field select{
+    height: 40px !important;
+    padding: 0 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .mobileRefined .field textarea{
+    min-height: 88px !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .mobileRefined .searchInput{
+    width: 100% !important;
+    min-height: 38px !important;
+    padding: 9px 12px !important;
+  }
+
+  .mobileRefined .btn{
+    height: 38px !important;
+    padding: 0 12px !important;
+    border-radius: 11px !important;
+    font-size: 13px !important;
+  }
+
+  .mobileRefined .btn.ghost,
+  .mobileRefined .iconBtn{
+    height: 34px !important;
+    font-size: 12px !important;
+  }
+
+  .mobileRefined .iconBtn{
+    width: 30px !important;
+  }
+
+  .mobileRefined .btn.saveCta{
+    height: 38px !important;
+    padding: 0 12px !important;
+    gap: 7px !important;
+  }
+
+  .mobileRefined .btn.saveCta .saveKbd{
+    display: none !important;
+  }
+
+  .mobileRefined .composerTitleRow,
+  .mobileRefined .composerCtas,
+  .mobileRefined .actionsRow,
+  .mobileRefined .rowInline{
+    gap: 8px !important;
+  }
+
+  .mobileRefined .entryForm,
+  .mobileRefined .fold,
+  .mobileRefined .adv,
+  .mobileRefined .helperBox,
+  .mobileRefined .paperPickItem,
+  .mobileRefined .item,
+  .mobileRefined .recMini,
+  .mobileRefined .settingsAction,
+  .mobileRefined .tCard,
+  .mobileRefined .timelineMetaBlock,
+  .mobileRefined .detailRow,
+  .mobileRefined .detailNote{
+    border-radius: 14px !important;
+  }
+
+  .mobileRefined .entryForm,
+  .mobileRefined .fold,
+  .mobileRefined .adv,
+  .mobileRefined .helperBox,
+  .mobileRefined .settingsAction,
+  .mobileRefined .detailRow,
+  .mobileRefined .detailNote{
+    padding: 10px !important;
+  }
+
+  .mobileRefined .item,
+  .mobileRefined .paperPickItem,
+  .mobileRefined .recMini,
+  .mobileRefined .tCard{
+    padding: 12px !important;
+  }
+
+  .mobileRefined .detailRow .k{
+    font-size: 11px !important;
+  }
+
+  .mobileRefined .detailRow .v,
+  .mobileRefined .detailNote{
+    font-size: 13px !important;
+  }
+
+  .mobileRefined .settingsGrid{
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .mobileRefined .timeline,
+  .mobileRefined .timeline.timelineEm{
+    gap: 12px !important;
+    padding: 2px 0 4px !important;
+  }
+
+  .mobileRefined .timeline::before,
+  .mobileRefined .timeline.timelineEm::before{
+    left: 12px !important;
+    top: 14px !important;
+    bottom: 14px !important;
+  }
+
+  .mobileRefined .tItem,
+  .mobileRefined .timeline.timelineEm .tItem{
+    padding-left: 34px !important;
+  }
+
+  .mobileRefined .tItem .dot,
+  .mobileRefined .timeline.timelineEm .tItem .dot{
+    left: 7px !important;
+    top: 16px !important;
+    width: 10px !important;
+    height: 10px !important;
+    border-width: 3px !important;
+  }
+
+  .mobileRefined .timelineMetaBlock,
+  .mobileRefined .timelineRevTrail,
+  .mobileRefined .signatureMetaCard{
+    padding: 8px 10px !important;
+    border-radius: 12px !important;
+  }
+
+  .mobileRefined .empty{
+    min-height: 120px !important;
+    padding: 16px !important;
+    font-size: 13px !important;
+    border-radius: 14px !important;
+  }
+
+  .mobileRefined .footer{
+    margin-top: 12px !important;
+    padding-top: 12px !important;
+    font-size: 12px !important;
+  }
+
+  .mobileRefined .footerMeta{
+    gap: 8px !important;
+    font-size: 12px !important;
+  }
+
+  .mobileRefined .toast{
+    bottom: 14px !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 560px){
+  .mobileRefined{
+    --header-height: 42px;
+    padding: 0 10px 18px !important;
+  }
+
+  .mobileRefined .topbarInner{
+    padding: 6px 10px !important;
+  }
+
+  .mobileRefined .topNavIcon{
+    display: none !important;
+  }
+
+  .mobileRefined .topNavBtn{
+    padding: 0 10px !important;
+  }
+
+  .mobileRefined .topNavLabel{
+    font-size: 11.5px !important;
+  }
+
+  .mobileRefined .sectionTabs,
+  .mobileRefined .caseCommandDeck .sectionTabs{
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .mobileRefined .sectionTab,
+  .mobileRefined .caseCommandDeck .sectionTab{
+    min-height: 32px !important;
+    height: auto !important;
+    padding: 7px 6px !important;
+    font-size: 11.5px !important;
+  }
+
+  .mobileRefined .rowInline{
+    flex-wrap: wrap !important;
+  }
+
+  .mobileRefined .rowInline > *{
+    flex: 1 1 auto !important;
+  }
+
+  .mobileRefined .titleActions,
+  .mobileRefined .caseTitleRight{
+    width: 100% !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+  }
+
+  .mobileRefined .paperPickItem{
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .mobileRefined .paperPickSide{
+    width: 100% !important;
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .mobileRefined .footerStorage{
+    display: none !important;
+  }
+}
+
+@media (max-width: 400px){
+  .mobileRefined .topNavBtn{
+    padding: 0 8px !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03 iphone premium refinement
+   - settings icon visibility restored
+   - subtle iOS-like blue accent + glass + tighter spacing
+   ========================================================================== */
+
+.mobileRefined.iphonePremium{
+  --ios-accent: #0a84ff;
+  --ios-accent-soft: rgba(10,132,255,0.12);
+  --ios-accent-line: rgba(10,132,255,0.22);
+  --ios-card-shadow: 0 10px 30px rgba(15,23,42,0.05), 0 1px 0 rgba(255,255,255,0.9) inset;
+  background:
+    radial-gradient(1200px 420px at 50% -80px, rgba(10,132,255,0.07), transparent 60%),
+    linear-gradient(180deg, #f7f9fc 0%, #f4f5f8 100%) !important;
+}
+
+.mobileRefined.iphonePremium .topbar{
+  background: rgba(248,250,252,0.82) !important;
+  border-bottom: 1px solid rgba(15,23,42,0.06) !important;
+  backdrop-filter: blur(24px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(145%) !important;
+}
+
+.mobileRefined.iphonePremium .topbarInner{
+  padding: 7px 12px !important;
+}
+
+.mobileRefined.iphonePremium .brandSimple{
+  border-radius: 12px !important;
+  border-color: rgba(15,23,42,0.06) !important;
+  background: rgba(255,255,255,0.7) !important;
+  box-shadow: 0 6px 20px rgba(15,23,42,0.05), 0 1px 0 rgba(255,255,255,0.95) inset !important;
+}
+
+.mobileRefined.iphonePremium .brandGlyph{
+  color: var(--ios-accent) !important;
+}
+
+.mobileRefined.iphonePremium .topNav{
+  gap: 7px !important;
+}
+
+.mobileRefined.iphonePremium .topNavBtn,
+.mobileRefined.iphonePremium .topGearBtn{
+  min-width: 34px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+  background: rgba(255,255,255,0.7) !important;
+  color: #5d6673 !important;
+  box-shadow: 0 4px 16px rgba(15,23,42,0.04), 0 1px 0 rgba(255,255,255,0.94) inset !important;
+}
+
+.mobileRefined.iphonePremium .topNavBtn.active{
+  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(246,250,255,0.96) 100%) !important;
+  color: #0f172a !important;
+  border-color: rgba(10,132,255,0.16) !important;
+  box-shadow: 0 8px 22px rgba(10,132,255,0.08), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+}
+
+.mobileRefined.iphonePremium .topNavBtn.active .topNavLabel{
+  color: #0f172a !important;
+}
+
+.mobileRefined.iphonePremium .topGearBtn{
+  background: linear-gradient(180deg, rgba(10,132,255,0.15) 0%, rgba(10,132,255,0.08) 100%) !important;
+  color: var(--ios-accent) !important;
+  border-color: rgba(10,132,255,0.18) !important;
+}
+
+.mobileRefined.iphonePremium .topGearBtn:hover,
+.mobileRefined.iphonePremium .topGearBtn:focus-visible{
+  background: linear-gradient(180deg, rgba(10,132,255,0.2) 0%, rgba(10,132,255,0.1) 100%) !important;
+  color: #006be6 !important;
+  border-color: rgba(10,132,255,0.26) !important;
+}
+
+.mobileRefined.iphonePremium .topNavIcon,
+.mobileRefined.iphonePremium .gearIcon{
+  display: inline-flex !important;
+  width: 14px !important;
+  height: 14px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+}
+
+.mobileRefined.iphonePremium .topNavIcon svg,
+.mobileRefined.iphonePremium .gearIcon svg{
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mobileRefined.iphonePremium .card,
+.mobileRefined.iphonePremium .entryForm,
+.mobileRefined.iphonePremium .fold,
+.mobileRefined.iphonePremium .adv,
+.mobileRefined.iphonePremium .helperBox,
+.mobileRefined.iphonePremium .item,
+.mobileRefined.iphonePremium .paperPickItem,
+.mobileRefined.iphonePremium .recMini,
+.mobileRefined.iphonePremium .tCard,
+.mobileRefined.iphonePremium .settingsAction,
+.mobileRefined.iphonePremium .detailRow,
+.mobileRefined.iphonePremium .detailNote,
+.mobileRefined.iphonePremium .timelineMetaBlock,
+.mobileRefined.iphonePremium .timelineRevTrail,
+.mobileRefined.iphonePremium .signatureMetaCard{
+  background: rgba(255,255,255,0.78) !important;
+  border: 1px solid rgba(15,23,42,0.055) !important;
+  box-shadow: var(--ios-card-shadow) !important;
+  backdrop-filter: blur(20px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(135%) !important;
+}
+
+.mobileRefined.iphonePremium .caseCommandDeck,
+.mobileRefined.iphonePremium .sectionTabs,
+.mobileRefined.iphonePremium .caseCommandDeck .sectionTabs{
+  background: rgba(255,255,255,0.62) !important;
+  border-color: rgba(15,23,42,0.06) !important;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.04), 0 1px 0 rgba(255,255,255,0.9) inset !important;
+  backdrop-filter: blur(22px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(145%) !important;
+}
+
+.mobileRefined.iphonePremium .sectionTab,
+.mobileRefined.iphonePremium .caseCommandDeck .sectionTab{
+  background: rgba(248,250,252,0.65) !important;
+  border: 1px solid rgba(15,23,42,0.05) !important;
+  color: #5d6673 !important;
+}
+
+.mobileRefined.iphonePremium .sectionTab.active,
+.mobileRefined.iphonePremium .caseCommandDeck .sectionTab.active{
+  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,248,255,0.98) 100%) !important;
+  border-color: rgba(10,132,255,0.16) !important;
+  color: #0f172a !important;
+  box-shadow: 0 7px 18px rgba(10,132,255,0.08), 0 1px 0 rgba(255,255,255,0.96) inset !important;
+}
+
+.mobileRefined.iphonePremium .field input,
+.mobileRefined.iphonePremium .field select,
+.mobileRefined.iphonePremium .field textarea,
+.mobileRefined.iphonePremium .searchInput{
+  background: rgba(255,255,255,0.82) !important;
+  border-color: rgba(15,23,42,0.07) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 4px 14px rgba(15,23,42,0.03) !important;
+}
+
+.mobileRefined.iphonePremium .field input:focus,
+.mobileRefined.iphonePremium .field select:focus,
+.mobileRefined.iphonePremium .field textarea:focus,
+.mobileRefined.iphonePremium .searchInput:focus{
+  border-color: rgba(10,132,255,0.36) !important;
+  box-shadow: 0 0 0 4px rgba(10,132,255,0.11), inset 0 1px 0 rgba(255,255,255,0.96) !important;
+}
+
+.mobileRefined.iphonePremium .btn.primary,
+.mobileRefined.iphonePremium .btn.saveCta{
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(15,23,42,0.08) !important;
+  box-shadow: 0 12px 24px rgba(15,23,42,0.14), 0 1px 0 rgba(255,255,255,0.12) inset !important;
+}
+
+.mobileRefined.iphonePremium .btn.ghost,
+.mobileRefined.iphonePremium .btn:not(.primary):not(.saveCta):not(.danger){
+  background: rgba(255,255,255,0.74) !important;
+  border-color: rgba(15,23,42,0.06) !important;
+}
+
+.mobileRefined.iphonePremium .item.selected,
+.mobileRefined.iphonePremium .paperPickItem:hover,
+.mobileRefined.iphonePremium .recMini:hover,
+.mobileRefined.iphonePremium .tCard:hover{
+  border-color: rgba(10,132,255,0.18) !important;
+  box-shadow: 0 12px 28px rgba(10,132,255,0.08), 0 1px 0 rgba(255,255,255,0.95) inset !important;
+}
+
+.mobileRefined.iphonePremium .empty,
+.mobileRefined.iphonePremium .footer,
+.mobileRefined.iphonePremium .muted{
+  color: #6b7280 !important;
+}
+
+.mobileRefined.iphonePremium .toast{
+  background: rgba(17,24,39,0.92) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 16px 36px rgba(15,23,42,0.22) !important;
+}
+
+@media (max-width: 560px){
+  .mobileRefined.iphonePremium{
+    --header-height: 44px;
+    padding: 0 10px 20px !important;
+  }
+
+  .mobileRefined.iphonePremium .topbarInner{
+    padding: 5px 10px !important;
+  }
+
+  .mobileRefined.iphonePremium .topNavBtn{
+    padding: 0 11px !important;
+  }
+
+  .mobileRefined.iphonePremium .topNavBtn .topNavIcon{
+    display: none !important;
+  }
+
+  .mobileRefined.iphonePremium .topGearBtn .topNavIcon,
+  .mobileRefined.iphonePremium .topGearBtn .gearIcon{
+    display: inline-flex !important;
+  }
+
+  .mobileRefined.iphonePremium .topGearBtn{
+    width: 34px !important;
+    min-width: 34px !important;
+  }
+
+  .mobileRefined.iphonePremium .topNavLabel{
+    font-size: 11.5px !important;
+    letter-spacing: -0.02em !important;
+  }
+
+  .mobileRefined.iphonePremium .grid,
+  .mobileRefined.iphonePremium .caseShell{
+    gap: 12px !important;
+  }
+
+  .mobileRefined.iphonePremium .card{
+    border-radius: 20px !important;
+  }
+
+  .mobileRefined.iphonePremium .sectionTabs,
+  .mobileRefined.iphonePremium .caseCommandDeck .sectionTabs{
+    padding: 4px !important;
+    gap: 4px !important;
+  }
+
+  .mobileRefined.iphonePremium .sectionTab,
+  .mobileRefined.iphonePremium .caseCommandDeck .sectionTab{
+    min-height: 31px !important;
+    font-size: 11.5px !important;
+    border-radius: 11px !important;
+  }
+
+  .mobileRefined.iphonePremium .item,
+  .mobileRefined.iphonePremium .paperPickItem,
+  .mobileRefined.iphonePremium .recMini,
+  .mobileRefined.iphonePremium .tCard{
+    padding: 11px !important;
+  }
+}
+
+@media (max-width: 400px){
+  .mobileRefined.iphonePremium .topNav{
+    gap: 5px !important;
+  }
+
+  .mobileRefined.iphonePremium .topNavBtn{
+    padding: 0 9px !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-14 iPhone bright premium pass (final)
+   - fixes invisible save button caused by generic button overrides
+   - brighter Apple Notes / Health inspired mobile treatment
+   ========================================================================== */
+.mobileRefined.iphonePremium{
+  --ios-accent: #0a84ff;
+  --ios-accent-soft: rgba(10,132,255,0.10);
+  --ios-accent-line: rgba(10,132,255,0.20);
+  --ios-green-soft: rgba(52,199,89,0.12);
+  background:
+    radial-gradient(980px 320px at 50% -56px, rgba(10,132,255,0.09), transparent 58%),
+    radial-gradient(560px 180px at 100% 0%, rgba(52,199,89,0.06), transparent 62%),
+    linear-gradient(180deg, #fbfcff 0%, #f6f8fc 100%) !important;
+}
+
+.mobileRefined.iphonePremium .topbar{
+  background: rgba(252,253,255,0.86) !important;
+  border-bottom: 1px solid rgba(15,23,42,0.05) !important;
+  backdrop-filter: blur(26px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(155%) !important;
+}
+
+.mobileRefined.iphonePremium .brandSimple{
+  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(245,249,255,0.94) 100%) !important;
+  border-color: rgba(10,132,255,0.08) !important;
+  box-shadow: 0 8px 20px rgba(10,132,255,0.07), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+}
+
+.mobileRefined.iphonePremium .topNavBtn,
+.mobileRefined.iphonePremium .topGearBtn{
+  background: rgba(255,255,255,0.84) !important;
+  border-color: rgba(15,23,42,0.05) !important;
+  box-shadow: 0 5px 16px rgba(15,23,42,0.035), 0 1px 0 rgba(255,255,255,0.96) inset !important;
+}
+
+.mobileRefined.iphonePremium .topNavBtn.active{
+  background: linear-gradient(180deg, #ffffff 0%, #f2f8ff 100%) !important;
+  border-color: rgba(10,132,255,0.18) !important;
+  color: #0f172a !important;
+  box-shadow: 0 9px 22px rgba(10,132,255,0.09), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+}
+
+.mobileRefined.iphonePremium .topGearBtn{
+  background: linear-gradient(180deg, rgba(10,132,255,0.18) 0%, rgba(10,132,255,0.09) 100%) !important;
+  color: var(--ios-accent) !important;
+  border-color: rgba(10,132,255,0.16) !important;
+}
+
+.mobileRefined.iphonePremium .card,
+.mobileRefined.iphonePremium .entryForm,
+.mobileRefined.iphonePremium .fold,
+.mobileRefined.iphonePremium .adv,
+.mobileRefined.iphonePremium .helperBox,
+.mobileRefined.iphonePremium .item,
+.mobileRefined.iphonePremium .paperPickItem,
+.mobileRefined.iphonePremium .recMini,
+.mobileRefined.iphonePremium .tCard,
+.mobileRefined.iphonePremium .settingsAction,
+.mobileRefined.iphonePremium .detailRow,
+.mobileRefined.iphonePremium .detailNote,
+.mobileRefined.iphonePremium .timelineMetaBlock,
+.mobileRefined.iphonePremium .timelineRevTrail,
+.mobileRefined.iphonePremium .signatureMetaCard{
+  background: rgba(255,255,255,0.90) !important;
+  border: 1px solid rgba(15,23,42,0.045) !important;
+  box-shadow: 0 10px 28px rgba(15,23,42,0.045), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+  backdrop-filter: blur(18px) saturate(132%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(132%) !important;
+}
+
+.mobileRefined.iphonePremium .sectionTabs,
+.mobileRefined.iphonePremium .caseCommandDeck .sectionTabs{
+  background: rgba(248,250,254,0.84) !important;
+  border-color: rgba(15,23,42,0.05) !important;
+}
+
+.mobileRefined.iphonePremium .sectionTab,
+.mobileRefined.iphonePremium .caseCommandDeck .sectionTab{
+  background: rgba(255,255,255,0.82) !important;
+  border-color: rgba(15,23,42,0.045) !important;
+  color: #616b79 !important;
+}
+
+.mobileRefined.iphonePremium .sectionTab.active,
+.mobileRefined.iphonePremium .caseCommandDeck .sectionTab.active{
+  background: linear-gradient(180deg, #ffffff 0%, #f3f8ff 100%) !important;
+  border-color: rgba(10,132,255,0.18) !important;
+  color: #0f172a !important;
+  box-shadow: 0 8px 18px rgba(10,132,255,0.08), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+}
+
+.mobileRefined.iphonePremium .countPill,
+.mobileRefined.iphonePremium .statPill,
+.mobileRefined.iphonePremium .chip,
+.mobileRefined.iphonePremium .tag{
+  background: rgba(255,255,255,0.82) !important;
+  border-color: rgba(15,23,42,0.055) !important;
+}
+
+.mobileRefined.iphonePremium .savePill{
+  background: rgba(245,248,252,0.96) !important;
+  color: #55606e !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.96) !important;
+}
+
+.mobileRefined.iphonePremium .savePill.ready{
+  background: linear-gradient(180deg, rgba(52,199,89,0.14) 0%, rgba(52,199,89,0.08) 100%) !important;
+  border-color: rgba(52,199,89,0.18) !important;
+  color: #16783a !important;
+}
+
+.mobileRefined.iphonePremium .savePill.warn{
+  background: linear-gradient(180deg, rgba(255,204,0,0.15) 0%, rgba(255,204,0,0.08) 100%) !important;
+  border-color: rgba(255,159,10,0.18) !important;
+  color: #8b5e00 !important;
+}
+
+.mobileRefined.iphonePremium .field input,
+.mobileRefined.iphonePremium .field select,
+.mobileRefined.iphonePremium .field textarea,
+.mobileRefined.iphonePremium .searchInput{
+  background: rgba(255,255,255,0.94) !important;
+  border-color: rgba(15,23,42,0.06) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.98), 0 4px 14px rgba(15,23,42,0.025) !important;
+}
+
+.mobileRefined.iphonePremium .field textarea::placeholder,
+.mobileRefined.iphonePremium .field input::placeholder,
+.mobileRefined.iphonePremium .searchInput::placeholder{
+  color: #a3acb8 !important;
+}
+
+.mobileRefined.iphonePremium .composerTopV3{
+  gap: 12px !important;
+}
+
+.mobileRefined.iphonePremium .composerCtas{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.3fr) minmax(88px, 0.7fr) !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+
+.mobileRefined.iphonePremium .composerCtas .btn,
+.mobileRefined.iphonePremium .composerCtas .saveCta{
+  width: 100% !important;
+  min-width: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta,
+.mobileRefined.iphonePremium .btn.saveCta:hover,
+.mobileRefined.iphonePremium .btn.saveCta:focus-visible{
+  background: linear-gradient(180deg, #2ea7ff 0%, #0a84ff 55%, #0076f5 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(10,132,255,0.20) !important;
+  box-shadow: 0 12px 24px rgba(10,132,255,0.22), 0 1px 0 rgba(255,255,255,0.20) inset !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta:active{
+  transform: translateY(0) !important;
+  box-shadow: 0 8px 18px rgba(10,132,255,0.18), 0 1px 0 rgba(255,255,255,0.18) inset !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta:disabled,
+.mobileRefined.iphonePremium .btn.saveCta[aria-disabled="true"]{
+  background: linear-gradient(180deg, rgba(46,167,255,0.42) 0%, rgba(10,132,255,0.38) 100%) !important;
+  color: rgba(255,255,255,0.96) !important;
+  border-color: rgba(10,132,255,0.10) !important;
+  box-shadow: 0 8px 18px rgba(10,132,255,0.10), inset 0 1px 0 rgba(255,255,255,0.18) !important;
+  opacity: 1 !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveIco{
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.18) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #ffffff !important;
+  flex: 0 0 auto !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveIco svg{
+  width: 12px !important;
+  height: 12px !important;
+  display: block !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveLbl{
+  color: inherit !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveKbd{
+  background: rgba(255,255,255,0.20) !important;
+  border-color: rgba(255,255,255,0.18) !important;
+}
+
+.mobileRefined.iphonePremium .btn.ghost,
+.mobileRefined.iphonePremium .btn:not(.primary):not(.saveCta):not(.danger){
+  background: rgba(255,255,255,0.88) !important;
+  color: #4f5b67 !important;
+  border-color: rgba(15,23,42,0.055) !important;
+  box-shadow: 0 6px 16px rgba(15,23,42,0.03), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+}
+
+.mobileRefined.iphonePremium .footer,
+.mobileRefined.iphonePremium .muted,
+.mobileRefined.iphonePremium .composerSub,
+.mobileRefined.iphonePremium .sectionTitle .muted{
+  color: #7d8794 !important;
+}
+
+@media (max-width: 560px){
+  .mobileRefined.iphonePremium{
+    padding: 0 10px 22px !important;
+  }
+
+  .mobileRefined.iphonePremium .card,
+  .mobileRefined.iphonePremium .entryForm,
+  .mobileRefined.iphonePremium .helperBox,
+  .mobileRefined.iphonePremium .item,
+  .mobileRefined.iphonePremium .paperPickItem,
+  .mobileRefined.iphonePremium .recMini,
+  .mobileRefined.iphonePremium .tCard{
+    border-radius: 18px !important;
+  }
+
+  .mobileRefined.iphonePremium .composerCtas{
+    grid-template-columns: minmax(0, 1fr) 92px !important;
+  }
+
+  .mobileRefined.iphonePremium .btn.saveCta,
+  .mobileRefined.iphonePremium .composerCtas .btn.ghost{
+    height: 40px !important;
+    border-radius: 13px !important;
+  }
+
+  .mobileRefined.iphonePremium .sectionTitle .h2{
+    font-size: 17px !important;
+  }
+}
+
+@media (max-width: 390px){
+  .mobileRefined.iphonePremium .composerCtas{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-14 iPhone bright premium pass (save CTA stability fix)
+   - fixes the composer CTA text disappearing on narrow iPhone widths
+   - uses a simpler text-first save button for reliable Safari rendering
+   ========================================================================== */
+.mobileRefined.iphonePremium .composerCtas .btn,
+.mobileRefined.iphonePremium .btn.saveCta,
+.mobileRefined.iphonePremium .composerCtas .btn.ghost{
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-indent: 0 !important;
+  letter-spacing: -0.02em !important;
+  overflow: visible !important;
+}
+
+.mobileRefined.iphonePremium .composerCtas{
+  align-items: stretch !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta,
+.mobileRefined.iphonePremium .btn.saveCta:hover,
+.mobileRefined.iphonePremium .btn.saveCta:focus-visible{
+  justify-content: center !important;
+  gap: 0 !important;
+  background: linear-gradient(180deg, #2ea7ff 0%, #0a84ff 55%, #0076f5 100%) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta:disabled,
+.mobileRefined.iphonePremium .btn.saveCta[aria-disabled="true"]{
+  color: rgba(255,255,255,0.98) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.98) !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveMain{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  font-size: 13.5px !important;
+  font-weight: 950 !important;
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveMain::before{
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.96);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.18);
+  flex: 0 0 auto;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveIco,
+.mobileRefined.iphonePremium .btn.saveCta .saveLbl,
+.mobileRefined.iphonePremium .btn.saveCta .saveKbd{
+  display: none !important;
+}
+
+.mobileRefined.iphonePremium .composerCtas .clearDraftBtn,
+.mobileRefined.iphonePremium .composerCtas .btn.ghost.clearDraftBtn{
+  color: #5a6574 !important;
+  -webkit-text-fill-color: #5a6574 !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  white-space: nowrap !important;
+  background: rgba(255,255,255,0.92) !important;
+}
+
+@media (max-width: 560px){
+  .mobileRefined.iphonePremium .composerCtas{
+    grid-template-columns: minmax(0, 1fr) 88px !important;
+  }
+
+  .mobileRefined.iphonePremium .btn.saveCta,
+  .mobileRefined.iphonePremium .composerCtas .clearDraftBtn{
+    min-height: 40px !important;
+  }
+}
+
+@media (max-width: 390px){
+  .mobileRefined.iphonePremium .composerCtas{
+    grid-template-columns: 1fr !important;
+  }
+
+  .mobileRefined.iphonePremium .composerCtas .clearDraftBtn{
+    min-height: 38px !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-14 iPhone bright premium pass (final save CTA text visibility fix)
+   - replaces pseudo/text-fill heavy save CTA with explicit dot + label layout
+   - keeps the button visibly blue and readable in narrow iPhone Safari widths
+   ========================================================================== */
+.mobileRefined.iphonePremium .btn.saveCta,
+.mobileRefined.iphonePremium .btn.saveCta:hover,
+.mobileRefined.iphonePremium .btn.saveCta:focus-visible,
+.mobileRefined.iphonePremium .btn.saveCta:active{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+  border-radius: 13px !important;
+  background: linear-gradient(180deg, #38adff 0%, #0a84ff 58%, #0070f0 100%) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1px solid rgba(10,132,255,0.20) !important;
+  box-shadow: 0 10px 22px rgba(10,132,255,0.20), inset 0 1px 0 rgba(255,255,255,0.20) !important;
+  text-shadow: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta:disabled,
+.mobileRefined.iphonePremium .btn.saveCta[aria-disabled="true"]{
+  background: linear-gradient(180deg, #bfdfff 0%, #9dcbff 100%) !important;
+  color: rgba(255,255,255,0.98) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.98) !important;
+  border-color: rgba(10,132,255,0.10) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), 0 6px 14px rgba(10,132,255,0.10) !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveMain,
+.mobileRefined.iphonePremium .btn.saveCta .saveIco,
+.mobileRefined.iphonePremium .btn.saveCta .saveLbl,
+.mobileRefined.iphonePremium .btn.saveCta .saveKbd{
+  display: none !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveDot,
+.mobileRefined.iphonePremium .btn.saveCta .saveText{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveDot{
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.98) !important;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.18) !important;
+  flex: 0 0 auto !important;
+}
+
+.mobileRefined.iphonePremium .btn.saveCta .saveText{
+  font-size: 13.5px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 390px){
+  .mobileRefined.iphonePremium .btn.saveCta .saveText{
+    font-size: 13px !important;
+  }
+}
+
+
+/* ======================================================================
+   390x640 compact shell + left sidebar + home feed refresh
+   ====================================================================== */
+html, body{
+  min-height: 100%;
+}
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: #edf1f5 !important;
+}
+
+.container.mobileRefined.iphonePremium{
+  width: 390px !important;
+  min-width: 390px !important;
+  max-width: 390px !important;
+  height: 640px !important;
+  min-height: 640px !important;
+  max-height: 640px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+  border-radius: 34px;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%) !important;
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.20), 0 10px 24px rgba(15, 23, 42, 0.10);
+}
+
+.container.mobileRefined.iphonePremium::before{
+  content:"";
+  position:absolute;
+  inset: 0;
+  border-radius: 34px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  pointer-events:none;
+}
+
+.appFrame{
+  position: relative;
+  display:grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  width:100%;
+  height:100%;
+}
+
+.serviceSidebar{
+  background: linear-gradient(180deg, #f4f5f7 0%, #edeff3 100%);
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 14px 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 18px;
+}
+
+.serviceLogo,
+.sidebarIconBtn{
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255,255,255,0.72);
+  color: #111827;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.serviceLogo:hover,
+.sidebarIconBtn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(15, 23, 42, 0.10);
+}
+
+.serviceLogo.active,
+.sidebarIconBtn.active{
+  background: #ffffff;
+  color: #111827;
+}
+
+.serviceLogoGlyph{
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.serviceSidebarNav{
+  width: 100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 10px;
+}
+
+.sidebarIconBtn.accent{
+  background: linear-gradient(135deg, #111827 0%, #374151 100%);
+  color: #ffffff;
+  border-color: rgba(17, 24, 39, 0.28);
+}
+
+.sidebarIcon,
+.sidebarIcon svg{
+  width: 20px;
+  height: 20px;
+}
+
+.serviceMain{
+  min-width: 0;
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  background: #ffffff;
+}
+
+.serviceContent{
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow:auto;
+  padding: 12px;
+  background: linear-gradient(180deg, #f7f8fb 0%, #ffffff 30%);
+}
+.serviceContent::-webkit-scrollbar{ display:none; }
+
+.container.mobileRefined.iphonePremium .topbar{
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: auto !important;
+  background: rgba(255,255,255,0.88) !important;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarInner{
+  max-width: none !important;
+  width: 100%;
+  height: 56px !important;
+  padding: 10px 12px !important;
+  justify-content:flex-start !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn,
+.container.mobileRefined.iphonePremium .topGearBtn{
+  height: 38px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: rgba(247,248,250,0.88) !important;
+  box-shadow: none !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn{
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 10px !important;
+  justify-content:center;
+}
+
+.container.mobileRefined.iphonePremium .topGearBtn{
+  flex: 0 0 38px;
+  width: 38px !important;
+  padding: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn.active,
+.container.mobileRefined.iphonePremium .topGearBtn.active{
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #111827 !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn::after{
+  display:none !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavLabel{
+  font-size: 11px !important;
+  letter-spacing: -0.02em;
+}
+
+.container.mobileRefined.iphonePremium .topNavIcon,
+.container.mobileRefined.iphonePremium .topNavIcon svg{
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .grid,
+.container.mobileRefined.iphonePremium .grid.caseGrid,
+.container.mobileRefined.iphonePremium .caseBodyGrid{
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  margin-top: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .side{
+  position: static !important;
+  top: auto !important;
+}
+
+.container.mobileRefined.iphonePremium .card,
+.container.mobileRefined.iphonePremium .caseCommandDeck,
+.container.mobileRefined.iphonePremium .side .card{
+  padding: 12px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06) !important;
+}
+
+.container.mobileRefined.iphonePremium .card::before{
+  left: 14px !important;
+  right: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTitle{
+  margin-bottom: 10px !important;
+  gap: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTitle .h2{
+  font-size: 18px !important;
+  line-height: 1.22 !important;
+  padding-left: 0 !important;
+  margin-bottom: 3px !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTitle .h2::before{
+  display:none !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTitle .muted,
+.container.mobileRefined.iphonePremium .muted,
+.container.mobileRefined.iphonePremium .helperBox,
+.container.mobileRefined.iphonePremium .composerSub{
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+}
+
+.container.mobileRefined.iphonePremium .countPill,
+.container.mobileRefined.iphonePremium .tag,
+.container.mobileRefined.iphonePremium .chip,
+.container.mobileRefined.iphonePremium .savePill{
+  font-size: 10.5px !important;
+}
+
+.container.mobileRefined.iphonePremium .countPill{
+  height: 28px !important;
+  padding: 0 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .btn{
+  height: 40px !important;
+  border-radius: 14px !important;
+  font-size: 12px !important;
+  padding: 0 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .btn.small,
+.container.mobileRefined.iphonePremium .btn.mini,
+.container.mobileRefined.iphonePremium .mfBtn{
+  height: 34px !important;
+  font-size: 11px !important;
+}
+
+.container.mobileRefined.iphonePremium .actionsRow{
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .field input,
+.container.mobileRefined.iphonePremium .field select,
+.container.mobileRefined.iphonePremium .field textarea,
+.container.mobileRefined.iphonePremium .searchInput{
+  border-radius: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsMain .sideStack{
+  gap: 10px;
+}
+
+.container.mobileRefined.iphonePremium .recordsMain .sideCard:last-child > div[style]{
+  max-height: none !important;
+  padding-right: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .recMini{
+  border-radius: 18px !important;
+}
+
+.container.mobileRefined.iphonePremium .recMiniTitle{
+  font-size: 13px !important;
+}
+
+.container.mobileRefined.iphonePremium .footer{
+  display:none !important;
+}
+
+.homeFeedWrap{
+  padding-top: 2px;
+}
+
+.homeFeedCard{
+  overflow:hidden;
+  border-radius: 28px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: 0 20px 36px rgba(99, 102, 241, 0.08), 0 12px 24px rgba(15, 23, 42, 0.06);
+}
+
+.homeFeedHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  padding: 14px 14px 12px;
+}
+
+.homeFeedUser{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.homeAvatar{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+  color: #111827;
+  background: linear-gradient(135deg, #f5f3ff 0%, #dbeafe 100%);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+}
+
+.homeFeedName{
+  font-size: 13px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.homeFeedMeta,
+.homeFeedSub,
+.homeFeedStat{
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.homeGhostBtn{
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.04);
+  color: #6b7280;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 14px;
+}
+
+.homePhotoFrame{
+  padding: 0 14px 14px;
+}
+
+.homePhotoPlaceholder{
+  position:relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 24px;
+  overflow:hidden;
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  background: linear-gradient(135deg, #fdf2f8 0%, #eef2ff 52%, #ecfeff 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.homePhotoPlaceholder::before,
+.homePhotoPlaceholder::after{
+  content:"";
+  position:absolute;
+  inset:auto;
+  border-radius:999px;
+  filter: blur(18px);
+  opacity: .72;
+}
+
+.homePhotoPlaceholder::before{
+  width: 120px;
+  height: 120px;
+  background: rgba(244, 114, 182, 0.26);
+  top: 18px;
+  right: 18px;
+}
+
+.homePhotoPlaceholder::after{
+  width: 140px;
+  height: 140px;
+  background: rgba(59, 130, 246, 0.18);
+  left: 18px;
+  bottom: 18px;
+}
+
+.homePhotoPlaceholder span{
+  position:relative;
+  z-index: 1;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  color: rgba(17, 24, 39, 0.45);
+}
+
+.homeFeedBody{
+  padding: 0 14px 16px;
+}
+
+.homeFeedCaption{
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #111827;
+}
+
+.homeFeedCaption b{
+  margin-right: 4px;
+}
+
+dialog.recordComposerModal{
+  width: calc(100% - 20px);
+  max-width: 302px;
+  max-height: calc(100% - 20px);
+  padding: 0;
+  border: none;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.24);
+}
+
+.dialog.recordComposerModal::backdrop,
+dialog.recordComposerModal::backdrop{
+  background: rgba(15, 23, 42, 0.26);
+  backdrop-filter: blur(10px);
+}
+
+.recordComposerModal .modalHead{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.92);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.recordComposerModal .recordComposerModalBody{
+  padding: 12px;
+  max-height: calc(640px - 104px);
+  overflow:auto;
+  background: linear-gradient(180deg, #f7f8fb 0%, #ffffff 100%);
+}
+
+.recordComposerModal .entryForm{
+  margin-top: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.recordComposerModal .composer{
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: #ffffff;
+  padding: 12px;
+}
+
+.recordComposerModal .composerTitleBlock{
+  display:none !important;
+}
+
+.recordComposerModal .composerTop,
+.recordComposerModal .composerTopV3{
+  align-items:flex-start !important;
+}
+
+.recordComposerModal .composerCtas{
+  width:100%;
+  display:grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 8px;
+}
+
+.recordComposerModal .metaInputs{
+  gap: 10px;
+}
+
+.recordComposerModal .entryTa{
+  min-height: 124px !important;
+}
+
+/* ========================================================================== 
+   2026-03-14 layout breathing + scoped scroll patch
+   - header buttons right aligned
+   - settings moved to sidebar bottom
+   - records / case create / case list / timeline scrollable
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium .appFrame{
+  min-height: 0;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebar{
+  padding: 24px 10px 18px !important;
+  gap: 22px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebarNav{
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebarBottom{
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+}
+
+.container.mobileRefined.iphonePremium .sidebarSettingsBtn{
+  background: rgba(255,255,255,0.86) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbar{
+  background: rgba(255,255,255,0.94) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarInner{
+  height: 68px !important;
+  padding: 18px 16px 12px !important;
+  justify-content: flex-end !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarCompact{
+  justify-content: flex-end !important;
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav,
+.container.mobileRefined.iphonePremium .topNav.topNavShifted{
+  width: auto !important;
+  margin-left: auto !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn{
+  flex: 0 0 auto !important;
+  min-width: 122px;
+  padding: 0 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceContent{
+  padding: 18px 14px 16px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSection,
+.container.mobileRefined.iphonePremium .recordsPageShell,
+.container.mobileRefined.iphonePremium .recordsMain,
+.container.mobileRefined.iphonePremium .sideStack,
+.container.mobileRefined.iphonePremium .caseShell,
+.container.mobileRefined.iphonePremium .caseBodyGrid,
+.container.mobileRefined.iphonePremium .caseCommandDeck,
+.container.mobileRefined.iphonePremium .caseCommandPanel,
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .caseListScroll{
+  min-height: 0;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell,
+.container.mobileRefined.iphonePremium .caseShell{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.container.mobileRefined.iphonePremium .recordsMain .sideStack{
+  display: flex;
+  flex-direction: column;
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsListScroll,
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .stepMiniList{
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 6px;
+  scrollbar-width: thin;
+}
+
+.container.mobileRefined.iphonePremium .recordsListScroll{
+  margin-top: 10px;
+  max-height: min(56vh, 520px);
+}
+
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll{
+  max-height: min(54vh, 500px);
+}
+
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll{
+  max-height: min(58vh, 560px);
+}
+
+.container.mobileRefined.iphonePremium .stepMiniList{
+  max-height: min(34vh, 300px) !important;
+  padding-right: 4px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseTimelineScroll .sectionTitle,
+.container.mobileRefined.iphonePremium .recordsPageShell .sectionTitle,
+.container.mobileRefined.iphonePremium .caseMainTitle{
+  margin-bottom: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandDeck,
+.container.mobileRefined.iphonePremium .side .card,
+.container.mobileRefined.iphonePremium .card{
+  overflow: hidden;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandDeck .sectionTabs{
+  margin-bottom: 2px;
+}
+
+
+/* ========================================================================== 
+   2026-03-14 requested mobile cleanup
+   - home feed uses real image asset
+   - header tabs use underline only
+   - sidebar/header buttons lose fills and borders
+   - record filter stays on one compact row
+   - record composer modal expands close to 390px width
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium .homeFeedImage{
+  display:block;
+  width:100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: #f3f4f6;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebar{
+  padding: 10px 8px 14px !important;
+  gap: 16px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogo,
+.container.mobileRefined.iphonePremium .sidebarIconBtn,
+.container.mobileRefined.iphonePremium .topNavBtn,
+.container.mobileRefined.iphonePremium .topGearBtn{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogo,
+.container.mobileRefined.iphonePremium .sidebarIconBtn{
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  color: #6b7280 !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogo:hover,
+.container.mobileRefined.iphonePremium .sidebarIconBtn:hover,
+.container.mobileRefined.iphonePremium .serviceLogo.active,
+.container.mobileRefined.iphonePremium .sidebarIconBtn.active,
+.container.mobileRefined.iphonePremium .sidebarIconBtn.accent,
+.container.mobileRefined.iphonePremium .sidebarSettingsBtn.active{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+  color: #111827 !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogoGlyph{
+  font-size: 19px !important;
+  font-weight: 900 !important;
+}
+
+.container.mobileRefined.iphonePremium .sidebarIcon,
+.container.mobileRefined.iphonePremium .sidebarIcon svg{
+  width: 21px !important;
+  height: 21px !important;
+}
+
+.container.mobileRefined.iphonePremium .topbar{
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarInner{
+  height: 50px !important;
+  padding: 8px 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav{
+  gap: 18px !important;
+  justify-content: flex-start !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn{
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 32px !important;
+  padding: 0 0 8px !important;
+  border-radius: 0 !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  color: #9ca3af !important;
+  position: relative;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn .topNavIcon{
+  display: none !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavLabel{
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: #111827;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform .18s ease;
+  display: block !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn:hover,
+.container.mobileRefined.iphonePremium .topNavBtn:focus-visible,
+.container.mobileRefined.iphonePremium .topNavBtn.active{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #111827 !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn.active::after{
+  transform: scaleX(1);
+}
+
+.container.mobileRefined.iphonePremium .recordsMain{
+  padding-top: 2px;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell{
+  gap: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .sectionTitle{
+  margin-bottom: 4px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .sideStack{
+  gap: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .sideCard{
+  padding: 12px 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .sideCardHead{
+  margin-bottom: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterBar{
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  margin-top: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterBar .mfFields{
+  display: grid !important;
+  grid-template-columns: minmax(84px, 0.9fr) 78px minmax(96px, 1fr) !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .mfField{
+  min-width: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfInput,
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfSelect{
+  width: 100% !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  border-radius: 12px !important;
+  font-size: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfSelect{
+  padding-right: 28px !important;
+  background-position: right 8px center !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterBar .mfActions{
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfStat{
+  margin-left: 0 !important;
+  font-size: 11px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfBtn,
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .sideCardActions .btn{
+  height: 30px !important;
+  padding: 0 8px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsListScroll{
+  margin-top: 8px !important;
+  max-height: min(68vh, 640px) !important;
+}
+
+.container.mobileRefined.iphonePremium .recMini{
+  padding: 9px 10px !important;
+  border-radius: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .recMini + .recMini{
+  margin-top: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .tags.mini{
+  gap: 6px !important;
+  margin-bottom: 4px !important;
+}
+
+.container.mobileRefined.iphonePremium .tags.mini .tag{
+  height: 22px !important;
+  padding: 0 8px !important;
+  font-size: 11px !important;
+}
+
+.container.mobileRefined.iphonePremium .recMiniTitle{
+  margin-top: 6px !important;
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+.container.mobileRefined.iphonePremium .recMiniTimes,
+.container.mobileRefined.iphonePremium .recMiniMetaLine,
+.container.mobileRefined.iphonePremium .recMiniHash{
+  font-size: 11px !important;
+}
+
+.container.mobileRefined.iphonePremium .recMini .actionsRow{
+  gap: 6px !important;
+  margin-top: 8px !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+}
+
+.container.mobileRefined.iphonePremium .recMini .btn{
+  height: 28px !important;
+  padding: 0 8px !important;
+  border-radius: 10px !important;
+  font-size: 11px !important;
+  flex: 0 0 auto;
+}
+
+dialog.recordComposerModal{
+  width: min(calc(100vw - 8px), 390px) !important;
+  max-width: 390px !important;
+  max-height: calc(100vh - 8px) !important;
+}
+
+.recordComposerModal .recordComposerModalBody{
+  max-height: calc(100vh - 92px) !important;
+  padding: 12px 10px 14px !important;
+}
+
+
+/* ========================================================================== 
+   2026-03-14 tweak: header/sidebar breathing + evidence filter simplification
+   ========================================================================== */
+.container.mobileRefined.iphonePremium .serviceSidebar{
+  padding-top: 22px !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarInner{
+  height: 58px !important;
+  padding: 14px 12px 10px !important;
+}
+
+.compactFilterCard .mfFields.twoUp{
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+}
+
+.compactFilterCard .mfIconBtn{
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.compactFilterCard .mfIcon{
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compactFilterCard .mfIcon svg{
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 900px){
+  .compactFilterCard .mfFields.twoUp{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterCard .mfFields.twoUp{
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfIconBtn{
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+}
+
+/* ========================================================================== 
+   2026-03-14 user requested patch
+   - top header breathing adjusted
+   - records filter locked to one row (주체 / 키워드 / 돋보기)
+   - case list/timeline uses more width + smaller typography
+   - action log / advisor guide hidden in case view
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium .topbarInner{
+  height: auto !important;
+  min-height: 58px !important;
+  padding: 22px 12px 6px !important;
+  align-items: flex-end !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarCompact{
+  gap: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .sideCardHeadFilterRow{
+  align-items: flex-start !important;
+  margin-bottom: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .sideCardMetaText{
+  margin-top: 4px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterBar{
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterCard .mfFields.twoUp{
+  display: grid !important;
+  grid-template-columns: minmax(74px,0.92fr) minmax(0,1.08fr) !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterCard .mfFieldKeyword{
+  grid-column: auto !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterBar .mfActions{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  flex-wrap: nowrap !important;
+  width: auto !important;
+  gap: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfInput{
+  width: 100% !important;
+  min-width: 0 !important;
+  font-size: 13px !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .memoFilterCard .mfBtn{
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .actionSide,
+.container.mobileRefined.iphonePremium .caseShellList .stepMiniList{
+  display: none !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseBodyGrid,
+.container.mobileRefined.iphonePremium .caseShellList .grid.oneCol{
+  gap: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .card,
+.container.mobileRefined.iphonePremium .caseShellList .caseCommandDeck,
+.container.mobileRefined.iphonePremium .caseShellList .side .card{
+  padding: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .caseShellList .caseListScroll{
+  max-height: none !important;
+  padding-right: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .sectionTitle .h2,
+.container.mobileRefined.iphonePremium .caseShellList .caseTitleLeft .h2{
+  font-size: 17px !important;
+  padding-left: 0 !important;
+  margin-bottom: 4px !important;
+  letter-spacing: -0.03em !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .sectionTitle .h2::before{
+  display: none !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .sectionTitle .muted,
+.container.mobileRefined.iphonePremium .caseShellList .muted{
+  font-size: 11.25px !important;
+  line-height: 1.4 !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .countPill,
+.container.mobileRefined.iphonePremium .caseShellList .badgeAI,
+.container.mobileRefined.iphonePremium .caseShellList .tag,
+.container.mobileRefined.iphonePremium .caseShellList .chip,
+.container.mobileRefined.iphonePremium .caseShellList .stepMiniTime{
+  font-size: 10.75px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .tag{
+  height: 22px !important;
+  padding: 0 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .title{
+  font-size: 12.25px !important;
+  line-height: 1.45 !important;
+  margin-bottom: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .meta,
+.container.mobileRefined.iphonePremium .caseShellList .recMiniMetaLine,
+.container.mobileRefined.iphonePremium .caseShellList .recMiniHash,
+.container.mobileRefined.iphonePremium .caseShellList .detailNote{
+  font-size: 10.9px !important;
+  line-height: 1.45 !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .btn{
+  height: 30px !important;
+  padding: 0 10px !important;
+  border-radius: 10px !important;
+  font-size: 11.25px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .actionsRow{
+  gap: 6px !important;
+  margin-top: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .timelineWrap{
+  margin-top: 8px !important;
+  padding: 10px 10px 8px !important;
+  border-radius: 18px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .timeline.timelineEm{
+  gap: 10px !important;
+  padding: 6px 0 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .timeline.timelineEm::before{
+  left: 18px !important;
+  width: 2px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .timeline.timelineEm .tItem{
+  padding-left: 48px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .timeline.timelineEm .tItem .dot{
+  left: 11px !important;
+  top: 18px !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-width: 3px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .timeline .tCard{
+  padding: 12px !important;
+  border-radius: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .tCard::before{
+  top: 10px !important;
+  bottom: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .tDay{
+  margin: 0 0 -2px 32px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .tDayPill{
+  height: 24px !important;
+  padding: 0 10px !important;
+  font-size: 10.5px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseTitleRight,
+.container.mobileRefined.iphonePremium .caseShellList .aiTopActions{
+  gap: 6px !important;
+}
+
+/* ========================================================================== 
+   2026-03-14 follow-up patch
+   - header menu text smaller/lighter with slightly more top breathing
+   - case list + timeline visible together with independent scroll areas
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium .topbarInner{
+  min-height: 60px !important;
+  height: auto !important;
+  padding: 24px 12px 4px !important;
+  align-items: flex-end !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav,
+.container.mobileRefined.iphonePremium .topNav.topNavShifted{
+  gap: 16px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn{
+  height: 28px !important;
+  padding: 0 0 5px !important;
+  align-items: flex-end !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavLabel{
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspace{
+  display: grid;
+  grid-template-columns: minmax(190px, 0.88fr) minmax(0, 1.42fr);
+  gap: 10px;
+  min-height: 0;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspace.caseWorkspaceSingle{
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspacePane{
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 10px;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspaceFocusPane{
+  padding: 12px;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspacePaneHead{
+  margin-bottom: 8px;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspacePaneHead .title{
+  font-size: 11.5px !important;
+  margin-bottom: 2px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseListScroll,
+.container.mobileRefined.iphonePremium .caseShellList .caseTimelineScroll{
+  max-height: min(60vh, 620px) !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseListScroll{
+  padding-right: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseTimelineScroll{
+  padding-right: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseTimelinePlaceholder{
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 18px 14px;
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(247,248,251,0.9) 0%, #ffffff 100%);
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseTimelinePlaceholderTitle{
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspaceListPane .item{
+  padding: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspaceListPane .item + .item{
+  margin-top: 8px;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspaceTimelinePane .sectionTitle{
+  margin-bottom: 10px !important;
+}
+
+@media (max-width: 820px){
+  .container.mobileRefined.iphonePremium .caseShellList .caseWorkspace{
+    grid-template-columns: 1fr !important;
+  }
+
+  .container.mobileRefined.iphonePremium .caseShellList .caseWorkspaceListPane .caseListScroll{
+    max-height: min(28vh, 240px) !important;
+  }
+
+  .container.mobileRefined.iphonePremium .caseShellList .caseWorkspaceTimelinePane .caseTimelineScroll{
+    max-height: min(52vh, 560px) !important;
+  }
+}
+
+/* ========================================================================== 
+   2026-03-15 final viewport rebalance patch (460 x 680)
+   - device frame enlarged to 460x680
+   - sidebar width fixed
+   - header height fixed
+   - inner workspace expands to consume remaining space
+   ========================================================================== */
+.container.mobileRefined.iphonePremium{
+  --device-width: 460px;
+  --device-height: 680px;
+  --sidebar-fixed-width: 66px;
+  --topbar-fixed-height: 56px;
+
+  width: var(--device-width) !important;
+  min-width: var(--device-width) !important;
+  max-width: var(--device-width) !important;
+  height: var(--device-height) !important;
+  min-height: var(--device-height) !important;
+  max-height: var(--device-height) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.container.mobileRefined.iphonePremium .appFrame{
+  display: grid !important;
+  grid-template-columns: var(--sidebar-fixed-width) minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebar{
+  width: var(--sidebar-fixed-width) !important;
+  min-width: var(--sidebar-fixed-width) !important;
+  max-width: var(--sidebar-fixed-width) !important;
+  padding: 18px 8px 16px !important;
+  gap: 18px !important;
+  box-sizing: border-box !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebarNav{
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebarBottom{
+  margin-top: auto !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding-top: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceMain{
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: var(--topbar-fixed-height) minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbar{
+  height: var(--topbar-fixed-height) !important;
+  min-height: var(--topbar-fixed-height) !important;
+  max-height: var(--topbar-fixed-height) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarInner,
+.container.mobileRefined.iphonePremium .topbarCompact{
+  width: 100% !important;
+  height: var(--topbar-fixed-height) !important;
+  min-height: var(--topbar-fixed-height) !important;
+  max-height: var(--topbar-fixed-height) !important;
+  padding: 10px 16px 8px 14px !important;
+  box-sizing: border-box !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  gap: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav,
+.container.mobileRefined.iphonePremium .topNav.topNavShifted{
+  width: auto !important;
+  margin-left: 0 !important;
+  justify-content: flex-start !important;
+  gap: 16px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn{
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  padding: 0 0 6px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceContent{
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: auto !important;
+  padding: 16px 16px 18px 14px !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSection,
+.container.mobileRefined.iphonePremium .recordsPageShell,
+.container.mobileRefined.iphonePremium .recordsMain,
+.container.mobileRefined.iphonePremium .homeMain,
+.container.mobileRefined.iphonePremium .homeFeedWrap,
+.container.mobileRefined.iphonePremium .caseShell,
+.container.mobileRefined.iphonePremium .caseBodyGrid,
+.container.mobileRefined.iphonePremium .caseCommandDeck,
+.container.mobileRefined.iphonePremium .caseCommandPanel,
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseWorkspace,
+.container.mobileRefined.iphonePremium .caseWorkspacePane,
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .recordsListScroll,
+.container.mobileRefined.iphonePremium .sideStack{
+  min-height: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell,
+.container.mobileRefined.iphonePremium .recordsMain,
+.container.mobileRefined.iphonePremium .caseShell,
+.container.mobileRefined.iphonePremium .homeMain{
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+}
+
+.container.mobileRefined.iphonePremium .homeFeedWrap{
+  padding-top: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsListScroll,
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .stepMiniList{
+  max-height: none !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspace{
+  display: grid !important;
+  grid-template-columns: minmax(172px, 0.84fr) minmax(0, 1.16fr) !important;
+  gap: 10px !important;
+  min-height: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspace.caseWorkspaceSingle{
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspacePane,
+.container.mobileRefined.iphonePremium .caseShellList .caseListScroll,
+.container.mobileRefined.iphonePremium .caseShellList .caseTimelineScroll{
+  min-height: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseListScroll,
+.container.mobileRefined.iphonePremium .caseShellList .caseTimelineScroll{
+  overflow: auto !important;
+  height: 100% !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsPageShell .compactFilterBar .mfFields{
+  grid-template-columns: minmax(96px, 0.95fr) 86px minmax(120px, 1.1fr) !important;
+}
+
+dialog.recordComposerModal{
+  width: min(calc(100vw - 20px), 440px) !important;
+  max-width: 440px !important;
+  max-height: calc(100vh - 20px) !important;
+}
+
+.recordComposerModal .recordComposerModalBody{
+  max-height: calc(100vh - 104px) !important;
 }

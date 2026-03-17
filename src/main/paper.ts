@@ -1,4 +1,4 @@
-import { nowISO, fmt, esc, trunc } from '../utils';
+import { nowISO, fmt, esc, trunc, ensureRecordV8, shortHash, getRecordRevisions } from '../utils';
 import type { CaseItem, RecordItem, StepItem } from '../engine';
 import { buildCaseTimeline, recordsForCase } from '../engine';
 import { S, ui, actorLabel, actorShort, placeLabel, storeLabel, lvLabel } from './state';
@@ -10,12 +10,13 @@ import { S, ui, actorLabel, actorShort, placeLabel, storeLabel, lvLabel } from '
 function getPaperCSS(_opts?: { forPrintWindow?: boolean }) {
   return `
 dialog.modal.paperModal{
-  width: min(96vw, 1400px);
+  width: min(calc(100vw - 24px), 1400px);
   max-width: 1400px;
-  height: min(92vh, 1100px);
+  height: min(calc(100dvh - 24px), 1100px);
+  max-height: min(calc(100dvh - 24px), 1100px);
   padding: 0;
   border: none;
-  border-radius: 18px;
+  border-radius: 20px;
   overflow: hidden;
   background: transparent;
 }
@@ -28,7 +29,7 @@ dialog.modal.paperModal > .modalHead{
   top: 0;
   z-index: 10;
   display:flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
@@ -36,11 +37,24 @@ dialog.modal.paperModal > .modalHead{
   border-bottom: 1px solid rgba(0,0,0,0.08);
   backdrop-filter: blur(10px);
 }
+.paperModalLead{
+  min-width: 0;
+}
+.paperModalActions{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 .paperViewport{
   height: calc(100% - 74px);
   overflow: auto;
   padding: 18px;
-  background: radial-gradient(1200px 600px at 50% 0%, rgba(49,130,246,0.10), rgba(0,0,0,0) 60%),
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  background: radial-gradient(1200px 600px at 50% 0%, rgba(17,24,39,0.10), rgba(0,0,0,0) 60%),
               linear-gradient(180deg, rgba(0,0,0,0.04), rgba(0,0,0,0.00));
 }
 .paperSheet{
@@ -58,6 +72,9 @@ dialog.modal.paperModal > .modalHead{
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   word-break: keep-all;
+}
+.paperSection + .paperSection{
+  margin-top: 8px;
 }
 .paperTitle{
   font-size: 26px;
@@ -128,8 +145,8 @@ dialog.modal.paperModal > .modalHead{
   margin-bottom: 6px;
 }
 .advisorBlock{
-  border: 1px solid rgba(49,130,246,0.18);
-  background: rgba(49,130,246,0.06);
+  border: 1px solid rgba(17,24,39,0.18);
+  background: rgba(17,24,39,0.06);
   border-radius: 14px;
   padding: 12px 14px;
   margin-top: 10px;
@@ -139,8 +156,8 @@ dialog.modal.paperModal > .modalHead{
 .chip{
   display:inline-flex;
   align-items:center;
-  height: 26px;
-  padding: 0 10px;
+  min-height: 26px;
+  padding: 3px 10px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 850;
@@ -148,9 +165,9 @@ dialog.modal.paperModal > .modalHead{
   border: 1px solid rgba(0,0,0,0.08);
 }
 .chipTone{
-  background: rgba(49,130,246,0.10);
-  border-color: rgba(49,130,246,0.22);
-  color: #1b64da;
+  background: rgba(17,24,39,0.10);
+  border-color: rgba(17,24,39,0.22);
+  color: #111827;
 }
 .advisorBody{ color: rgba(0,0,0,0.78); line-height: 1.6; }
 
@@ -161,6 +178,9 @@ dialog.modal.paperModal > .modalHead{
   gap: 6px;
 }
 
+.paperTableWrap{
+  width: 100%;
+}
 .paperTable{
   width: 100%;
   border-collapse: collapse;
@@ -206,6 +226,160 @@ dialog.modal.paperModal > .modalHead{
   height: 42px;
   border-bottom: 1px solid rgba(0,0,0,0.30);
 }
+
+@media (max-width: 960px){
+  dialog.modal.paperModal{
+    width: min(calc(100vw - 16px), 1000px);
+    height: min(calc(100dvh - 16px), 1000px);
+    max-height: min(calc(100dvh - 16px), 1000px);
+    border-radius: 18px;
+  }
+  dialog.modal.paperModal > .modalHead{
+    gap: 10px;
+    padding: 12px 14px;
+  }
+  .paperModalActions .btn{
+    height: 38px;
+    padding: 0 12px;
+  }
+  .paperViewport{
+    padding: 14px;
+  }
+  .paperContent{
+    padding: 18px 16px 22px;
+  }
+  .paperTitle{
+    font-size: 23px;
+  }
+  .paperGrid{
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 8px 12px;
+    padding: 14px;
+  }
+}
+
+@media (max-width: 720px){
+  dialog.modal.paperModal{
+    width: calc(100vw - 8px);
+    height: calc(100dvh - 8px);
+    max-height: calc(100dvh - 8px);
+    border-radius: 16px;
+  }
+  dialog.modal.paperModal > .modalHead{
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .paperModalActions{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .paperModalActions .btn{
+    width: 100%;
+    justify-content: center;
+  }
+  .paperViewport{
+    height: calc(100% - 116px);
+    padding: 10px;
+  }
+  .paperSheet{
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.14);
+  }
+  .paperContent{
+    padding: 14px 13px 18px;
+  }
+  .paperTitle{
+    font-size: 20px;
+    line-height: 1.32;
+  }
+  .paperMeta{
+    margin-bottom: 14px;
+    font-size: 11.5px;
+  }
+  .paperH{
+    font-size: 14px;
+    margin: 22px 0 8px;
+  }
+  .paperGrid{
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 12px;
+  }
+  .paperK{
+    font-size: 11px;
+  }
+  .paperV{
+    font-size: 13px;
+  }
+  .paperFactDay,
+  .advisorBlock,
+  .sigBox{
+    padding: 11px 12px;
+    border-radius: 12px;
+  }
+  .paperSignGrid{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .chip{
+    font-size: 11.5px;
+  }
+  .paperTableResponsive thead{
+    display: none;
+  }
+  .paperTableResponsive,
+  .paperTableResponsive tbody,
+  .paperTableResponsive tr,
+  .paperTableResponsive td{
+    display: block;
+    width: 100%;
+  }
+  .paperTableResponsive tr{
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 14px;
+    background: #fff;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+  }
+  .paperTableResponsive td{
+    border: none;
+    border-bottom: 1px dashed rgba(0,0,0,0.10);
+    padding: 7px 0;
+    font-size: 12.5px;
+  }
+  .paperTableResponsive td:last-child{
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .paperTableResponsive td::before{
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(0,0,0,0.52);
+  }
+}
+
+@media (max-width: 420px){
+  dialog.modal.paperModal > .modalHead{
+    padding: 11px 12px;
+  }
+  .paperViewport{
+    padding: 8px;
+  }
+  .paperContent{
+    padding: 12px 11px 16px;
+  }
+  .paperModalActions{
+    grid-template-columns: 1fr;
+  }
+  .paperViewport{
+    height: calc(100% - 156px);
+  }
+}
+
 @page{ size: A4; margin: 12mm; }
 @media print{
   dialog.modal.paperModal, .paperViewport{ background: #fff !important; }
@@ -242,6 +416,11 @@ export type PaperRecordRow = {
   summary: string;
   id: string;
   reason?: string;
+  originalSealedAt?: string;
+  lastSealedAt?: string;
+  revisionCount?: number;
+  integrityHash?: string;
+  revisionTrail?: string[];
 };
 
 export type PaperPayload = {
@@ -323,6 +502,25 @@ function dedupeRecordsForPaper(recs: RecordItem[]) {
     out.push(r);
   }
   return out;
+}
+
+function getPaperRecordMeta(record: RecordItem) {
+  const vr = ensureRecordV8(record) as any;
+  const revisions = getRecordRevisions(vr);
+  const revisionCount = revisions.length;
+  const amendCount = Math.max(0, revisionCount - 1);
+  const originalSealedAt = String(vr?.integrity?.originalSealedAt || revisions[0]?.sealedAt || '');
+  const lastSealedAt = String(vr?.integrity?.lastSealedAt || revisions[revisionCount - 1]?.sealedAt || '');
+  const integrityHash = String(vr?.integrity?.currentHash || '');
+  const revisionTrail = revisions
+    .slice()
+    .reverse()
+    .map((rev: any) => {
+      const badge = rev?.action === 'amend' ? '정정' : (rev?.action === 'legacy-import' ? '이관' : '원본');
+      const reason = String(rev?.reason || '').trim() || (rev?.action === 'amend' ? '정정 봉인' : '초기 봉인');
+      return `${badge} · ${fmt(String(rev?.sealedAt || ''))}${reason ? ` · ${reason}` : ''} · ${shortHash(String(rev?.hash || ''), 10, 8)}`;
+    });
+  return { vr, revisionCount, amendCount, originalSealedAt, lastSealedAt, integrityHash, revisionTrail };
 }
 
 /* ======================================================
@@ -610,42 +808,49 @@ function renderTimelineTable(ctx: PaperRenderCtx) {
     .map((ev: any) => {
       if (ev.kind === 'record') {
         const r = ev.record as RecordItem;
+        const meta = getPaperRecordMeta(r);
         return `<tr>
-          <td>${esc(fmt(r.ts))}</td>
-          <td>기록</td>
-          <td>${esc(actorShort(r.actor))}</td>
-          <td>${esc(placeLabel(r.place, r.placeOther))}</td>
-          <td>${esc(lvLabel(r.lv))}</td>
-          <td>${esc(trunc(r.summary, 140))}</td>
-          <td><code>${esc(shortId(r.id))}</code></td>
+          <td data-label="시간">${esc(fmt(r.ts))}</td>
+          <td data-label="유형">기록</td>
+          <td data-label="주체">${esc(actorShort(r.actor))}</td>
+          <td data-label="장소">${esc(placeLabel(r.place, r.placeOther))}</td>
+          <td data-label="LV">${esc(lvLabel(r.lv))}</td>
+          <td data-label="내용">
+            ${esc(trunc(r.summary, 140))}
+            <div class="muted" style="margin-top:6px">최초 입력봉인: ${esc(meta.originalSealedAt ? fmt(meta.originalSealedAt) : '—')} · ${esc(meta.amendCount ? '최종 수정봉인' : '기록 봉인')}: ${esc(meta.lastSealedAt ? fmt(meta.lastSealedAt) : '—')}</div>
+            <div class="muted" style="margin-top:4px">수정이력: ${esc(meta.amendCount ? `정정 ${meta.amendCount}회 / REV ${meta.revisionCount}` : `원본 / REV ${meta.revisionCount}`)} · ${esc(shortHash(meta.integrityHash, 10, 8))}</div>
+          </td>
+          <td data-label="ID"><code>${esc(shortId(r.id))}</code></td>
         </tr>`;
       }
       const s = ev.step as StepItem;
       return `<tr>
-        <td>${esc(fmt(s.ts))}</td>
-        <td>내 조치 로그</td>
-        <td>—</td>
-        <td>—</td>
-        <td>—</td>
-        <td>${esc(trunc(`${s.name} — ${s.note}`, 160))}</td>
-        <td>—</td>
+        <td data-label="시간">${esc(fmt(s.ts))}</td>
+        <td data-label="유형">내 조치 로그</td>
+        <td data-label="주체">—</td>
+        <td data-label="장소">—</td>
+        <td data-label="LV">—</td>
+        <td data-label="내용">${esc(trunc(`${s.name} — ${s.note}`, 160))}</td>
+        <td data-label="ID">—</td>
       </tr>`;
     })
     .join('');
 
   return `
-    <table class="paperTable">
-      <thead><tr>
-        <th style="width:86px">시간</th>
-        <th style="width:52px">유형</th>
-        <th style="width:82px">주체</th>
-        <th style="width:68px">장소</th>
-        <th style="width:48px">LV</th>
-        <th>내용</th>
-        <th style="width:56px">ID</th>
-      </tr></thead>
-      <tbody>${rows || ''}</tbody>
-    </table>
+    <div class="paperTableWrap">
+      <table class="paperTable paperTableResponsive">
+        <thead><tr>
+          <th style="width:86px">시간</th>
+          <th style="width:52px">유형</th>
+          <th style="width:82px">주체</th>
+          <th style="width:68px">장소</th>
+          <th style="width:48px">LV</th>
+          <th>내용</th>
+          <th style="width:56px">ID</th>
+        </tr></thead>
+        <tbody>${rows || ''}</tbody>
+      </table>
+    </div>
     <div class="paperHint">※ 증거 타임라인 표는 중복(유사 문구)을 1회만 보여줘요. 전체 목록은 아래 ‘기록 목록’ 참고.</div>
   `;
 }
@@ -674,16 +879,21 @@ function renderRecordsTable(ctx: PaperRenderCtx) {
       const sig = computeInclusionSignals(r, c, score, rank, rankTotal, hasSnapshot);
       const reasonText = inclusionReasonText(sig);
 
+      const meta = getPaperRecordMeta(r);
+      const vr = meta.vr as any;
       return `<tr>
-        <td><code>${esc(shortId(r.id))}</code></td>
-        <td>${esc(fmt(r.ts))}</td>
-        <td>${esc(storeLabel(r.storeType, r.storeOther))}</td>
-        <td>${esc(lvLabel(r.lv))}</td>
-        <td>${esc(actorShort(r.actor))}</td>
-        <td>${esc(placeLabel(r.place, r.placeOther))}</td>
-        <td>
-          ${esc(trunc(r.summary, 180))}
+        <td data-label="ID"><code>${esc(shortId(vr.id))}</code></td>
+        <td data-label="시간">${esc(fmt(vr.ts))}</td>
+        <td data-label="유형">${esc(storeLabel(vr.storeType, vr.storeOther))}</td>
+        <td data-label="LV">${esc(lvLabel(vr.lv))}</td>
+        <td data-label="주체">${esc(actorShort(vr.actor))}</td>
+        <td data-label="장소">${esc(placeLabel(vr.place, vr.placeOther))}</td>
+        <td data-label="요약">
+          ${esc(trunc(vr.summary, 180))}
           <div class="muted" style="margin-top:6px">포함근거: ${esc(reasonText)}</div>
+          <div class="muted" style="margin-top:4px">최초 입력봉인: ${esc(meta.originalSealedAt ? fmt(meta.originalSealedAt) : '—')} · ${esc(meta.amendCount ? '최종 수정봉인' : '기록 봉인')}: ${esc(meta.lastSealedAt ? fmt(meta.lastSealedAt) : '—')}</div>
+          <div class="muted" style="margin-top:4px">수정이력: ${esc(meta.amendCount ? `정정 ${meta.amendCount}회 / REV ${meta.revisionCount}` : `원본 / REV ${meta.revisionCount}`)} · 현재 해시 ${esc(shortHash(meta.integrityHash, 10, 8))}</div>
+          ${meta.revisionTrail.length ? `<div class="muted" style="margin-top:6px">최근 revision: ${esc(meta.revisionTrail.slice(0, 3).join(' / '))}</div>` : ''}
           ${inclusionReasonHTML(sig)}
         </td>
       </tr>`;
@@ -691,18 +901,20 @@ function renderRecordsTable(ctx: PaperRenderCtx) {
     .join('');
 
   return `
-    <table class="paperTable">
-      <thead><tr>
-        <th style="width:56px">ID</th>
-        <th style="width:86px">시간</th>
-        <th style="width:56px">유형</th>
-        <th style="width:46px">LV</th>
-        <th style="width:76px">주체</th>
-        <th style="width:60px">장소</th>
-        <th>요약</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
+    <div class="paperTableWrap">
+      <table class="paperTable paperTableResponsive">
+        <thead><tr>
+          <th style="width:56px">ID</th>
+          <th style="width:86px">시간</th>
+          <th style="width:56px">유형</th>
+          <th style="width:46px">LV</th>
+          <th style="width:76px">주체</th>
+          <th style="width:60px">장소</th>
+          <th>요약</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
   `;
 }
 
@@ -854,6 +1066,8 @@ export function buildPaperPayload(
 
     const sig = computeInclusionSignals(r, c, score, rank, total, hasSnapshot);
 
+    const meta = getPaperRecordMeta(r);
+
     records.push({
       when,
       kind: 'record',
@@ -862,7 +1076,12 @@ export function buildPaperPayload(
       place: where,
       summary: (r.summary || '').trim(),
       id: r.id,
-      reason: inclusionReasonText(sig)
+      reason: inclusionReasonText(sig),
+      originalSealedAt: meta.originalSealedAt ? fmt(meta.originalSealedAt) : '',
+      lastSealedAt: meta.lastSealedAt ? fmt(meta.lastSealedAt) : '',
+      revisionCount: meta.revisionCount,
+      integrityHash: meta.integrityHash,
+      revisionTrail: meta.revisionTrail
     });
   }
 
@@ -934,11 +1153,11 @@ export function renderCasePaperModal() {
   return `
   <dialog class="modal paperModal" id="paperModal">
     <div class="modalHead">
-      <div>
+      <div class="paperModalLead">
         <div class="h2">사건 보고서(페이퍼)</div>
         <div class="muted">A4 문서 형식으로 바로 PDF 저장할 수 있어요.</div>
       </div>
-      <div class="rowInline">
+      <div class="paperModalActions">
         <button class="btn primary" data-action="print-paper" type="button">PDF로 저장</button>
         <button class="btn" data-action="close-paper" type="button">닫기</button>
       </div>

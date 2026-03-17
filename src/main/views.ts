@@ -1,4 +1,4 @@
-import { esc, trunc, fmt, LS_KEY } from '../utils';
+import { esc, trunc, fmt, LS_KEY, ensureRecordV8, verifyRecordIntegrity, getRecordRevisions, shortHash, getRecordRevisionCount, fromLocalInputValue } from '../utils';
 import type { CaseItem, RecordItem, AdvisorItem, StepItem, ActorRef, RankedHit } from '../engine';
 import { recordActors, recordsForCase, buildCaseTimeline } from '../engine';
 import {
@@ -8,18 +8,16 @@ import {
   STORE_TYPES, PLACE_TYPES, UI_ACTOR_TYPES,
   renderNameFieldForType,
   storeLabel, placeLabel, actorLabel, actorShort,
-  draftRecord, draftCase, draftStep,
-  getSelectedCase, visibleRecords, visibleCases,
-  openCaseCreateModal, openPaperPickModal,
+  draftRecord, draftRecordEdit, draftCase, draftStep,
+  getSelectedCase, visibleCases,
   actorEqLite, uniq, tokenizeLite, isWithinRangeISO, daysDiff,
   UI_OTHER_ACTOR_LABEL, STUDENT_NAMES, PARENT_NAMES, ADMIN_NAMES
 } from './state';
 import { renderCasePaperModal } from './paper';
 
+const feedImageUrl = new URL('./feed.png', import.meta.url).href;
 const ENABLE_BACKUP_RESTORE = true; // backup/restore (JSON copy/paste) UI disabled
-
-// Vite/Tauri asset URL resolution (works when the image sits next to views.ts)
-const INDIE_EVENT_BANNER_URL = new URL('./indie-event-banner.png', import.meta.url).href;
+const HIDE_CASE_ACTIONS_AND_GUIDES = true; // 사건조회하기에서 내조치로그/대응가이드 임시 비노출
 
 
 /** ultra-light view helpers (single-file) */
@@ -52,8 +50,148 @@ const H = {
   chipsMini: (items: string[]) =>
     items.length ? `<div class="chips mini">${items.map((x) => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : '',
 };
+
 const dl = (id: string, values: string[]) =>
   `<datalist id="${id}">${values.map((v) => `<option value="${esc(v)}"></option>`).join('')}</datalist>`;
+
+function renderMiniTabs(items: { label: string; action: string; dataKey: string; dataValue: string; active: boolean }[]) {
+  return `
+    <div class="sectionTabs" role="tablist">
+      ${items
+        .map(
+          (item) => `
+            <button
+              class="sectionTab ${item.active ? 'active' : ''}"
+              type="button"
+              role="tab"
+              aria-selected="${item.active ? 'true' : 'false'}"
+              data-action="${esc(item.action)}"
+              data-${esc(item.dataKey)}="${esc(item.dataValue)}"
+            >
+              ${esc(item.label)}
+            </button>
+          `
+        )
+        .join('')}
+    </div>
+  `;
+}
+
+
+function renderAppSidebar(currentTab: string) {
+  const isHome = currentTab === 'home';
+  return `
+    <aside class="serviceSidebar" aria-label="서비스 메뉴">
+      <button class="serviceLogo ${isHome ? 'active' : ''}" data-action="tab" data-tab="home" type="button" aria-label="홈으로 이동">
+        <span class="serviceLogoGlyph" aria-hidden="true">R</span>
+      </button>
+
+      <div class="serviceSidebarNav">
+        <button class="sidebarIconBtn ${isHome ? 'active' : ''}" data-action="tab" data-tab="home" type="button" aria-label="홈">
+          <span class="sidebarIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.75 10.5L12 4.75L19.25 10.5V18C19.25 18.9665 18.4665 19.75 17.5 19.75H6.5C5.5335 19.75 4.75 18.9665 4.75 18V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M9.25 19.75V13.75H14.75V19.75" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+
+        <button class="sidebarIconBtn accent" data-action="open-record-composer" type="button" aria-label="증거 기록하기">
+          <span class="sidebarIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <div class="serviceSidebarBottom">
+        <button class="sidebarIconBtn sidebarSettingsBtn ${ui.settingsOpen ? 'active' : ''}" data-action="open-settings" type="button" aria-label="설정" title="설정">
+          <span class="sidebarIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 8.75C10.2051 8.75 8.75 10.2051 8.75 12C8.75 13.7949 10.2051 15.25 12 15.25C13.7949 15.25 15.25 13.7949 15.25 12C15.25 10.2051 13.7949 8.75 12 8.75Z" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M19.2499 13.1875V10.8125L17.5231 10.2418C17.3597 9.72838 17.1524 9.23572 16.9043 8.76765L17.7141 7.13575L16.0357 5.45737L14.4038 6.26718C13.9358 6.01911 13.4431 5.81181 12.9297 5.64844L12.359 3.92163H9.984L9.41327 5.64844C8.89986 5.81181 8.4072 6.01911 7.93913 6.26718L6.30724 5.45737L4.62885 7.13575L5.43866 8.76765C5.19059 9.23572 4.9833 9.72838 4.81992 10.2418L3.09311 10.8125V13.1875L4.81992 13.7582C4.9833 14.2716 5.19059 14.7643 5.43866 15.2323L4.62885 16.8642L6.30724 18.5426L7.93913 17.7328C8.4072 17.9809 8.89986 18.1882 9.41327 18.3516L9.984 20.0784H12.359L12.9297 18.3516C13.4431 18.1882 13.9358 17.9809 14.4038 17.7328L16.0357 18.5426L17.7141 16.8642L16.9043 15.2323C17.1524 14.7643 17.3597 14.2716 17.5231 13.7582L19.2499 13.1875Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+      </div>
+    </aside>
+  `;
+}
+
+function renderHomeMain() {
+  return `
+    <section class="homeFeedWrap" aria-label="홈 피드">
+      <article class="homeFeedCard">
+        <div class="homeFeedHead">
+          <div class="homeFeedUser">
+            <div class="homeAvatar">R</div>
+            <div>
+              <div class="homeFeedName">Roosycozy</div>
+              <div class="homeFeedMeta">오늘의 홈 피드</div>
+            </div>
+          </div>
+          <button class="homeGhostBtn" type="button" aria-label="피드 옵션">•••</button>
+        </div>
+
+        <div class="homePhotoFrame">
+          <img class="homeFeedImage" src="${feedImageUrl}" alt="메인 피드 이미지" />
+        </div>
+
+        <div class="homeFeedBody">
+          <div class="homeFeedStat">좋아요 1</div>
+          <div class="homeFeedCaption"><b>roosycozy</b> 봄이왔으면.</div>
+          <div class="homeFeedSub">선생님들을 위한 지능형 악성민원방어 시스템 Roosycozy .</div>
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function getRecordIntegrityMeta(record: RecordItem) {
+  const vr = ensureRecordV8(record) as any;
+  const revisions = getRecordRevisions(vr);
+  const revisionCount = revisions.length;
+  const amendCount = Math.max(0, revisionCount - 1);
+  const originalSealedAt = String(vr?.integrity?.originalSealedAt || revisions[0]?.sealedAt || '');
+  const lastSealedAt = String(vr?.integrity?.lastSealedAt || revisions[revisionCount - 1]?.sealedAt || '');
+  const currentHash = String(vr?.integrity?.currentHash || '');
+  const integrity = verifyRecordIntegrity(vr);
+  return { vr, revisions, revisionCount, amendCount, originalSealedAt, lastSealedAt, currentHash, integrity };
+}
+
+function renderTimelineRecordMeta(record: RecordItem) {
+  const meta = getRecordIntegrityMeta(record);
+  const sealLabel = meta.amendCount ? '최종 수정봉인' : '기록 봉인';
+  const integrityText = meta.integrity.valid ? '무결성 확인' : '검증 필요';
+  const trail = meta.revisions
+    .slice()
+    .reverse()
+    .slice(0, 2)
+    .map((rev: any) => {
+      const badge = rev?.action === 'amend' ? '정정' : (rev?.action === 'legacy-import' ? '이관' : '원본');
+      const reason = String(rev?.reason || '').trim();
+      return `
+        <div class="timelineRevLine">
+          <span class="timelineRevBadge">${esc(badge)}</span>
+          <span class="timelineRevText">${esc(fmt(String(rev?.sealedAt || '')))}${reason ? ` · ${esc(trunc(reason, 34))}` : ''}</span>
+        </div>
+      `;
+    })
+    .join('');
+
+  return `
+    <div class="recMiniTimes timelineMetaBlock">
+      <div class="recMiniMetaLine"><span class="metaK">사건시각</span><span>${esc(fmt(meta.vr.ts || ''))}</span></div>
+      <div class="recMiniMetaLine"><span class="metaK">최초 입력봉인</span><span>${esc(meta.originalSealedAt ? fmt(meta.originalSealedAt) : '—')}</span></div>
+      <div class="recMiniMetaLine"><span class="metaK">${esc(sealLabel)}</span><span>${esc(meta.lastSealedAt ? fmt(meta.lastSealedAt) : '—')}</span></div>
+      <div class="recMiniMetaLine"><span class="metaK">수정이력</span><span>${esc(meta.amendCount ? `정정 ${meta.amendCount}회 / REV ${meta.revisionCount}` : `원본 / REV ${meta.revisionCount}`)}</span></div>
+    </div>
+    <div class="recMiniHash">현재 해시 ${esc(shortHash(meta.currentHash, 10, 8))} · ${esc(integrityText)}</div>
+    ${trail ? `<div class="timelineRevTrail">${trail}</div>` : ''}
+  `;
+}
 
 /* ==================== TOAST + <dialog> TOP LAYER FIX ==================== */
 // <dialog>.showModal() is rendered in the browser "top layer", so normal z-index can't beat it.
@@ -159,185 +297,108 @@ function actorKey(a: ActorRef) {
 /* ==================== PUBLIC ==================== */
 
 export function render() {
+  if (ui.caseCreateOpen) {
+    S.tab = 'cases';
+    ui.caseTab = 'create';
+    ui.caseCreateOpen = false;
+  }
+  if (ui.paperPickOpen) {
+    S.tab = 'cases';
+    ui.caseTab = 'print';
+    ui.paperPickOpen = false;
+  }
+
+  const currentTab = String((S as any).tab || 'home');
   const selected = getSelectedCase();
-  const hasCases = Object.keys(S.cases).length > 0;
-  const isAI = S.tab === 'cases';
+  const activeCaseTab = ui.caseTab || 'create';
+  const isHome = currentTab === 'home';
+  const isEvidence = currentTab === 'records';
+  const isCasesListView = currentTab === 'cases' && activeCaseTab === 'list';
+  const showCaseSide = isCasesListView && !!selected && !HIDE_CASE_ACTIONS_AND_GUIDES;
 
-  const mainHtml = S.tab === 'records' ? renderRecordsMain() : renderCasesMain(selected);
-  const sideHtml = S.tab === 'records' ? renderRecordSidebar() : renderCaseSidebar(selected);
+  const casesMainHtml = renderCasesMain(selected);
+  const casesSideHtml = showCaseSide ? renderCaseSidebar(selected) : '';
+  const gridClass = showCaseSide ? 'grid caseGrid' : 'grid oneCol';
+  const gridInner = showCaseSide
+    ? `<aside class="side">${casesSideHtml}</aside><main class="card">${casesMainHtml}</main>`
+    : `<main class="card">${casesMainHtml}</main>`;
 
-  const isCases = S.tab === 'cases';
-  const showCaseSide = isCases && !!selected;
-
-  const gridClass = S.tab === 'records'
-    ? 'grid recGrid'
-    : (showCaseSide ? 'grid caseGrid' : 'grid oneCol');
-
-  const gridInner = (isCases && showCaseSide)
-    ? `<aside class="side">${sideHtml}</aside><main class="card">${mainHtml}</main>`
-    : `<main class="card">${mainHtml}</main><aside class="side">${sideHtml}</aside>`;
+  const contentHtml = isHome
+    ? `<section class="serviceSection homeSection"><main class="homeMain">${renderHomeMain()}</main></section>`
+    : isEvidence
+      ? `<section class="serviceSection recordsSection"><main class="recordsMain">${renderRecordsMain()}</main></section>`
+      : renderCasesShell(selected, gridClass, isCasesListView ? gridInner : '');
 
   $app.innerHTML = `
-    <div class="container">
-      <header class="topbar ${isAI ? 'aiFocus' : ''}">
-        <div class="topbarInner">
-          <div class="brand">
-            <div class="name"><span class="brandAccent">r</span>oosycozy <span class="brandAccent">L</span>ite</div>
-          </div>
+    <div class="container mobileRefined iphonePremium">
+      <div class="appFrame">
+        ${renderAppSidebar(currentTab)}
 
-          <nav class="flowSlim" aria-label="흐름">
-            <button class="flowSeg ${S.tab === 'records' ? 'active' : ''}" data-action="tab" data-tab="records" type="button" ${S.tab === 'records' ? 'aria-current="step"' : ''}>
-              <span class="segNo">1</span><span class="segTxt">메모하기</span>
-            </button>
-            <button class="flowSeg ${S.tab === 'cases' ? 'active' : ''}" data-action="tab" data-tab="cases" type="button" ${S.tab === 'cases' ? 'aria-current="step"' : ''}>
-              <span class="segNo">2</span><span class="segTxt">메모 묶음 보기</span>
-            </button>
-            <button class="flowSeg" data-action="${hasCases ? 'open-paper-picker' : 'open-case-create'}" type="button" title="${hasCases ? '증빙자료를 출력할 메모 묶음을 고르세요' : '먼저 “스마트 모으기”로 메모 묶음을 만든 뒤 출력할 수 있어요'}">
-              <span class="segNo">3</span><span class="segTxt">증빙자료 출력</span>
-            </button>
-          </nav>
-
-          <div class="hdrActions">
-            <div class="hdrPrimary">
-              ${H.btn('<span class="emIco" aria-hidden="true">✨</span><span class="emLbl">스마트 모으기</span>', 'open-case-create', ' title="관련 메모를 자동으로 선별해 묶음을 만들어요" aria-label="스마트 모으기"', 'btn hdrCta')}
-              ${/* H.btn('샘플', 'load-sample', 'title="샘플 불러오기(현재 데이터 덮어쓰기)"', 'btn hdrSub') */''}
+        <div class="serviceMain">
+          <header class="topbar">
+            <div class="topbarInner topbarCompact">
+              <nav class="topNav topNavShifted" aria-label="주요 메뉴">
+                <button class="topNavBtn ${currentTab === 'records' ? 'active' : ''}" data-action="tab" data-tab="records" type="button" ${currentTab === 'records' ? 'aria-current="page"' : ''}>
+                  <span class="topNavIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7 3.75H13.5L18 8.25V18.25C18 19.2165 17.2165 20 16.25 20H7C5.89543 20 5 19.1046 5 18V5.75C5 4.64543 5.89543 3.75 7 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M13 3.75V8.75H18" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M8.5 12H14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                      <path d="M8.5 15.5H14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="topNavLabel">증거관리</span>
+                </button>
+                <button class="topNavBtn ${currentTab === 'cases' ? 'active' : ''}" data-action="tab" data-tab="cases" type="button" ${currentTab === 'cases' ? 'aria-current="page"' : ''}>
+                  <span class="topNavIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M3.75 8C3.75 6.75736 4.75736 5.75 6 5.75H9.2C9.8066 5.75 10.3884 5.99553 10.8125 6.43089L11.6875 7.31911C12.1116 7.75447 12.6934 8 13.3 8H18C19.2426 8 20.25 9.00736 20.25 10.25V17C20.25 18.2426 19.2426 19.25 18 19.25H6C4.75736 19.25 3.75 18.2426 3.75 17V8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M3.75 10H20.25" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="topNavLabel">사건</span>
+                </button>
+              </nav>
             </div>
+          </header>
 
-            <div class="toolGroup" role="group" aria-label="도구">
-              <button class="toolBtn" data-action="backup" type="button" title="백업 파일 저장" aria-label="백업">
-                <span class="toolLbl">백업</span>
-              </button>
-              <button class="toolBtn" data-action="open-restore" type="button" title="복구(파일)" aria-label="복구">
-                <span class="toolLbl">복구</span>
-              </button>
-<button class="toolBtn danger" data-action="wipe" type="button" title="전체 삭제" aria-label="전체 삭제">
-                <span class="toolIco">⌫</span><span class="toolLbl">삭제</span>
-              </button>
-            </div>
+          <div class="serviceContent">
+            ${contentHtml}
           </div>
         </div>
-      </header>
 
-      ${renderIndieEventBanner()}
+        ${ENABLE_BACKUP_RESTORE ? renderRestoreModal() : ''}
+        ${renderSettingsModal()}
+        ${renderLogsModal()}
+        ${renderConfirmModal()}
+        ${renderSignatureModal()}
+        ${renderSignSuccessModal()}
+        ${renderRecordComposerModal()}
+        ${renderRecordModal()}
+        ${renderTimelineDetailModal()}
+        ${renderCasePaperModal()}
+        ${renderCaseUpdateModal()}
 
-      <section class="${gridClass}">${gridInner}</section>
-
-      <footer class="footer">
-        <div>메모 ${S.records.length} · 메모 묶음 ${Object.keys(S.cases).length}</div>
-        <div class="muted">저장소: localStorage (${esc(LS_KEY)})</div>
-      </footer>
-
-      ${ENABLE_BACKUP_RESTORE ? renderRestoreModal() : ''}
-      ${renderLogsModal()}
-      ${renderConfirmModal()}
-
-      ${renderCaseCreateModal()}
-      ${renderRecordModal()}
-      ${renderTimelineDetailModal()}
-      ${renderPaperPickModal()}
-      ${renderCasePaperModal()}
-      ${renderCaseUpdateModal()}
-      ${renderIndieEventModal()}
-
-      <div class="toast" id="toast" role="status" aria-live="polite">
-        <span class="toastMsg"></span>
-        <button class="toastAct" data-action="toast-action" type="button" hidden></button>
+        <div class="toast" id="toast" role="status" aria-live="polite">
+          <span class="toastMsg"></span>
+          <button class="toastAct" data-action="toast-action" type="button" hidden></button>
+        </div>
       </div>
     </div>
   `;
 
-  // keep open modals alive through re-render
-  if (ui.caseCreateOpen) openCaseCreateModal();
-  if (ui.paperPickOpen) openPaperPickModal();
-  // keep toast visible even when <dialog>.showModal() is open
+  if (ui.settingsOpen) {
+    const settingsDlg = document.getElementById('settingsModal') as HTMLDialogElement | null;
+    if (settingsDlg && !settingsDlg.open) settingsDlg.showModal();
+  }
   installToastPortal();
   portalToast();
-
-}
-
-function renderIndieEventBanner() {
-  return `
-    <section class="promoRibbonSection" aria-label="3월 인디 후기 이벤트">
-      <button
-        class="promoRibbonCard"
-        type="button"
-        aria-haspopup="dialog"
-        aria-controls="indieEventModal"
-        onclick="document.getElementById('indieEventModal')?.showModal()"
-      >
-        <div class="promoRibbonImageWrap">
-          <img
-            class="promoRibbonImage"
-            src="${INDIE_EVENT_BANNER_URL}"
-            alt="선생님들의 3월을 커피로 응원드립니다. 인디 후기 이벤트"
-            loading="eager"
-          />
-        </div>
-        <div class="promoRibbonOverlay">
-          <span class="promoRibbonBadge">클릭해서 자세히 보기</span>
-        </div>
-      </button>
-    </section>
-  `;
-}
-
-function renderIndieEventModal() {
-  return `
-    <dialog class="modal promoEventModal" id="indieEventModal" onclick="if(event.target===this)this.close()">
-      <div class="promoEventShell">
-        <div class="promoEventHero">
-          <img
-            class="promoEventHeroImg"
-            src="${INDIE_EVENT_BANNER_URL}"
-            alt="선생님들의 3월을 커피로 응원드립니다. 인디 후기 이벤트"
-          />
-        </div>
-
-        <div class="promoEventBody">
-          <div class="promoEventEyebrow">☕ 인디 후기 이벤트</div>
-          <div class="promoEventTitle">선생님들의 바쁜 3월을 Roosycozy가 응원합니다.</div>
-
-          <div class="promoEventLead">
-            새학기 정신없이 달리고 계실 선생님들께 작은 응원을 전하고 싶어요.
-            아래처럼 참여해 주시면 시원한 커피쿠폰을 선물로 드려요.
-          </div>
-
-          <div class="promoEventPanel">
-            <div class="promoEventPanelTitle">참여 방법</div>
-            <ol class="promoEventSteps">
-              <li>~3/20까지 인디스쿨 <b>(함께해요 → 추천해요 → 도구)</b>에 간단한 소개글이나 사용 후기글을 작성해 주세요.</li> www.roosycozy.com 링크가 포함되면 더 좋아요!
-              <li>작성 후 인디스쿨 <b>'roosycozy'</b>에게 쪽지를 보내 주세요.</li>
-              <li>확인되면 <b>시원한 커피쿠폰</b>을 선물로 드려요.</li>
-            </ol>
-          </div>
-
-          <div class="promoEventHighlight">
-            새학기 모두 화이팅 하세요!<br />
-            선생님 곁의 언제나 든든한 보호막, <b>roosycozy</b>가 있습니다.
-          </div>
-
-          <div class="promoEventActions">
-            <form method="dialog">
-              <button class="btn ghost" type="submit">닫기</button>
-            </form>
-            <button
-              class="btn primary promoEventCloseBtn"
-              type="button"
-              onclick="document.getElementById('indieEventModal')?.close()"
-            >
-              확인했어요
-            </button>
-          </div>
-        </div>
-      </div>
-    </dialog>
-  `;
 }
 
 /* ==================== COMMON MODALS ==================== */
 
 
-function renderPaperPickModal() {
+function renderPaperPickContent() {
   const all = Object.values(S.cases || {});
   const q = String(ui.paperPickQuery || '').trim();
   const list = all
@@ -352,23 +413,17 @@ function renderPaperPickModal() {
     ? list.filter(({ c }) => matchLite([String((c as any).title || ''), String((c as any).query || ''), String((c as any).status || '')].join(' '), q))
     : list;
 
-  const actions = `
-    <div class="rowInline">
-      ${H.btn('스마트 모으기', 'paper-open-case-create', '', 'btn')}
-      ${H.btn('닫기', 'close-paper-picker')}
-    </div>
-  `;
-
-  const head = H.modalHead('증빙자료 출력', '어떤 메모 묶음을 증빙자료로 출력할까요?', actions);
-
-  const body = all.length
+  return all.length
     ? `
+      <div class="paperPickToolbar">
+        <input class="searchInput paperPickSearch" placeholder="사건 제목/요약 검색" value="${esc(q)}" data-action="search-paper-cases" />
+      </div>
       <div class="paperPickList" role="list">
         ${filtered.length ? filtered.map(({ c, recCount, lastTs }) => `
           <button class="paperPickItem" data-action="pick-paper-case" data-id="${esc((c as any).id)}" type="button" role="listitem">
             <div class="paperPickMain">
               <div class="paperPickTitle">
-                ${esc(String((c as any).title || '제목 없는 메모 묶음'))}
+                ${esc(String((c as any).title || '제목 없는 사건'))}
                 ${S.selectedCaseId === (c as any).id ? `<span class="tag butter" style="margin-left:8px;">현재 열림</span>` : ''}
               </div>
               <div class="paperPickMeta">
@@ -377,7 +432,7 @@ function renderPaperPickModal() {
             </div>
             <div class="paperPickSide">
               <div class="paperPickStat">${esc(String((c as any).status || ''))}</div>
-              <div class="paperPickStat muted">${esc(String(recCount))}개 메모</div>
+              <div class="paperPickStat muted">${esc(String(recCount))}개 증거</div>
               <div class="paperPickStat muted">${lastTs ? esc(fmt(lastTs)) : '—'}</div>
             </div>
           </button>
@@ -390,16 +445,25 @@ function renderPaperPickModal() {
     `
     : `
       <div class="empty" style="height:160px">
-        아직 메모 묶음이 없어요. 먼저 메모를 모아 묶음을 만든 뒤 증빙자료를 출력할 수 있어요.
+        아직 사건이 없어요. 먼저 사건을 기록한 뒤 출력할 수 있어요.
       </div>
       <div class="rowInline" style="justify-content:flex-end; margin-top:10px">
-        ${H.btn('✨ 스마트 모으기', 'paper-open-case-create', '', 'btn primary')}
+        ${H.btnData('사건기록하기로 이동', 'switch-case-tab', { 'case-tab': 'create' }, 'btn primary')}
       </div>
     `;
-
-  return H.modal('paperPickModal', head, body, 'modal paperPickModal');
 }
 
+function renderPaperPickModal() {
+  const actions = `
+    <div class="rowInline">
+      ${H.btn('사건기록하기', 'paper-open-case-create', '', 'btn')}
+      ${H.btn('닫기', 'close-paper-picker')}
+    </div>
+  `;
+
+  const head = H.modalHead('사건 출력하기', '어떤 사건을 증빙자료로 출력할까요?', actions);
+  return H.modal('paperPickModal', head, renderPaperPickContent(), 'modal paperPickModal');
+}
 
 function renderRestoreModal() {
   if (!ENABLE_BACKUP_RESTORE) return '';
@@ -423,6 +487,33 @@ function renderRestoreModal() {
       <div class="muted" style="margin-top:10px; font-size:12px">
         복구하면 지금 데이터는 백업 파일 내용으로 덮어써져요.
       </div>
+    `
+  );
+}
+
+
+function renderSettingsModal() {
+  return H.modal(
+    'settingsModal',
+    H.modalHead('설정', '백업, 복구, 삭제를 여기에서 관리합니다.', H.btn('닫기', 'close-settings')),
+    `
+      <div class="settingsGrid">
+        <button class="settingsAction" data-action="backup" type="button">
+          <div class="settingsActionTitle">백업</div>
+          <div class="muted">현재 데이터를 JSON 파일로 저장합니다.</div>
+        </button>
+
+        <button class="settingsAction" data-action="open-restore" type="button">
+          <div class="settingsActionTitle">복구</div>
+          <div class="muted">백업 파일로 현재 데이터를 덮어씁니다.</div>
+        </button>
+
+        <button class="settingsAction danger" data-action="wipe" type="button">
+          <div class="settingsActionTitle">삭제</div>
+          <div class="muted">모든 증거와 사건 데이터를 삭제합니다.</div>
+        </button>
+      </div>
+      <div class="muted" style="margin-top:12px; font-size:12px">복구와 삭제는 되돌리기 전에 현재 데이터를 꼭 백업해 두는 편이 안전합니다.</div>
     `
   );
 }
@@ -455,126 +546,429 @@ function renderConfirmModal() {
   );
 }
 
+function renderSignatureModal() {
+  const mode = ui.signatureModalMode || 'create';
+  const isAmend = mode === 'amend';
+  const activeDraft = isAmend ? draftRecordEdit : draftRecord;
+  const action = isAmend ? 'draft-record-edit' : 'draft-record';
+  const title = isAmend ? '정정 전자서명' : '전자서명';
+  const subtitle = isAmend ? '수정 저장 전에 전자서명과 봉인 사유를 확인해 주세요.' : '저장 전에 전자서명과 봉인 메모를 확인해 주세요.';
+  const primaryLabel = isAmend ? '서명 완료 후 수정 저장' : '서명 완료 후 저장';
+  const sealReasonLabel = isAmend ? '정정 사유' : '봉인 메모';
+  const sealReasonPlaceholder = isAmend ? '예: 사건시각 정정 / 표현 보완 / 주체 오기 수정' : '예: 최초 사실기록 / 통화 직후 즉시 기록';
+  const summary = String(activeDraft.summary || '').trim() || '내용 없음';
+  const actorText = String((isAmend ? draftRecordEdit.actorNameOther : draftRecord.actorNameOther) || '').trim() || '미입력';
+  const placeText = String(((activeDraft as any).placeText || activeDraft.place || '')).trim() || '미입력';
+  const storeText = String(((activeDraft as any).storeTypeText || activeDraft.storeType || '')).trim() || '미입력';
+  const currentRaw = isAmend && ui.recordEditId ? S.records.find((x) => x.id === ui.recordEditId) ?? null : null;
+  const record = currentRaw ? ensureRecordV8(currentRaw as any) : null;
+  const currentHash = record ? String((record as any)?.integrity?.currentHash || '') : '';
+
+  return H.modal(
+    'signatureModal',
+    H.modalHead(title, subtitle, H.btn('닫기', 'close-signature-modal', '', 'btn ghost')),
+    `
+      <div class="signatureFlow">
+        <div class="signatureHero">
+          <div class="signatureHeroTitle">${esc(isAmend ? '수정 내용을 서명하고 새 revision으로 저장합니다.' : '입력한 증거를 서명하고 봉인 저장합니다.')}</div>
+          <div class="muted">서명 완료 시 즉시 인증 처리되고, 이후에는 수정 이력이 append-only로 누적됩니다.</div>
+        </div>
+
+        <div class="signatureMetaGrid">
+          <div class="signatureMetaCard"><span class="signatureMetaK">내용</span><b>${esc(trunc(summary, 72))}</b></div>
+          <div class="signatureMetaCard"><span class="signatureMetaK">사건시각</span><b>${esc(fmt(fromLocalInputValue(String(activeDraft.ts || ''))))}</b></div>
+          <div class="signatureMetaCard"><span class="signatureMetaK">주체</span><b>${esc(actorText)}</b></div>
+          <div class="signatureMetaCard"><span class="signatureMetaK">장소 / 보관</span><b>${esc(`${placeText} · ${storeText}`)}</b></div>
+          ${isAmend ? `<div class="signatureMetaCard span2"><span class="signatureMetaK">현재 해시</span><b>${esc(shortHash(currentHash || ''))}</b></div>` : `<div class="signatureMetaCard span2"><span class="signatureMetaK">저장 방식</span><b>전자서명 완료 후 즉시 봉인 저장</b></div>`}
+        </div>
+
+        <div class="signatureFieldGrid">
+          <div class="field compact">
+            <label>서명 문구</label>
+            <input value="${esc(((activeDraft as any).signerLabel || '기기 봉인서명'))}" data-action="${esc(action)}" data-field="signerLabel" placeholder="기기 봉인서명" />
+          </div>
+          <div class="field compact">
+            <label>${esc(sealReasonLabel)}</label>
+            <input value="${esc(((activeDraft as any).sealReason || ''))}" data-action="${esc(action)}" data-field="sealReason" placeholder="${esc(sealReasonPlaceholder)}" />
+          </div>
+        </div>
+
+        <div class="signatureActions">
+          ${H.btn('취소', 'close-signature-modal', '', 'btn ghost')}
+          ${H.btn(primaryLabel, 'confirm-signature-submit', '', 'btn primary')}
+        </div>
+      </div>
+    `,
+    'modal signatureModal'
+  );
+}
+
+function renderSignSuccessModal() {
+  return H.modal(
+    'signSuccessModal',
+    H.modalHead('서명 완료', '', H.btn('닫기', 'close-sign-success', '', 'btn ghost')),
+    `
+      <div class="signSuccessWrap">
+        <div class="signSuccessIcon" aria-hidden="true">✓</div>
+        <div class="signSuccessTitle" id="signSuccessMsg">성공적으로 서명 및 인증이 완료되었습니다!</div>
+        <div class="muted signSuccessSub" id="signSuccessSub">저장 처리가 완료되었습니다.</div>
+        <div class="rowInline" style="justify-content:center; margin-top:16px">
+          ${H.btn('확인', 'close-sign-success', '', 'btn primary')}
+        </div>
+      </div>
+    `,
+    'modal signSuccessModal'
+  );
+}
+
 /* ==================== RECORDS ==================== */
 
 function renderRecordModal() {
-  const r = ui.viewRecordId ? S.records.find((x) => x.id === ui.viewRecordId) ?? null : null;
-  const title = r ? trunc(r.summary, 32) : '메모 상세';
-  const related = r?.related || [];
+  const raw = ui.viewRecordId ? S.records.find((x) => x.id === ui.viewRecordId) ?? null : null;
+  const r = raw ? ensureRecordV8(raw) : null;
+  const title = r ? trunc(r.summary, 32) : '증거 상세';
+
+  if (!r) {
+    return H.modal('recordModal', H.modalHead('증거관리', String(title), H.btn('닫기', 'close-record')), H.empty('증거를 찾을 수 없어요.'));
+  }
+
+  const integrity = verifyRecordIntegrity(r as any);
+  const revisions = getRecordRevisions(r as any).slice().reverse();
+  const currentHash = String((r as any)?.integrity?.currentHash || '');
+  const originalHash = String((r as any)?.integrity?.originalHash || '');
+  const isEditing = ui.recordEditId === r.id;
+  const activeTab = ui.recordModalTab || (isEditing ? 'edit' : 'current');
+  const related = r.related || [];
   const relatedHtml = related.length ? H.chips(related.map(actorShort)) : `<div class="muted">관련자 없음</div>`;
+  const lastSealLabel = getRecordRevisionCount(r as any) > 1 ? '최종 수정봉인' : '기록 봉인';
+  const integrityBadge = integrity.valid
+    ? `<span class="integrityBadge ok">무결성 확인</span>`
+    : `<span class="integrityBadge bad">무결성 경고</span>`;
 
-  const body = r
-    ? `<div class="detailGrid">
-        ${H.dr('시간', esc(fmt(r.ts)))}        ${H.dr('보관형태', esc(storeLabel(r.storeType, r.storeOther)))}
-        ${H.dr('주 Actor', esc(actorLabel(r.actor)))}
-        ${H.dr('장소', esc(placeLabel(r.place, r.placeOther)))}
-        ${H.ds('관련자', relatedHtml)}
-        ${H.ds('내용', `<div class="detailNote">${esc(r.summary || '')}</div>`)}
+  const editActorType = String((draftRecordEdit as any).actorTypeText || '학생');
+  const editActorName = String(draftRecordEdit.actorNameOther || '').trim();
+  const editPlaceText = String((draftRecordEdit as any).placeText || '교실');
+  const editStoreTypeText = String((draftRecordEdit as any).storeTypeText || '전화');
+  const editSummaryTxt = String(draftRecordEdit.summary || '').trim();
+  const editOkSummary = editSummaryTxt.length >= 4;
+  const editOkTs = String(draftRecordEdit.ts || '').trim().length >= 10;
+  const editOkActor = editActorType === UI_OTHER_ACTOR_LABEL || editActorType === '없음' ? true : editActorName.length > 0;
+  const editCanSave = editOkSummary && editOkTs && editOkActor;
+  const editReqMissing: string[] = [];
+  if (!editOkSummary) editReqMissing.push('내용');
+  if (!editOkTs) editReqMissing.push('사건시각');
+  if (!editOkActor) editReqMissing.push('주체');
+  const editReqLabel = editCanSave ? '정정 봉인 가능' : `필수: ${editReqMissing.join(' · ')}`;
+  const showEditPlaceOther = editPlaceText === '기타';
+  const showEditStoreOther = editStoreTypeText === '기타';
+  const editMainNameField = renderNameFieldForType({
+    typeText: editActorType,
+    value: String(draftRecordEdit.actorNameOther || ''),
+    action: 'draft-record-edit',
+    field: 'actorNameOther',
+    placeholder: '이름(예: 학생1 / 1번 모 / 교장 / 김OO)'
+  });
+  const editRelNameField = renderNameFieldForType({
+    typeText: String(draftRecordEdit.relTypeText || ''),
+    value: String(draftRecordEdit.relNameOther || ''),
+    action: 'draft-record-edit',
+    field: 'relNameOther',
+    placeholder: '이름(예: 1번 부 / 교감 / 김OO)'
+  });
+  const editRelatedList =
+    (draftRecordEdit.related || []).length
+      ? `<div class="chips mini" style="margin-top:8px">
+          ${(draftRecordEdit.related || [])
+            .map(
+              (a: ActorRef, idx: number) => `
+              <span class="chip">
+                ${esc(actorShort(a))}
+                <button class="chipX" data-action="remove-related-edit" data-idx="${esc(String(idx))}" type="button" title="삭제" aria-label="관련자 삭제">×</button>
+              </span>
+            `
+            )
+            .join('')}
+        </div>`
+      : `<div class="muted" style="margin-top:6px; font-size:12px">관련자가 없으면 비워도 돼요.</div>`;
+
+  const editPanel = isEditing ? `
+    <section class="recordEditPanel">
+      <div class="recordSectionHead">
+        <div>
+          <div class="recordSectionTitle">정정 작성</div>
+          <div class="muted">원본은 지워지지 않고, 새 해시와 정정 로그가 위로 추가돼요.</div>
+        </div>
+        <span id="recordEditReqPill" class="savePill ${editCanSave ? 'ready' : 'warn'}">${esc(editReqLabel)}</span>
+      </div>
+
+      <div class="field" style="margin-bottom:10px">
+        <label>내용 <span class="reqStar">*</span></label>
+        <textarea id="recordEditSummary" class="entryTa composerTa" rows="5" data-action="draft-record-edit" data-field="summary">${esc(draftRecordEdit.summary)}</textarea>
+        <div id="recordEditWarnSummary" class="composerInlineWarn" ${editOkSummary ? 'hidden' : ''}>⚠ 내용은 최소 4글자 이상 입력해 주세요.</div>
+      </div>
+
+      <div class="metaInputs">
+        <div class="field compact">
+          <label>사건시각 <span class="reqStar">*</span></label>
+          <div class="rowInline compactRow">
+            <input id="recordEditTs" class="${editOkTs ? '' : 'reqWarn'}" type="datetime-local" value="${esc(draftRecordEdit.ts)}" data-action="draft-record-edit" data-field="ts" />
+            <button class="btn ghost small" type="button" data-action="set-record-edit-now">방금</button>
+          </div>
+          <div id="recordEditWarnTs" class="miniWarn" ${editOkTs ? 'hidden' : ''}>⚠ 시간을 선택해 주세요.</div>
+        </div>
+
+        <div class="field compact">
+          <label>주체 <span class="reqStar">*</span></label>
+          <div id="recordEditActorRow" class="rowInline compactRow ${editOkActor ? '' : 'reqWarn'}">
+            <select data-action="draft-record-edit" data-field="actorTypeText">${renderSelectFromList(UI_ACTOR_TYPES as any, editActorType)}</select>
+            <div class="grow">${editMainNameField}</div>
+          </div>
+          <div id="recordEditWarnActor" class="miniWarn" ${editOkActor ? 'hidden' : ''}>⚠ 이름을 입력해 주세요.</div>
+        </div>
+
+        <div class="field compact">
+          <label>장소</label>
+          <select data-action="draft-record-edit" data-field="placeText">${renderSelectFromList(PLACE_TYPES as any, editPlaceText)}</select>
+          ${showEditPlaceOther ? `<input value="${esc(draftRecordEdit.placeOther)}" placeholder="장소 상세(기타)" data-action="draft-record-edit" data-field="placeOther" />` : ''}
+        </div>
+
+        <div class="field compact">
+          <label>보관</label>
+          <select data-action="draft-record-edit" data-field="storeTypeText">${renderSelectFromList(STORE_TYPES as any, editStoreTypeText)}</select>
+          ${showEditStoreOther ? `<input value="${esc(draftRecordEdit.storeOther)}" placeholder="보관형태 상세(기타)" data-action="draft-record-edit" data-field="storeOther" />` : ''}
+        </div>
+      </div>
+
+      <details id="recordEditRelatedDetails" class="metaMore" ${ui.recEditRelatedOpen ? 'open' : ''}>
+        <summary>
+          <span>관련자 정정</span>
+          <span class="metaMoreCount">${esc(String((draftRecordEdit.related || []).length))}명</span>
+        </summary>
+        <div class="metaMorePanel">
+          <div class="field" style="margin-bottom:0">
+            <div class="rowInline">
+              <select data-action="draft-record-edit" data-field="relTypeText">${renderSelectFromList(UI_ACTOR_TYPES as any, String(draftRecordEdit.relTypeText || '학부모'))}</select>
+              <div class="grow">${editRelNameField}</div>
+              ${H.btn('추가', 'add-related-edit', '', 'btn small')}
+            </div>
+            ${editRelatedList}
+          </div>
+        </div>
+      </details>
+
+      <div class="muted composerBottomHint" style="margin-top:12px">수정 저장을 누르면 전자서명 모달이 열리고, 서명이 끝나면 새 revision으로 재봉인돼요.</div>
+
+      <div class="rowInline" style="margin-top:14px">
+        ${H.btn('정정 취소', 'cancel-record-edit', '', 'btn ghost')}
+        <button id="btnSaveRecordAmend" class="btn primary" data-action="save-record-amend" type="button" ${editCanSave ? '' : 'disabled aria-disabled="true"'}>수정 저장</button>
+      </div>
+    </section>
+  ` : `
+    <section class="recordEditHint">
+      <div class="recordSectionHead">
+        <div>
+          <div class="recordSectionTitle">정정</div>
+          <div class="muted">수정은 덮어쓰지 않고 새 해시와 로그를 추가해 봉인합니다.</div>
+        </div>
+        ${H.btnData('이 기록 정정', 'start-edit-record', { id: r.id }, 'btn primary')}
+      </div>
+    </section>
+  `;
+
+  const revisionHtml = revisions.length
+    ? `<div class="revisionFeed">
+        ${revisions.map((rev, idx) => {
+          const actionLabel = rev.action === 'amend' ? '정정 봉인' : (rev.action === 'legacy-import' ? '기존데이터 이관' : '초기 봉인');
+          return `
+            <article class="revisionItem ${idx === 0 ? 'latest' : ''}">
+              <div class="revisionHead">
+                <div class="revisionHeadLeft">
+                  <span class="revisionBadge ${rev.action === 'amend' ? 'amend' : rev.action === 'legacy-import' ? 'legacy' : 'create'}">${esc(actionLabel)}</span>
+                  ${idx === 0 ? '<span class="revisionLatest">최신</span>' : ''}
+                </div>
+                <div class="revisionNo">rev ${esc(String(rev.rev))}</div>
+              </div>
+              <div class="revisionGrid">
+                <div class="revisionMeta"><span>사건시각</span><b>${esc(fmt(rev.eventAt))}</b></div>
+                <div class="revisionMeta"><span>봉인시각</span><b>${esc(fmt(rev.sealedAt))}</b></div>
+                <div class="revisionMeta"><span>서명</span><b>${esc(rev.signerLabel || '전자서명')}</b></div>
+                <div class="revisionMeta"><span>사유</span><b>${esc(rev.reason || '—')}</b></div>
+                <div class="revisionMeta wide"><span>hash</span><code>${esc(shortHash(rev.hash, 14, 10))}</code></div>
+                <div class="revisionMeta wide"><span>prevHash</span><code>${esc(shortHash(rev.prevHash || '', 14, 10))}</code></div>
+              </div>
+              <div class="revisionSummary">${esc(rev.summarySnapshot || '')}</div>
+            </article>
+          `;
+        }).join('')}
       </div>`
-    : H.empty('메모를 찾을 수 없어요.');
+    : `<div class="muted">정정 이력이 없어요.</div>`;
 
-  return H.modal('recordModal', H.modalHead('메모', String(title), H.btn('닫기', 'close-record')), body);
+  const currentPanel = `
+    <section class="recordHero">
+      <div class="recordHeroTop">
+        <div class="recordHeroTitle">${esc(r.summary || '')}</div>
+        <div class="recordHeroBadges">${integrityBadge}<span class="integrityCount">rev ${esc(String(getRecordRevisionCount(r as any)))}</span></div>
+      </div>
+      <div class="recordHeroMeta">
+        <div class="recordHeroMetaItem"><span>사건시각</span><b>${esc(fmt(r.ts))}</b></div>
+        <div class="recordHeroMetaItem"><span>${esc(lastSealLabel)}</span><b>${esc(fmt((r as any)?.integrity?.lastSealedAt || r.ts))}</b></div>
+        <div class="recordHeroMetaItem"><span>원본 해시</span><code>${esc(shortHash(originalHash, 14, 10))}</code></div>
+        <div class="recordHeroMetaItem"><span>현재 해시</span><code>${esc(shortHash(currentHash, 14, 10))}</code></div>
+      </div>
+      <div class="muted" style="margin-top:8px">${esc(integrity.message || '')}</div>
+    </section>
+
+    <section class="recordCurrentSection">
+      <div class="detailGrid trustDetailGrid">
+        ${H.dr('주체', esc(actorLabel(r.actor)))}
+        ${H.dr('장소', esc(placeLabel(r.place, r.placeOther)))}
+        ${H.dr('보관형태', esc(storeLabel(r.storeType, r.storeOther)))}
+        ${H.dr('정정 횟수', esc(String(Math.max(0, getRecordRevisionCount(r as any) - 1))))}
+        ${H.ds('관련자', relatedHtml)}
+        ${H.ds('현재 내용', `<div class="detailNote">${esc(r.summary || '')}</div>`)}
+      </div>
+    </section>
+  `;
+
+  const historyPanel = `
+    <section class="recordHistorySection">
+      <div class="recordSectionHead">
+        <div>
+          <div class="recordSectionTitle">수정 이력</div>
+          <div class="muted">최신 로그가 위에 쌓입니다. 각 revision은 이전 hash를 참조합니다.</div>
+        </div>
+      </div>
+      ${revisionHtml}
+    </section>
+  `;
+
+  const tabs = renderMiniTabs([
+    { label: '현재기록', action: 'switch-record-modal-tab', dataKey: 'record-modal-tab', dataValue: 'current', active: activeTab === 'current' },
+    { label: '수정이력', action: 'switch-record-modal-tab', dataKey: 'record-modal-tab', dataValue: 'history', active: activeTab === 'history' },
+    { label: '수정', action: 'switch-record-modal-tab', dataKey: 'record-modal-tab', dataValue: 'edit', active: activeTab === 'edit' },
+  ]);
+
+  const body = `
+    <div class="recordModalTabsWrap">
+      ${tabs.replace('sectionTabs', 'sectionTabs recordModalTabs')}
+    </div>
+    ${activeTab === 'history' ? historyPanel : activeTab === 'edit' ? editPanel : currentPanel}
+  `;
+
+  const headActions = `
+    <div class="rowInline">
+      ${H.btn('닫기', 'close-record')}
+    </div>
+  `;
+
+  return H.modal('recordModal', H.modalHead('증거관리 · 상세', String(title), headActions), body);
 }
 
 
 function renderRecordsMain() {
   const total = S.records.length;
-  const isEmpty = total === 0 && Object.keys(S.cases || {}).length === 0;
+
   return `
-    <div class="sectionTitle">
-      <div>
-        <div class="h2">메모하기 <span class="miniTag">재료</span></div>
-        <div class="muted"><b>상담/관찰/비정형/규정</b> 등 뭐든 짧게 메모해두면, AI가 나중에 <b>메모 묶음 타임라인</b>으로 모아줘요.</div>
-      </div>
-      <div class="titleActions">
-        <span class="countPill">총 ${total}개</span>
-        <span class="muted" style="font-size:12px">오른쪽에서 필터/검색</span>
-      </div>
+    <div class="recordsPageShell">
+ 
+
+      ${renderRecordSidebar()}
     </div>
-
-    ${renderRecordEntryForm()}
-
-    ${isEmpty ? `
-      <div class="helperBox" style="margin-top:14px">
-        <b>데모로 한 번에 보고 싶다면</b> 샘플 데이터를 불러올 수 있어요.
-        <div class="actionsRow" style="margin-top:10px">
-          ${/* H.btn('샘플 불러오기', 'load-sample', ' title="샘플 데이터를 불러와 현재 데이터를 덮어씁니다"', 'btn demo') */''}
-        </div>
-        <div class="muted" style="margin-top:6px; font-size:12px">
-          샘플은 로컬스토리지에 저장돼요. 언제든 <b>백업</b>으로 저장하거나 <b>삭제</b>로 전체 삭제할 수 있어요.
-        </div>
-      </div>
-    ` : ''}
-
-    <div class="helperBox aiHelp"><b>팁:</b> 메모를 쌓아두면, 다음 탭에서 <b>알고리즘이 메모 묶음으로 자동 모아</b>줘요.</div>
   `;
 }
 
 function renderRecordSidebar() {
   const all = (S.records || []).slice().sort((a, b) => String(b.ts || '').localeCompare(String(a.ts || '')));
-  const filtered = visibleRecords();
+
+  (ui as any).recFilterPlace = '';
+  (ui as any).recFilterPlaceDraft = '';
 
   const actorOpts = uniq(all.map((r) => actorShort(r.actor))).sort((a, b) => a.localeCompare(b));
-  const hasFilters = Boolean(String((ui as any).recFilterActor || '').trim() || String((ui as any).recFilterPlace || '').trim() || String((ui as any).recFilterKeyword || '').trim());
-
-  const mini = (r: RecordItem) => `
-    <article class="recMini">
-      ${H.tags([
-        H.tag(trunc(actorShort(r.actor), 18)),
-        H.tag(placeLabel(r.place, r.placeOther)),
-        `<span class="tag lilac">${esc(storeLabel(r.storeType, r.storeOther))}</span>`,
-      ])}
-      <div class="recMiniTitle">${esc(trunc(r.summary || '', 92))}</div>
-      <div class="recMiniMeta">${esc(fmt(r.ts))}</div>
-      <div class="actionsRow">
-        ${H.btnData('자세히', 'view-record', { id: r.id }, 'btn')}
-        ${H.btnData('복사', 'copy-record', { id: r.id }, 'btn ghost')}
-        ${H.btnData('삭제', 'delete-record', { id: r.id }, 'btn danger ghost')}
-      </div>
-    </article>
-  `;
-
-  const listHtml = filtered.length ? filtered.map(mini).join('') : H.empty(hasFilters ? '필터 결과가 없어요.' : '아직 메모가 없어요.', 140);
-
-  const opt = (v: string, label: string, sel: string) =>
-    `<option value="${esc(v)}" ${v === sel ? 'selected' : ''}>${esc(label)}</option>`;
-
-  const placeSel = String(((ui as any).recFilterPlaceDraft ?? (ui as any).recFilterPlace) || '');
-  const placeOptions =
-    `<option value="" ${!placeSel ? 'selected' : ''}>전체</option>` +
-    (PLACE_TYPES as any as string[]).map((p) => opt(String(p), String(p), placeSel)).join('');
-
   const actorVal = String(((ui as any).recFilterActorDraft ?? (ui as any).recFilterActor) || '');
   const kwVal = String(((ui as any).recFilterKeywordDraft ?? (ui as any).recFilterKeyword) || '');
+  const appliedActor = String((ui as any).recFilterActor || '').trim();
+  const appliedKw = String((ui as any).recFilterKeyword || '').trim();
+  const hasFilters = Boolean(appliedActor || appliedKw);
+  const filtered = all.filter((record) => {
+    const actorText = actorShort(record.actor);
+    const keywordText = [record.summary, actorText, placeLabel(record.place, record.placeOther), record.ts].join(' ');
+    return (!appliedActor || matchLite(actorText, appliedActor)) && (!appliedKw || matchLite(keywordText, appliedKw));
+  });
+
+  const mini = (raw: RecordItem) => {
+    const r = ensureRecordV8(raw as any) as any;
+    const revCount = getRecordRevisionCount(r);
+    const amendCount = Math.max(0, revCount - 1);
+    const lastSealedAt = String(r?.integrity?.lastSealedAt || r.ts || '');
+    const integrity = verifyRecordIntegrity(r);
+    return `
+      <article class="recMini recMiniTrust ${amendCount ? 'amended' : ''}">
+        ${H.tags([
+          H.tag(trunc(actorShort(r.actor), 18)),
+          H.tag(placeLabel(r.place, r.placeOther)),
+          `<span class="tag lilac">${esc(storeLabel(r.storeType, r.storeOther))}</span>`,
+          `<span class="tag ${integrity.valid ? 'greenTag' : 'redTag'}">${esc(integrity.valid ? '무결성OK' : '검증필요')}</span>`,
+          amendCount ? `<span class="tag butter">정정 ${esc(String(amendCount))}</span>` : `<span class="tag">원본</span>`,
+        ])}
+        <div class="recMiniTitle">${esc(trunc(r.summary || '', 92))}</div>
+        <div class="recMiniTimes">
+          <div class="recMiniMetaLine"><span class="metaK">사건시각</span><span>${esc(fmt(r.ts))}</span></div>
+          <div class="recMiniMetaLine"><span class="metaK">${esc(amendCount ? '최종 수정봉인' : '기록 봉인')}</span><span>${esc(fmt(lastSealedAt))}</span></div>
+        </div>
+        <div class="recMiniHash">현재 해시 ${esc(shortHash(String(r?.integrity?.currentHash || ''), 10, 8))}</div>
+        <div class="actionsRow">
+          ${H.btnData('자세히', 'view-record', { id: r.id }, 'btn')}
+          ${H.btnData('수정', 'start-edit-record', { id: r.id }, 'btn primary')}
+          ${H.btnData('복사', 'copy-record', { id: r.id }, 'btn ghost')}
+          ${H.btnData('삭제', 'delete-record', { id: r.id }, 'btn danger ghost')}
+        </div>
+      </article>
+    `;
+  };
+
+  const listHtml = filtered.length ? filtered.map(mini).join('') : H.empty(hasFilters ? '필터 결과가 없어요.' : '아직 증거가 없어요.', 140);
 
   return `
     <div class="sideStack">
 
-      <section class="card sideCard memoFilterCard">
-        <div class="sideCardHead">
-          <div class="sideCardTitle">메모 필터</div>
+      <section class="card sideCard memoFilterCard compactFilterCard">
+        <div class="sideCardHead sideCardHeadFilterRow">
+          <div>
+            <div class="sideCardTitle">증거 필터</div>
+            <div class="sideCardMetaText muted">
+              ${hasFilters ? `필터 <b>${esc(String(filtered.length))}</b>/${esc(String(all.length))}` : `총 <b>${esc(String(all.length))}</b>개`}
+            </div>
+          </div>
           <div class="sideCardActions">
             ${H.btn('초기화', 'clear-record-filters', '', 'btn ghost')}
           </div>
         </div>
 
-        <div class="memoFilterBar" style="margin-top:8px">
-          <label class="srOnly" for="mfActor">주체</label>
-          <input id="mfActor" class="mfInput" placeholder="주체" list="dlFilterActor"
-            value="${esc(actorVal)}" data-action="draft-record-filters" data-field="actor" />
+        <div class="memoFilterBar compactFilterBar" style="margin-top:8px">
+          <div class="mfFields twoUp">
+            <div class="mfField mfFieldActor">
+              <label class="srOnly" for="mfActor">주체</label>
+              <input id="mfActor" class="mfInput" placeholder="주체" list="dlFilterActor"
+                value="${esc(actorVal)}" data-action="draft-record-filters" data-field="actor" />
+            </div>
 
-          <label class="srOnly" for="mfPlace">장소</label>
-          <select id="mfPlace" class="mfSelect" data-action="draft-record-filters" data-field="place">${placeOptions}</select>
+            <div class="mfField mfFieldKeyword">
+              <label class="srOnly" for="mfKw">키워드</label>
+              <input id="mfKw" class="mfInput" placeholder="키워드" value="${esc(kwVal)}"
+                data-action="draft-record-filters" data-field="keyword" />
+            </div>
+          </div>
 
-          <label class="srOnly" for="mfKw">키워드</label>
-          <input id="mfKw" class="mfInput" placeholder="키워드" value="${esc(kwVal)}"
-            data-action="draft-record-filters" data-field="keyword" />
-
-          <span class="mfStat muted">
-            ${hasFilters ? `필터 <b>${esc(String(filtered.length))}</b>/${esc(String(all.length))}` : `총 <b>${esc(String(all.length))}</b>개`}
-          </span>
-
-          <button class="btn ghost mfBtn" type="button" data-action="apply-record-filters" title="Enter로도 적용할 수 있어요">적용</button>
+          <div class="mfActions">
+            <button class="btn ghost mfBtn mfIconBtn" type="button" data-action="apply-record-filters" title="필터 적용" aria-label="필터 적용">
+              <span class="mfIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M16 16L20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </button>
+          </div>
         </div>
 
         ${dl('dlFilterActor', actorOpts)}
@@ -582,10 +976,13 @@ function renderRecordSidebar() {
 
       <section class="card sideCard">
         <div class="sideCardHead">
-          <div class="sideCardTitle">전체 메모</div>
+          <div>
+            <div class="sideCardTitle">전체 증거</div>
+            <div class="muted" style="font-size:12px; margin-top:2px">사건시각 · 기록/수정 봉인시각 · 정정 횟수</div>
+          </div>
           <div class="sideCardActions"><span class="countPill">${esc(String(filtered.length))}</span></div>
         </div>
-        <div style="margin-top:10px; max-height: min(64vh, 720px); overflow:auto; padding-right:6px">
+        <div class="recordsListScroll">
           ${listHtml}
         </div>
       </section>
@@ -678,20 +1075,19 @@ function renderRecordEntryForm() {
         <div class="composerTop composerTopV3">
           <div class="composerTitleBlock">
             <div class="composerTitleRow">
-              <div class="composerTitle">빠른 메모 캡처</div>
+              <div class="composerTitle">증거 기록</div>
               <span id="recordReqPill" class="savePill ${canSave ? 'ready' : 'warn'}">${esc(reqLabel)}</span>
             </div>
             <div class="muted composerSub">사실만 짧게. 나중에 타임라인/증빙으로 정리돼요.</div>
           </div>
 
           <div class="composerCtas">
-            <button id="btnSaveRecord" class="btn saveCta" data-action="save-record" type="button"
+            <button id="btnSaveRecord" class="btn primary saveCta" data-action="save-record" type="button"
               ${canSave ? '' : 'disabled aria-disabled="true" title="필수 항목(내용/시간/주체)을 채우면 저장할 수 있어요"'}>
-              <span class="saveIco" aria-hidden="true">✅</span>
-              <span class="saveLbl">저장</span>
-              <span class="saveKbd">Ctrl/⌘+Enter</span>
+              <span class="saveDot" aria-hidden="true"></span>
+              <span class="saveText">저장하기</span>
             </button>
-            ${H.btn('비우기', 'clear-record-draft', '', 'btn ghost')}
+            <button class="btn ghost clearDraftBtn" data-action="clear-record-draft" type="button">비우기</button>
           </div>
         </div>
 
@@ -765,51 +1161,122 @@ function renderRecordEntryForm() {
           </div>
         </details>
 
-        <div class="muted composerBottomHint">시간/주체는 필수예요. 나머지는 필요할 때만 추가하면 돼요.</div>
+        <div class="muted composerBottomHint">시간/주체는 필수예요. 저장을 누르면 전자서명 모달이 열리고, 서명이 끝나면 즉시 봉인 저장돼요.</div>
       </div>
     </div>
   `;
 }
 
 
+function renderRecordComposerModal() {
+  const headActions = `
+    <div class="rowInline">
+      ${H.btn('닫기', 'close-record-composer')}
+    </div>
+  `;
+
+  const body = `
+    <div class="recordComposerModalBody">
+      ${renderRecordEntryForm()}
+    </div>
+  `;
+
+  return H.modal('recordComposerModal', H.modalHead('증거 기록하기', '사실만 짧고 또렷하게 남겨두세요.', headActions), body, 'modal recordComposerModal');
+}
+
+
 /* ==================== CASES ==================== */
+
+
+function renderCasesShell(selected: CaseItem | null, gridClass: string, gridInner: string) {
+  const ids = visibleCases();
+  const active = ui.caseTab || 'create';
+  const isList = active === 'list';
+
+  const panel = active === 'create'
+    ? `
+      <div class="caseCommandPanel caseCommandPanelCreate">
+        <div class="subTabHint muted">사건기록은 이 화면 안에서 바로 이어집니다.</div>
+        <div class="caseCommandPanelScroll">
+          ${renderCaseCreateContent()}
+        </div>
+      </div>
+    `
+    : active === 'print'
+      ? `
+        <div class="caseCommandPanel caseCommandPanelPrint">
+          <div class="subTabHint muted">출력할 사건을 선택하면 바로 증빙자료 미리보기로 넘어갑니다.</div>
+          <div class="caseCommandPanelScroll">
+            ${renderPaperPickContent()}
+          </div>
+        </div>
+      `
+      : `
+        <div class="caseCommandMeta muted">사건 목록과 타임라인은 조회 탭에서만 보여줍니다.</div>
+      `;
+
+  return `
+    <section class="caseShell ${isList ? 'caseShellList' : 'caseShellSolo'}">
+      <div class="card caseCommandDeck">
+
+        ${renderMiniTabs([
+          { label: '사건기록하기', action: 'switch-case-tab', dataKey: 'case-tab', dataValue: 'create', active: active === 'create' },
+          { label: '사건조회하기', action: 'switch-case-tab', dataKey: 'case-tab', dataValue: 'list', active: active === 'list' },
+          { label: '사건 출력하기', action: 'switch-case-tab', dataKey: 'case-tab', dataValue: 'print', active: active === 'print' },
+        ])}
+
+        ${panel}
+      </div>
+
+      ${isList ? `<section class="${gridClass} caseBodyGrid">${gridInner}</section>` : ''}
+    </section>
+  `;
+}
 
 function renderCasesMain(selected: CaseItem | null) {
   const ids = visibleCases();
+  const listHtml = `<div class="list">${ids.map((id) => renderCaseCard(S.cases[id])).join('')}</div>`;
+  const isFocused = !!selected;
+
+  const header = `
+    <div class="sectionTitle caseMainTitle">
+      <div>
+        <div class="h2">사건</div>
+        <div class="muted">${isFocused ? '열어둔 사건의 타임라인을 보고 있어요. 목록으로를 누르면 사건 목록으로 돌아갑니다.' : '사건 목록에서 열기를 누르면 이 자리에서 타임라인이 열립니다.'}</div>
+      </div>
+      <div class="titleActions">
+        <span class="countPill">총 ${ids.length}개</span>
+      </div>
+    </div>
+  `;
 
   if (!ids.length) {
-    return `
-      <div class="sectionTitle">
-        <div>
-          <div class="h2">메모 묶음 보기</div>
-          <div class="muted">요약을 입력하면 알고리즘이 관련 메모를 자동 선별해 메모 묶음 타임라인으로 모아줘요.</div>
-        </div>
-      </div>
-      ${renderDefenseIntro()}
-      <div class="empty">아직 메모 묶음이 없어요. 아래 버튼으로 시작해보세요.
-        <div style="margin-top:12px">${H.btn('✨ 스마트 모으기', 'open-case-create', '', 'btn primary aiPrimary')}</div>
+    return `${header}
+      <div class="empty">아직 사건이 없어요. 위의 사건기록하기에서 먼저 시작해보세요.</div>
+    `;
+  }
+
+  if (selected) {
+    return `${header}
+      <div class="caseWorkspace caseWorkspaceSingle">
+        <section class="caseWorkspacePane caseWorkspaceTimelinePane caseWorkspaceFocusPane">
+          <div class="caseTimelineScroll">${renderCaseTimeline(selected)}</div>
+        </section>
       </div>
     `;
   }
 
-  if (!selected) {
-    return `
-      <div class="sectionTitle">
-        <div>
-          <div class="h2">메모 묶음 보기</div>
-          <div class="muted">메모 묶음을 열면 관련 메모가 시간순 타임라인으로 보여요.</div>
+  return `${header}
+    <div class="caseWorkspace caseWorkspaceSingle">
+      <section class="caseWorkspacePane caseWorkspaceListPane">
+        <div class="caseWorkspacePaneHead">
+          <div class="title">사건 목록</div>
+          <div class="muted">열기를 누르면 이 자리에서 타임라인이 열려요.</div>
         </div>
-        ${/* <div class="miniSearch">
-            <input class="searchInput" placeholder="메모 묶음 제목/내용 검색…" value="" disabled />
-          </div>
-        */ ''}
-      </div>
-      ${renderDefenseIntro()}
-      <div class="list">${ids.map((id) => renderCaseCard(S.cases[id])).join('')}</div>
-    `;
-  }
-
-  return renderCaseTimeline(selected);
+        <div class="caseListScroll">${listHtml}</div>
+      </section>
+    </div>
+  `;
 }
 
 function renderCaseSidebar(selected: CaseItem | null) {
@@ -876,7 +1343,7 @@ function renderCaseSidebar(selected: CaseItem | null) {
 
               <div class="field compact" style="margin-bottom:0">
                 <label>내용</label>
-                <textarea rows="3" class="actionTa" placeholder="짧게 메모 (Ctrl/⌘+Enter 추가)" data-action="draft-step" data-field="note">${esc(draftStep.note)}</textarea>
+                <textarea rows="3" class="actionTa" placeholder="짧게 기록 (Ctrl/⌘+Enter 추가)" data-action="draft-step" data-field="note">${esc(draftStep.note)}</textarea>
               </div>
 
               <div class="actionActions">
@@ -895,7 +1362,7 @@ function renderCaseSidebar(selected: CaseItem | null) {
   `;
 }
 
-function renderCaseCreateModal() {
+function renderCaseCreateContent() {
   const addNameField = renderNameFieldForType({
     typeText: String(((draftCase as any).addTypeText || '') as any),
     value: String(draftCase.addNameOther || ''),
@@ -920,26 +1387,21 @@ function renderCaseCreateModal() {
         </div>`
       : `<div class="muted" style="margin-top:6px">관련자가 없으면 <b>${esc(UI_OTHER_ACTOR_LABEL)} / 없음</b>을 추가해 주세요.</div>`;
 
-  // ✅ Actor 1명 이상일 때만 시작 가능
   const canStart = (draftCase.actors || []).length > 0;
-  const startExtra = canStart ? '' : ' disabled aria-disabled=\"true\" title=\"Actor를 1명 이상 추가해야 시작할 수 있어요\"';
+  const startExtra = canStart ? '' : ' disabled aria-disabled="true" title="관련자를 1명 이상 추가해야 시작할 수 있어요"';
 
-  return H.modal(
-    'caseCreateModal',
-    H.modalHead('스마트 모으기', 'AI가 관련 메모를 자동으로 모아줍니다.', H.btn('닫기', 'close-case-create')),
-    `
-      <div class="helperBox aiHelp" style="margin-bottom:14px; margin-top:0;">
-        <b>사용법:</b> 누구의 기록을 모을지 선택하세요. AI가 해당 인물과 관련된 메모를 우선적으로 찾아옵니다.
+  return `
+      <div class="helperBox" style="margin-bottom:14px; margin-top:0;">
+        <b>사용법:</b> 누구의 기록을 모을지 선택하면 AI가 해당 인물과 관련된 증거를 우선적으로 찾아옵니다.
       </div>
 
       <div class="field highlight-section">
-        <label style="color:var(--primary-dark); font-size:13px;">① 누구의 기록을 모을까요? (필수)</label>
+        <label style="font-size:13px;">① 누구의 기록을 모을까요? (필수)</label>
         <div class="miniOptionRow">
-          <label class="miniToggle" title="체크하면 메모에서 주요인물로 추가한 사람의 기록만 모아요.">
+          <label class="miniToggle" title="체크하면 증거에서 주요인물로 추가한 사람의 기록만 모아요.">
             <input type="checkbox" data-action="draft-case" data-field="onlyMainActor" ${((draftCase as any).onlyMainActor ? 'checked' : '')} />
-            <span>원하는 주요인물 기록만 모으려면 체크!</span>
+            <span>원하는 주요인물 기록만 모으려면 체크</span>
           </label>
-          <div class="miniHint">체크하면 ①에서 첫 번째로 추가한 학생(주요 인물) 기준으로만 찾아요.</div>
         </div>
         <div class="rowInline">
           <select data-action="draft-case" data-field="addTypeText" style="flex:0 0 100px;">${renderSelectFromList(UI_ACTOR_TYPES as any, String((draftCase as any).addTypeText || '학생'))}</select>
@@ -969,17 +1431,24 @@ function renderCaseCreateModal() {
           </div>
 
           <div class="field">
-            <label>메모 묶음 제목 (비워두면 자동 생성)</label>
+            <label>사건 제목 (비워두면 자동 생성)</label>
             <input value="${esc(draftCase.title)}" placeholder="예: 3학년 복도 언쟁 민원" data-action="draft-case" data-field="title" />
           </div>
         </div>
       </details>
 
       <div class="rowInline" style="margin-top:16px; padding-top:10px; border-top:1px solid var(--grey-200);">
-        ${H.btn('메모 모으기 시작', 'create-case', startExtra, 'btn primary aiPrimary')}
+        ${H.btn('사건 기록 시작', 'create-case', startExtra, 'btn primary')}
         ${H.btn('초기화', 'clear-case-draft')}
       </div>
-    `,
+    `;
+}
+
+function renderCaseCreateModal() {
+  return H.modal(
+    'caseCreateModal',
+    H.modalHead('사건기록하기', '스마트모으기로 관련 증거를 자동 선별합니다.', H.btn('닫기', 'close-case-create')),
+    renderCaseCreateContent(),
     'modal caseCreateModal'
   );
 }
@@ -1042,25 +1511,35 @@ function renderCaseUpdateModal() {
 
   const updActorOpts = uniq(S.records.filter(r => !existingIds.has(r.id)).map((r) => actorShort(r.actor))).sort((a, b) => a.localeCompare(b));
   const updFilterBar = `
-    <section class="card sideCard memoFilterCard" style="margin-top:0; padding:10px 12px">
-      <div class="memoFilterBar">
-        <label class="srOnly" for="updActor">주체</label>
-        <input id="updActor" class="mfInput" placeholder="주체" list="dlUpdateActor"
-          value="${esc(updActorVal)}" data-action="draft-update-filters" data-field="actor" />
+    <section class="card sideCard memoFilterCard compactFilterCard" style="margin-top:0; padding:10px 12px">
+      <div class="memoFilterBar compactFilterBar">
+        <div class="mfFields">
+          <div class="mfField mfFieldActor">
+            <label class="srOnly" for="updActor">주체</label>
+            <input id="updActor" class="mfInput" placeholder="주체" list="dlUpdateActor"
+              value="${esc(updActorVal)}" data-action="draft-update-filters" data-field="actor" />
+          </div>
 
-        <label class="srOnly" for="updPlace">장소</label>
-        <select id="updPlace" class="mfSelect" data-action="draft-update-filters" data-field="place">${updPlaceOptions}</select>
+          <div class="mfField mfFieldPlace">
+            <label class="srOnly" for="updPlace">장소</label>
+            <select id="updPlace" class="mfSelect" data-action="draft-update-filters" data-field="place">${updPlaceOptions}</select>
+          </div>
 
-        <label class="srOnly" for="updKw">키워드</label>
-        <input id="updKw" class="mfInput" placeholder="키워드" value="${esc(updKwVal)}"
-          data-action="draft-update-filters" data-field="keyword" />
+          <div class="mfField mfFieldKeyword">
+            <label class="srOnly" for="updKw">키워드</label>
+            <input id="updKw" class="mfInput" placeholder="키워드" value="${esc(updKwVal)}"
+              data-action="draft-update-filters" data-field="keyword" />
+          </div>
+        </div>
 
-        <span class="mfStat muted">
-          ${hasAppliedFilters ? `필터 <b>${esc(String(filteredTotal))}</b>/${esc(String(baseTotal))}` : `총 <b>${esc(String(baseTotal))}</b>개`}
-        </span>
+        <div class="mfActions">
+          <span class="mfStat muted">
+            ${hasAppliedFilters ? `필터 <b>${esc(String(filteredTotal))}</b>/${esc(String(baseTotal))}` : `총 <b>${esc(String(baseTotal))}</b>개`}
+          </span>
 
-        <button class="btn ghost mfBtn" type="button" data-action="apply-update-filters" title="Enter로도 적용할 수 있어요">적용</button>
-        <button class="btn ghost mfBtn" type="button" data-action="clear-update-filters">초기화</button>
+          <button class="btn ghost mfBtn" type="button" data-action="apply-update-filters" title="Enter로도 적용할 수 있어요">적용</button>
+          <button class="btn ghost mfBtn" type="button" data-action="clear-update-filters">초기화</button>
+        </div>
       </div>
 
       ${dl('dlUpdateActor', updActorOpts)}
@@ -1097,7 +1576,7 @@ function renderCaseUpdateModal() {
           `;
         }).join('')}
       </div>`
-    : H.empty('추가할 수 있는 메모가 없어요.');
+    : H.empty('추가할 수 있는 증거가 없어요.');
 
   // 안내 메시지: 로딩 중이면 표시하되, 데이터는 보여줌(이미 있는 데이터)
   const loadingMsg = ui.updateCandidatesLoading ? '<span class="muted" style="font-size:12px; margin-left:8px;">(AI 점수 계산 중...)</span>' : '';
@@ -1118,7 +1597,7 @@ function renderTimelineDetailModal() {
   if (!tl || !c) {
     return H.modal(
       'timelineDetailModal',
-      H.modalHead('타임라인 상세', '메모 묶음을 먼저 열어주세요.', H.btn('닫기', 'close-timeline-detail')),
+      H.modalHead('타임라인 상세', '사건을 먼저 열어주세요.', H.btn('닫기', 'close-timeline-detail')),
       H.empty('표시할 데이터가 없어요.')
     );
   }
@@ -1130,7 +1609,9 @@ function renderTimelineDetailModal() {
   if (tl.kind === 'record') {
     const r = S.records.find((x) => x.id === tl.id) ?? null;
     if (r) {
-      title = trunc(r.summary, 40);
+      const meta = getRecordIntegrityMeta(r);
+      const vr = meta.vr as any;
+      title = trunc(vr.summary, 40);
 
       const caseActors = (c.actors || []).slice();
       const scoreMap = (c.scoreByRecordId || {}) as Record<string, number>;
@@ -1141,11 +1622,11 @@ function renderTimelineDetailModal() {
       const caseActorKeys = caseActors.filter((a) => String(a?.name || '').trim()).map(actorKey);
 
       const compMap = ((c as any).componentsByRecordId || {}) as Record<string, any>;
-      const comp = compMap[r.id] as any | undefined;
+      const comp = compMap[vr.id] as any | undefined;
 
       const caseQuery = (c.query || '').trim();
       const qTokens = caseQuery ? tokenizeEngineLike(caseQuery) : [];
-      const summaryNorm = normEngineLike(String(r.summary || ''));
+      const summaryNorm = normEngineLike(String(vr.summary || ''));
 
       let hitCount = 0;
       const hitTokensForUi: string[] = [];
@@ -1164,13 +1645,13 @@ function renderTimelineDetailModal() {
       const W_TEXT = comp && typeof comp.wText === 'number' ? comp.wText : 2.0;
       const keywordScore = comp && typeof comp.keywordScore === 'number' ? comp.keywordScore : (textSim * W_TEXT);
 
-      const mainActorKey = actorKey(r.actor);
+      const mainActorKey = actorKey(vr.actor);
       const mainActorMatch = comp && typeof comp.actorMatch === 'boolean' ? comp.actorMatch : caseActorKeys.includes(mainActorKey);
 
       const W_ACTOR = comp && typeof comp.wActor === 'number' ? comp.wActor : 2.5;
       const actorScore = comp && typeof comp.actorScore === 'number' ? comp.actorScore : (mainActorMatch ? W_ACTOR : 0);
 
-      const relatedMatches = (Array.isArray(r.related) ? r.related : []).filter((ra) => caseActorKeys.includes(actorKey(ra)));
+      const relatedMatches = (Array.isArray(vr.related) ? vr.related : []).filter((ra: ActorRef) => caseActorKeys.includes(actorKey(ra)));
       const W_RELATED = comp && typeof comp.wRelated === 'number' ? comp.wRelated : 1.0;
 
       const relatedHitCount = comp && typeof comp.relatedHits === 'number' ? comp.relatedHits : relatedMatches.length;
@@ -1180,12 +1661,12 @@ function renderTimelineDetailModal() {
 
       // 저장된 점수(스냅샷)가 있으면 그걸 우선 표시하고,
       // 혹시 현재 엔진 재계산과 다르면 둘 다 보여줌
-      const storedScore = scoreMap[r.id];
+      const storedScore = scoreMap[vr.id];
       const scoreToShow = typeof storedScore === 'number' ? storedScore : engineScore;
 
-      const within = isWithinRangeISO(r.ts, (c as any).timeFrom || undefined, (c as any).timeTo || undefined);
+      const within = isWithinRangeISO(vr.ts, (c as any).timeFrom || undefined, (c as any).timeTo || undefined);
       const hasRange = !!((c as any).timeFrom || (c as any).timeTo);
-      const inSnapshot = Array.isArray((c as any).recordIds) && (c as any).recordIds.includes(r.id);
+      const inSnapshot = Array.isArray((c as any).recordIds) && (c as any).recordIds.includes(vr.id);
 
       // 포함 판정(엔진 기준: Rust가 보내준 threshold 사용)
       const MIN_TEXT_SIM = comp && typeof comp.minTextSim === 'number' ? comp.minTextSim : 0.34;
@@ -1195,17 +1676,47 @@ function renderTimelineDetailModal() {
 
       // 디버그: 실제 매칭된 actor들(표시용)
       const matchedActorsPretty = uniq(
-        recordActors(r)
+        recordActors(vr)
           .filter((ra) => caseActors.some((ca) => actorEqLite(ra, ca)))
           .map(actorShort)
       );
 
+      const revisionTrailHtml = meta.revisions
+        .slice()
+        .reverse()
+        .map((rev: any) => {
+          const badge = rev?.action === 'amend' ? '정정' : (rev?.action === 'legacy-import' ? '이관' : '원본');
+          const reason = String(rev?.reason || '').trim() || (rev?.action === 'amend' ? '정정 봉인' : '초기 봉인');
+          return `
+            <div class="detailRow">
+              <div class="k">REV ${esc(String(rev?.rev || ''))}</div>
+              <div class="v">
+                <div>${esc(badge)} · ${esc(fmt(String(rev?.sealedAt || '')))}</div>
+                <div class="muted" style="margin-top:4px">${esc(reason)} · ${esc(shortHash(String(rev?.hash || ''), 10, 8))}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
       body = `
         <div class="detailGrid">
-          ${H.dr('시간', esc(fmt(r.ts)))}
-          ${H.dr('주체', esc(actorLabel(r.actor)))}
-          ${H.dr('장소', esc(placeLabel(r.place, r.placeOther)))}
-          ${H.ds('내용', `<div class="detailNote">${esc(r.summary || '')}</div>`)}
+          ${H.dr('사건시각', esc(fmt(vr.ts)))}
+          ${H.dr('주체', esc(actorLabel(vr.actor)))}
+          ${H.dr('장소', esc(placeLabel(vr.place, vr.placeOther)))}
+          ${H.ds('내용', `<div class="detailNote">${esc(vr.summary || '')}</div>`)}
+
+          ${H.ds(
+            '봉인 / 수정 이력',
+            `
+              <div class="detailRow"><div class="k">최초 입력봉인</div><div class="v">${esc(meta.originalSealedAt ? fmt(meta.originalSealedAt) : '—')}</div></div>
+              <div class="detailRow"><div class="k">최종 수정봉인</div><div class="v">${esc(meta.lastSealedAt ? fmt(meta.lastSealedAt) : '—')}</div></div>
+              <div class="detailRow"><div class="k">수정이력</div><div class="v">${esc(meta.amendCount ? `정정 ${meta.amendCount}회 / REV ${meta.revisionCount}` : `원본 / REV ${meta.revisionCount}`)}</div></div>
+              <div class="detailRow"><div class="k">현재 해시</div><div class="v">${esc(shortHash(meta.currentHash, 10, 8))}</div></div>
+              <div class="detailRow"><div class="k">무결성</div><div class="v">${esc(meta.integrity.valid ? '무결성 확인' : '검증 필요')}</div></div>
+              ${revisionTrailHtml ? `<div class="detailSection" style="margin-top:12px"><div class="k">Revision 로그</div>${revisionTrailHtml}</div>` : ''}
+            `
+          )}
 
           ${H.ds(
             '점수 산출 근거',
@@ -1309,7 +1820,7 @@ function renderTimelineDetailModal() {
           ${H.ds('내용', `<div class="detailNote">${esc(a.body)}</div>`)}
           ${H.ds(
             '왜 이 대응 가이드가 뜨나',
-            `<div class="muted" style="margin-top:6px">대응 가이드는 메모 묶음 설정(Actor/요약/기간/패턴) 기반으로 생성돼요.</div>
+            `<div class="muted" style="margin-top:6px">대응 가이드는 사건 설정(관련자/요약/기간/패턴) 기반으로 생성돼요.</div>
              <div class="chips" style="margin-top:10px">${hintParts.map((x) => `<span class="chip">${esc(x)}</span>`).join('')}</div>`
           )}
         </div>
@@ -1324,7 +1835,7 @@ function renderTimelineDetailModal() {
           ${H.dr('시간', esc(fmt(s.ts)))}
           ${H.dr('이름', esc(s.name))}
           ${H.ds('내 조치 로그 메모', `<div class="detailNote">${esc(s.note)}</div>`)}
-          ${H.ds('왜 포함됐나', `<div class="muted">내 조치 로그는 이 메모 묶음에서 직접 저장된 실행/대응 로그라서 타임라인에 항상 포함돼요.</div>`)}
+          ${H.ds('왜 포함됐나', `<div class="muted">내 조치 로그는 이 사건에서 직접 저장된 실행/대응 로그라서 타임라인에 항상 포함돼요.</div>`)}
         </div>
       `;
     }
@@ -1375,7 +1886,7 @@ function renderCaseStatsInline(c: CaseItem, mappedCount: number, totalEvents: nu
 function renderCaseTimeline(c: CaseItem) {
   const { events, mappedCount, hasRange } = buildCaseTimeline(c, S.records, '');
   // 타임라인 검색 UI 제거(스크린샷 영역 제거 요청)
-  const filtered = events;
+  const filtered = HIDE_CASE_ACTIONS_AND_GUIDES ? events.filter((ev: any) => ev?.kind === 'record') : events;
 
   const ctx = {
     actors: ((c as any).actors || []) as ActorRef[],
@@ -1388,7 +1899,7 @@ function renderCaseTimeline(c: CaseItem) {
     <div class="sectionTitle">
       <div class="caseTitleLeft">
         <div class="h2">${esc((c as any).title)}</div>
-        <div class="muted"><span class="badgeAI">AI 선별</span> 관련 메모 자동 선별</div>
+        <div class="muted"><span class="badgeAI">AI 선별</span> 관련 증거 자동 선별</div>
         ${hasRange ? `<div class="muted" style="margin-top:8px">기간: ${esc((c as any).timeFrom ? fmt((c as any).timeFrom) : '—')} ~ ${esc((c as any).timeTo ? fmt((c as any).timeTo) : '—')}</div>` : ''}
         ${((c as any).query || '').trim() ? `<div class="muted" style="margin-top:8px">요약: ${esc(trunc((c as any).query || '', 90))}</div>` : ''}
       </div>
@@ -1474,7 +1985,7 @@ function renderTimelineEvent(ev: any, ctx?: any) {
             return H.chipsMini(reasons);
           })()}
           <div class="title">${esc(r.summary)}</div>
-          <div class="meta">${esc(fmt(r.ts))}</div>
+          ${renderTimelineRecordMeta(r)}
           <div class="actionsRow" style="margin-top:12px">
             ${H.btnData('자세히', 'view-timeline', { kind: 'record', id: r.id })}
             ${H.btnData('묶음에서 제외', 'remove-record-from-case', { id: r.id }, 'btn ghost')}

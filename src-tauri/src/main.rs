@@ -52,6 +52,9 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             commands::engine_rank,
             commands::engine_advise,
+            commands::get_device_signer_info,
+            commands::sign_integrity_payload,
+            commands::verify_integrity_payload,
             commands::export_case_pdf,
             commands::export_backup_json,
             check_and_update // ✅ 3. 생성한 업데이트 커맨드 등록

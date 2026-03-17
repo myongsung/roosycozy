@@ -1,9 +1,9 @@
 import { invoke } from '@tauri-apps/api/core';
 import { save as saveDialog } from '@tauri-apps/plugin-dialog';
-import { uid, nowISO, toLocalInputValue, fromLocalInputValue, safeParseJSON, defaultState, normalizeState, loadState, saveState, wipeAll, STATUSES } from '../utils';
+import { uid, nowISO, toLocalInputValue, fromLocalInputValue, safeParseJSON, defaultState, normalizeState, loadState, saveState, wipeAll, STATUSES, ensureRecordV8, sealNewRecord, amendSignedRecord, verifyRecordIntegrity, buildSignedBackupEnvelope, verifyBackupEnvelope, reverifyStateRecords, refreshDeviceSignerInfo } from '../utils';
 import type { ActorRef, PlaceType, StoreType, Sensitivity, StepItem } from '../engine';
 import { OTHER, casesContainingRecord, addActorToList, buildRecordFromDraft, createCaseWithAdvisors, regenerateCaseAdvisors, buildCaseTimeline, getCaseUpdateCandidates, addRecordsToCase, recordsForCase } from '../engine';
-import { S, setState, ui, toast, runToastAction, log, openConfirm, closeConfirm, openRecordModal, closeRecordModal,  openCaseCreateModal, closeCaseCreateModal, openTimelineModal, closeTimelineModal, openPaperModal, closePaperModal, openPaperPickModal, closePaperPickModal, openCaseUpdateModal, closeCaseUpdateModal, draftRecord, draftCase, draftStep, actorTypeTextFromInternal, actorTypeInternalFromText, getSelectedCase, logs, actorShort, LVS, PLACE_TYPES, STORE_TYPES, UI_OTHER_ACTOR_LABEL } from './state';
+import { S, setState, ui, toast, runToastAction, log, openConfirm, closeConfirm, openRecordModal, closeRecordModal,  openCaseCreateModal, closeCaseCreateModal, openTimelineModal, closeTimelineModal, openPaperModal, closePaperModal, openPaperPickModal, closePaperPickModal, openCaseUpdateModal, closeCaseUpdateModal, draftRecord, draftRecordEdit, draftCase, draftStep, actorTypeTextFromInternal, actorTypeInternalFromText, getSelectedCase, logs, actorShort, LVS, PLACE_TYPES, STORE_TYPES, UI_OTHER_ACTOR_LABEL, loadRecordEditDraft, resetRecordEditDraft } from './state';
 import { ensurePaperStyles, buildPaperPayload, computeCasePaperHash } from './paper';
 import { render as renderView } from './views';
 
@@ -13,16 +13,37 @@ const closeDlg = (id: string) => { const d = dlg(id); if (d?.open) d.close(); };
 const openDlg = (id: string) => dlg(id)?.showModal();
 const setText = (id: string, text: string) => { const el = document.getElementById(id); if (el) el.textContent = text; };
 
+const SIGNATURE_MODAL_ID = 'signatureModal';
+const SIGN_SUCCESS_MODAL_ID = 'signSuccessModal';
+
+const closeSignatureModal = () => {
+  ui.signatureModalMode = null;
+  closeDlg(SIGNATURE_MODAL_ID);
+};
+const openSignatureModal = (mode: 'create' | 'amend') => {
+  ui.signatureModalMode = mode;
+  render();
+};
+const openSignSuccessModal = (message: string, sub: string) => {
+  setText('signSuccessMsg', message);
+  setText('signSuccessSub', sub);
+  openDlg(SIGN_SUCCESS_MODAL_ID);
+  window.setTimeout(() => closeDlg(SIGN_SUCCESS_MODAL_ID), 1900);
+};
+
 // render()가 전체 DOM을 갈아엎기 때문에(dialog 포함) 리렌더링 중 close 이벤트로 상태가 날아가는 걸 막고,
 // 렌더 후 열려있어야 하는 dialog는 다시 열어준다.
 let _isRerendering = false;
 const syncDialogs = () => {
   if (ui.viewRecordId) openRecordModal();
   if (ui.caseCreateOpen) openCaseCreateModal();
+  if (ui.recordComposerOpen) openDlg('recordComposerModal');
   if (ui.viewTimelineItem) openTimelineModal();
   if (ui.paperPickOpen) openPaperPickModal();
   if (ui.paperCaseId || ui.paperHash) openPaperModal();
   if (ui.updateCaseId) openCaseUpdateModal();
+  if (ui.settingsOpen) openDlg('settingsModal');
+  if (ui.signatureModalMode) openDlg(SIGNATURE_MODAL_ID);
 };
 
 // 메모 입력폼(컴포저)에서 저장 버튼/필수 경고를 전체 리렌더 없이 즉시 반영
@@ -79,10 +100,59 @@ function updateRecordComposerUI() {
   if (elActorRow) elActorRow.classList.toggle('reqWarn', !okActor);
 }
 
+
+function updateRecordEditUI() {
+  const btn = document.getElementById('btnSaveRecordAmend') as HTMLButtonElement | null;
+  const pill = document.getElementById('recordEditReqPill') as HTMLSpanElement | null;
+  const wSum = document.getElementById('recordEditWarnSummary') as HTMLDivElement | null;
+  const wTs = document.getElementById('recordEditWarnTs') as HTMLDivElement | null;
+  const wAct = document.getElementById('recordEditWarnActor') as HTMLDivElement | null;
+  if (!btn && !pill && !wSum && !wTs && !wAct) return;
+
+  const summaryTxt = String(draftRecordEdit.summary || '').trim();
+  const okSummary = summaryTxt.length >= 4;
+  const okTs = String(draftRecordEdit.ts || '').trim().length >= 10;
+  const actorTypeText = String((draftRecordEdit as any).actorTypeText || '').trim();
+  const actorName = String(draftRecordEdit.actorNameOther || '').trim();
+  const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
+  const okActor = allowEmptyActorName ? true : actorName.length > 0;
+
+  const reqMissing: string[] = [];
+  if (!okSummary) reqMissing.push('내용');
+  if (!okTs) reqMissing.push('사건시각');
+  if (!okActor) reqMissing.push('주체');
+  const canSave = okSummary && okTs && okActor;
+  const reqLabel = canSave ? '정정 봉인 가능' : `필수: ${reqMissing.join(' · ')}`;
+
+  if (pill) {
+    pill.textContent = reqLabel;
+    pill.classList.toggle('ready', canSave);
+    pill.classList.toggle('warn', !canSave);
+  }
+  if (btn) {
+    btn.disabled = !canSave;
+    btn.setAttribute('aria-disabled', canSave ? 'false' : 'true');
+    if (!canSave) btn.setAttribute('title', '내용/사건시각/주체를 채우면 정정 봉인할 수 있어요');
+    else btn.removeAttribute('title');
+  }
+  if (wSum) (wSum as any).hidden = okSummary;
+  if (wTs) (wTs as any).hidden = okTs;
+  if (wAct) (wAct as any).hidden = okActor;
+
+  const elSum = document.getElementById('recordEditSummary') as HTMLTextAreaElement | null;
+  const elTs = document.getElementById('recordEditTs') as HTMLInputElement | null;
+  const elActorRow = document.getElementById('recordEditActorRow') as HTMLDivElement | null;
+  if (elSum) elSum.classList.toggle('reqWarn', !okSummary);
+  if (elTs) elTs.classList.toggle('reqWarn', !okTs);
+  if (elActorRow) elActorRow.classList.toggle('reqWarn', !okActor);
+}
+
 // 렌더 전: render()가 DOM을 갈아엎기 때문에, <details> 같은 transient UI 상태를 저장해둔다.
 function captureTransientUI() {
   const det = document.getElementById('recordRelatedDetails') as HTMLDetailsElement | null;
   if (det) ui.recRelatedOpen = !!det.open;
+  const detEdit = document.getElementById('recordEditRelatedDetails') as HTMLDetailsElement | null;
+  if (detEdit) ui.recEditRelatedOpen = !!detEdit.open;
 }
 
 const render = () => {
@@ -91,6 +161,7 @@ const render = () => {
   renderView();
   syncDialogs();
   updateRecordComposerUI();
+  updateRecordEditUI();
   window.setTimeout(() => { _isRerendering = false; }, 0);
 };
 
@@ -138,7 +209,8 @@ const DEFAULT_RECORD = () => ({
   relTypeText: '학부모', relType: '학부모', relNameChoice: OTHER, relNameOther: '', related: [],
   placeText: '교실', place: '교실', placeOther: '',
   storeTypeText: '전화', storeType: '전화', storeOther: '',
-  lvText: 'LV2', lv: 'LV2', ts: toLocalInputValue(nowISO()), summary: ''
+  lvText: 'LV2', lv: 'LV2', ts: toLocalInputValue(nowISO()), summary: '',
+  signerLabel: '기기 봉인서명', sealReason: ''
 });
 const DEFAULT_CASE = () => ({
   title: '', query: '', timeFrom: '', timeTo: '', maxResults: 80, actors: [],
@@ -146,6 +218,91 @@ const DEFAULT_CASE = () => ({
   sensFilterText: 'any', sensFilter: 'any', statusText: '진행중', status: '진행중',
   addTypeText: '학생', addType: '학생', addNameChoice: OTHER, addNameOther: ''
 });
+
+function prepareRecordDraftForSeal() {
+  const actorTypeText = String((draftRecord as any).actorTypeText || '').trim();
+  const placeText = String((draftRecord as any).placeText || '').trim();
+  const storeText = String((draftRecord as any).storeTypeText || '').trim();
+  const lvText = String((draftRecord as any).lvText || '').trim();
+
+  const tsTxt = String(draftRecord.ts || '').trim();
+  const summaryTxt = String(draftRecord.summary || '').trim();
+  const actorNameTxt = String(draftRecord.actorNameOther || '').trim();
+  const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
+  const okActor = allowEmptyActorName ? true : actorNameTxt.length > 0;
+
+  if (tsTxt.length < 10) return { error: '시간을 입력하세요' };
+  if (!actorTypeText || !okActor) return { error: '주체 정보를 입력하세요' };
+  if (summaryTxt.length < 4) return { error: '내용을 4글자 이상 입력하세요' };
+  if (!placeText || !storeText || !lvText) return { error: '필수 정보를 입력하세요' };
+
+  const placeIsKnown = (PLACE_TYPES as any).includes(placeText as any);
+  const storeIsKnown = (STORE_TYPES as any).includes(storeText as any);
+  const place: PlaceType = placeIsKnown ? (placeText as any) : ('기타' as any);
+  const placeOther = placeText === '기타' ? String(draftRecord.placeOther || '').trim() : (placeIsKnown ? '' : placeText);
+  const storeType: StoreType = storeIsKnown ? (storeText as any) : ('기타' as any);
+  const storeOther = storeText === '기타' ? String(draftRecord.storeOther || '').trim() : (storeIsKnown ? '' : storeText);
+  if (place === '기타' && !placeOther) return { error: '장소 상세(기타)를 입력하세요' };
+  if (storeType === '기타' && !storeOther) return { error: '보관형태 상세(기타)를 입력하세요' };
+
+  const relatedClean = (draftRecord.related || []).filter((a) => String((a as any)?.name || '').trim().length > 0);
+
+  return {
+    actorTypeText,
+    actorNameTxt,
+    allowEmptyActorName,
+    place,
+    placeOther,
+    storeType,
+    storeOther,
+    lvText,
+    relatedClean,
+    summary: summaryTxt,
+    tsISO: fromLocalInputValue(draftRecord.ts),
+  };
+}
+
+function prepareRecordEditForSeal() {
+  const actorTypeText = String((draftRecordEdit as any).actorTypeText || '').trim();
+  const placeText = String((draftRecordEdit as any).placeText || '').trim();
+  const storeText = String((draftRecordEdit as any).storeTypeText || '').trim();
+  const lvText = String((draftRecordEdit as any).lvText || '').trim();
+  const tsTxt = String(draftRecordEdit.ts || '').trim();
+  const summaryTxt = String(draftRecordEdit.summary || '').trim();
+  const actorNameTxt = String(draftRecordEdit.actorNameOther || '').trim();
+  const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
+  const okActor = allowEmptyActorName ? true : actorNameTxt.length > 0;
+
+  if (tsTxt.length < 10) return { error: '사건시각을 입력하세요' };
+  if (!actorTypeText || !okActor) return { error: '주체 정보를 입력하세요' };
+  if (summaryTxt.length < 4) return { error: '내용을 4글자 이상 입력하세요' };
+  if (!placeText || !storeText || !lvText) return { error: '필수 정보를 입력하세요' };
+
+  const placeIsKnown = (PLACE_TYPES as any).includes(placeText as any);
+  const storeIsKnown = (STORE_TYPES as any).includes(storeText as any);
+  const place: PlaceType = placeIsKnown ? (placeText as any) : ('기타' as any);
+  const placeOther = placeText === '기타' ? String(draftRecordEdit.placeOther || '').trim() : (placeIsKnown ? '' : placeText);
+  const storeType: StoreType = storeIsKnown ? (storeText as any) : ('기타' as any);
+  const storeOther = storeText === '기타' ? String(draftRecordEdit.storeOther || '').trim() : (storeIsKnown ? '' : storeText);
+  if (place === '기타' && !placeOther) return { error: '장소 상세(기타)를 입력하세요' };
+  if (storeType === '기타' && !storeOther) return { error: '보관형태 상세(기타)를 입력하세요' };
+
+  const relatedClean = (draftRecordEdit.related || []).filter((a) => String((a as any)?.name || '').trim().length > 0);
+
+  return {
+    actorTypeText,
+    actorNameTxt,
+    allowEmptyActorName,
+    place,
+    placeOther,
+    storeType,
+    storeOther,
+    lvText,
+    relatedClean,
+    summary: summaryTxt,
+    tsISO: fromLocalInputValue(draftRecordEdit.ts),
+  };
+}
 
 /* ---------- event binding ---------- */
 let _bound = false;
@@ -156,11 +313,109 @@ let _restoreFileName: string | null = null;
 function bindEvents() {
   if (_bound) return; _bound = true;
 
+  const finalizeCreateRecord = async () => {
+    const prep = prepareRecordDraftForSeal() as any;
+    if (prep.error) return toast(prep.error);
+
+    const { record, error } = buildRecordFromDraft({
+      tsISO: prep.tsISO, storeType: prep.storeType, storeOther: prep.storeOther, lv: prep.lvText as any,
+      actorType: draftRecord.actorType, actorNameChoice: OTHER, actorNameOther: prep.actorNameTxt || (prep.allowEmptyActorName ? (prep.actorTypeText === '없음' ? '없음' : '기타') : ''),
+      related: prep.relatedClean, place: prep.place, placeOther: prep.placeOther, summary: prep.summary,
+    }, () => uid('REC'));
+    if (error) return toast(error);
+
+    const sealed = await sealNewRecord(record!, {
+      sealedAt: nowISO(),
+      signerLabel: String((draftRecord as any).signerLabel || '').trim() || '기기 봉인서명',
+      reason: String((draftRecord as any).sealReason || '').trim() || '초기 기록 봉인',
+    });
+
+    S.records.unshift(sealed);
+    const sel = getSelectedCase();
+    if (sel) S.cases[sel.id] = await addRecordsToCase(sel, S.records, [sealed.id]);
+    await saveState(S);
+
+    draftRecord.summary = '';
+    draftRecord.actorNameChoice = OTHER;
+    draftRecord.actorNameOther = '';
+    draftRecord.relNameChoice = OTHER;
+    draftRecord.relNameOther = '';
+    draftRecord.related = [];
+    draftRecord.ts = toLocalInputValue(nowISO());
+    (draftRecord as any).signerLabel = '기기 봉인서명';
+    (draftRecord as any).sealReason = '';
+    (ui as any).lastSavedRecordId = sealed.id;
+    ui.recordComposerOpen = false;
+
+    closeSignatureModal();
+    render();
+
+    openSignSuccessModal(
+      '성공적으로 서명 및 인증이 완료되었습니다!',
+      sel ? '증거가 저장되고 선택한 사건에도 자동 반영되었어요.' : '증거가 저장되었습니다.'
+    );
+
+    const sealVerify = verifyRecordIntegrity(sealed as any) as any;
+    toast(`봉인 완료 ✅ ${sealVerify.trusted ? '기기서명 확인' : '봉인 저장됨'}`);
+    log('record sealed', sealed.id, sealVerify.verificationStatus);
+  };
+
+  const finalizeAmendRecord = async () => {
+    const id = String(ui.recordEditId || '').trim();
+    if (!id) return toast('수정할 기록을 찾을 수 없어요');
+    const idx = S.records.findIndex((x) => x.id === id);
+    if (idx < 0) return toast('수정할 기록을 찾을 수 없어요');
+
+    const prep = prepareRecordEditForSeal() as any;
+    if (prep.error) return toast(prep.error);
+
+    const current = ensureRecordV8(S.records[idx]) as any;
+    const nextRecord = {
+      ...current,
+      id: current.id,
+      ts: prep.tsISO,
+      actor: { type: draftRecordEdit.actorType, name: prep.actorNameTxt || (prep.allowEmptyActorName ? (prep.actorTypeText === '없음' ? '없음' : '기타') : '') },
+      related: prep.relatedClean,
+      place: prep.place,
+      placeOther: prep.placeOther,
+      storeType: prep.storeType,
+      storeOther: prep.storeOther,
+      lv: prep.lvText as any,
+      summary: prep.summary,
+    } as any;
+
+    const amended = await amendSignedRecord(current, nextRecord, {
+      sealedAt: nowISO(),
+      signerLabel: String((draftRecordEdit as any).signerLabel || '').trim() || '기기 봉인서명',
+      reason: String((draftRecordEdit as any).sealReason || '').trim() || '기록 정정 및 재봉인',
+    });
+
+    S.records[idx] = amended;
+    ui.viewRecordId = amended.id;
+    ui.recordEditId = null;
+    ui.recordModalTab = 'history';
+    ui.recEditRelatedOpen = false;
+    resetRecordEditDraft();
+    await saveState(S);
+
+    closeSignatureModal();
+    render();
+    openRecordModal();
+
+    openSignSuccessModal('성공적으로 서명 및 인증이 완료되었습니다!', '수정 내용이 저장되고 새 revision으로 재봉인되었어요.');
+
+    const amendVerify = verifyRecordIntegrity(amended as any) as any;
+    toast(`정정 봉인 완료 ✅ ${amendVerify.trusted ? '기기서명 확인' : '재봉인 저장됨'}`);
+    log('record amended', amended.id, amendVerify.verificationStatus);
+  };
+
   const click: Record<string, (btn: HTMLElement) => void | Promise<void>> = {
     'toast-action': () => runToastAction(),
     'confirm-yes': () => closeConfirm(true), 'confirm-no': () => closeConfirm(false),
 
     'close-record': () => (closeRecordModal(), render()),
+    'open-record-composer': () => { ui.recordComposerOpen = true; render(); window.setTimeout(() => { (document.getElementById('recordSummary') as HTMLTextAreaElement | null)?.focus(); }, 0); log('record composer modal open'); },
+    'close-record-composer': () => { ui.recordComposerOpen = false; closeDlg('recordComposerModal'); render(); log('record composer modal close'); },
     'clear-record-filters': () => (ui.recFilterActor = ui.recFilterPlace = ui.recFilterKeyword = '', ui.recFilterActorDraft = ui.recFilterPlaceDraft = ui.recFilterKeywordDraft = '', render(), log('record filters cleared')),
     'apply-record-filters': () => (ui.recFilterActor = ui.recFilterActorDraft, ui.recFilterPlace = ui.recFilterPlaceDraft, ui.recFilterKeyword = ui.recFilterKeywordDraft, render(), log('record filters applied')),
     'apply-update-filters': () => (ui.updFilterActor = ui.updFilterActorDraft, ui.updFilterPlace = ui.updFilterPlaceDraft, ui.updFilterKeyword = ui.updFilterKeywordDraft, render(), log('update filters applied')),
@@ -168,22 +423,56 @@ function bindEvents() {
     'close-timeline-detail': () => (closeTimelineModal(), render()),
 
     tab: async (btn) => {
-      const nextTab = (btn.dataset.tab === 'cases' ? 'cases' : 'records') as any;
-      if (nextTab === 'cases') { S.selectedCaseId = null; ui.qTimeline = ''; }
-      S.tab = nextTab; await saveState(S); log(`tab -> ${S.tab}`); render();
+      const nextTab = (btn.dataset.tab === 'cases' ? 'cases' : btn.dataset.tab === 'home' ? 'home' : 'records') as any;
+      S.tab = nextTab;
+      if (nextTab === 'records') ui.evidenceTab = ui.evidenceTab || 'write';
+      if (nextTab === 'cases') ui.caseTab = ui.caseTab || 'create';
+      await saveState(S); log(`tab -> ${S.tab}`); render();
     },
 
-    'open-case-create': () => (S.tab = 'cases' as any, ui.caseCreateOpen = true, render(), openCaseCreateModal(), void saveState(S), log('case create modal open')),
+    'switch-evidence-tab': (btn) => {
+      const next = btn.dataset.evidenceTab === 'list' ? 'list' : 'write';
+      ui.evidenceTab = next;
+      S.tab = 'records' as any;
+      render();
+      log('evidence tab ->', next);
+    },
+    'switch-record-modal-tab': (btn) => {
+      const next = btn.dataset.recordModalTab === 'history' ? 'history' : btn.dataset.recordModalTab === 'edit' ? 'edit' : 'current';
+      ui.recordModalTab = next as any;
+      render();
+      openRecordModal();
+      log('record modal tab ->', next);
+    },
+    'switch-case-tab': (btn) => {
+      const next = btn.dataset.caseTab === 'list' ? 'list' : btn.dataset.caseTab === 'print' ? 'print' : 'create';
+      ui.caseTab = next as any;
+      S.tab = 'cases' as any;
+      render();
+      log('case tab ->', next);
+    },
+
+    'open-settings': () => (ui.settingsOpen = true, render(), log('settings modal open')),
+    'close-settings': () => (ui.settingsOpen = false, closeDlg('settingsModal'), log('settings modal close')),
+
+    'open-case-create': () => (S.tab = 'cases' as any, ui.caseTab = 'create', ui.caseCreateOpen = false, render(), void saveState(S), log('case create section open')),
     'close-case-create': () => (closeCaseCreateModal(), render(), log('case create modal close')),
 
     'saved-close': () => closeDlg('savedModal'),
-    'saved-view-record': () => { const id = (ui as any).lastSavedRecordId as string | undefined; closeDlg('savedModal'); if (!id) return; ui.viewRecordId = id; render(); openRecordModal(); log('saved modal -> view record', id); },
+    'saved-view-record': () => { const id = (ui as any).lastSavedRecordId as string | undefined; closeDlg('savedModal'); if (!id) return; ui.viewRecordId = id; ui.recordModalTab = 'current'; render(); openRecordModal(); log('saved modal -> view record', id); },
+    'close-signature-modal': () => closeSignatureModal(),
+    'close-sign-success': () => closeDlg(SIGN_SUCCESS_MODAL_ID),
+    'confirm-signature-submit': async () => {
+      if (ui.signatureModalMode === 'amend') return await finalizeAmendRecord();
+      return await finalizeCreateRecord();
+    },
     'case-created-close': () => closeDlg('caseCreatedModal'),
-    'case-created-open': () => { closeDlg('caseCreatedModal'); S.tab = 'cases' as any; void saveState(S); render(); },
+    'case-created-open': () => { closeDlg('caseCreatedModal'); S.tab = 'cases' as any; ui.caseTab = 'list'; void saveState(S); render(); },
     'case-created-open-paper': async () => { closeDlg('caseCreatedModal'); const c = mustCase(); if (!c) return; ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c); render(); openPaperModal(); log('paper open (case created modal)', c.id); },
 
     backup: async () => {
-      const json = JSON.stringify({ v: 7, exportedAt: nowISO(), state: S }, null, 2);
+      const envelope = await buildSignedBackupEnvelope(S as any);
+      const json = JSON.stringify(envelope, null, 2);
       const ts = nowISO().replace(/[:.]/g, '-').replace('T', '_').replace('Z', '');
       const suggested = `roosycozy_backup_${ts}.json`;
 
@@ -212,6 +501,7 @@ function bindEvents() {
     },
 
     'open-restore': () => {
+      ui.settingsOpen = false; closeDlg('settingsModal');
       openDlg('restoreModal');
       const info = document.getElementById('restoreFileName');
       if (info) info.textContent = _restoreFileName ? `선택됨: ${_restoreFileName}` : '선택된 파일 없음';
@@ -229,17 +519,27 @@ function bindEvents() {
       const parsed = safeParseJSON(_restoreFileText || '');
       if (!parsed || typeof parsed !== 'object') return toast('백업 파일을 먼저 선택하세요');
 
-      const next = normalizeState(parsed as any);
+      const restore = await verifyBackupEnvelope(parsed as any);
+      if (!restore.ok && !restore.legacy) {
+        toast('복구 중단 · 서명 검증 실패');
+        log('restore blocked', restore.code, restore.message);
+        return;
+      }
+
+      const next = await reverifyStateRecords(restore.state as any);
       next.tab = 'cases';
       next.selectedCaseId = null;
+      ui.caseTab = 'list';
+      ui.evidenceTab = 'write';
 
       setState(next);
       await saveState(S);
       syncDraftDefaults();
       render();
       closeDlg('restoreModal');
-      toast('복구 완료');
-      log('restore ok');
+      const trustSummary = next.records.reduce((acc, r) => { const v = verifyRecordIntegrity(r as any) as any; if (!v.valid) acc.warn += 1; else if (v.trusted) acc.verified += 1; else if (v.verificationStatus === 'legacy') acc.legacy += 1; else acc.foreign += 1; return acc; }, { verified: 0, legacy: 0, foreign: 0, warn: 0 });
+      toast(`복구 완료 · ${restore.legacy ? '레거시 백업' : '서명확인'} · 검증 ${trustSummary.verified} · 레거시 ${trustSummary.legacy} · 외부 ${trustSummary.foreign} · 경고 ${trustSummary.warn}`);
+      log('restore ok', restore.code, trustSummary);
     },
 
     'open-logs': () => (setText('logBox', logs.join('\n')), openDlg('logsModal')),
@@ -252,6 +552,9 @@ function bindEvents() {
       await wipeAll();
       setState(defaultState());
       (S as any).tab = 'cases';
+      ui.caseTab = 'create';
+      ui.evidenceTab = 'write';
+      ui.settingsOpen = false;
       syncDraftDefaults();
       render();
       toastUndo('전체 삭제됨', async () => {
@@ -289,68 +592,69 @@ function bindEvents() {
       ui.recRelatedOpen = true;
       render(); toast('관련자 추가'); log('related added', name);
     },
+    'add-related-edit': () => {
+      const typeText = String((draftRecordEdit as any).relTypeText || '').trim();
+      const type = actorTypeInternalFromText(typeText);
+      draftRecordEdit.relType = type; (draftRecordEdit as any).relTypeText = actorTypeTextFromInternal(type);
+      const name = String(draftRecordEdit.relNameOther || '').trim();
+      if (!typeText || !name) return;
+      draftRecordEdit.relNameChoice = OTHER;
+      draftRecordEdit.related = addActorToList(draftRecordEdit.related || [], { type, name });
+      draftRecordEdit.relNameOther = '';
+      ui.recEditRelatedOpen = true;
+      render(); toast('관련자 추가'); log('related added(edit)', name);
+    },
     'remove-related': (btn) => { const idx = Number(btn.dataset.idx ?? '-1'); if (!Number.isNaN(idx) && idx >= 0) (draftRecord.related = (draftRecord.related || []).filter((_, i) => i !== idx), render()); },
+    'remove-related-edit': (btn) => { const idx = Number(btn.dataset.idx ?? '-1'); if (!Number.isNaN(idx) && idx >= 0) (draftRecordEdit.related = (draftRecordEdit.related || []).filter((_, i) => i !== idx), render()); },
     'clear-record-draft': () => (Object.assign(draftRecord, DEFAULT_RECORD()), render()),
 
-    'set-record-now': () => { draftRecord.ts = toLocalInputValue(nowISO()); render(); toast('시간: 지금'); log('record ts set now'); },
-
-    'save-record': async () => {
-      const actorTypeText = String((draftRecord as any).actorTypeText || '').trim();
-      const placeText = String((draftRecord as any).placeText || '').trim();
-      const storeText = String((draftRecord as any).storeTypeText || '').trim();
-      const lvText = String((draftRecord as any).lvText || '').trim();
-
-      const tsTxt = String(draftRecord.ts || '').trim();
-      const summaryTxt = String(draftRecord.summary || '').trim();
-      const actorNameTxt = String(draftRecord.actorNameOther || '').trim();
-      const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
-      const okActor = allowEmptyActorName ? true : actorNameTxt.length > 0;
-
-      if (tsTxt.length < 10) return toast('시간을 입력하세요');
-      if (!actorTypeText || !okActor) return toast('주체 정보를 입력하세요');
-      if (summaryTxt.length < 4) return toast('내용을 4글자 이상 입력하세요');
-      if (!placeText || !storeText || !lvText) return toast('필수 정보를 입력하세요');
-
-      const placeIsKnown = (PLACE_TYPES as any).includes(placeText as any);
-      const storeIsKnown = (STORE_TYPES as any).includes(storeText as any);
-      const place: PlaceType = placeIsKnown ? (placeText as any) : ('기타' as any);
-      const placeOther = placeText === '기타' ? String(draftRecord.placeOther || '').trim() : (placeIsKnown ? '' : placeText);
-      const storeType: StoreType = storeIsKnown ? (storeText as any) : ('기타' as any);
-      const storeOther = storeText === '기타' ? String(draftRecord.storeOther || '').trim() : (storeIsKnown ? '' : storeText);
-      if (place === '기타' && !placeOther) return toast('장소 상세(기타)를 입력하세요');
-      if (storeType === '기타' && !storeOther) return toast('보관형태 상세(기타)를 입력하세요');
-
-      const relatedClean = (draftRecord.related || []).filter((a) => String((a as any)?.name || '').trim().length > 0);
-      const { record, error } = buildRecordFromDraft({
-        tsISO: fromLocalInputValue(draftRecord.ts), storeType, storeOther, lv: lvText as any,
-        actorType: draftRecord.actorType, actorNameChoice: OTHER, actorNameOther: actorNameTxt || (allowEmptyActorName ? (actorTypeText === '없음' ? '없음' : '기타') : ''),
-        related: relatedClean, place, placeOther, summary: String(draftRecord.summary || '').trim(),
-      }, () => uid('REC'));
-      if (error) return toast(error);
-
-      S.records.unshift(record!);
-      const sel = getSelectedCase();
-      if (sel) S.cases[sel.id] = await addRecordsToCase(sel, S.records, [record!.id]);
-      await saveState(S);
-
-      // 저장 후 입력폼을 '깔끔하게' 비워서 다음 입력에서 주체/관련자 값이 섞이지 않게 한다.
-      draftRecord.summary = '';
-      draftRecord.actorNameChoice = OTHER;
-      draftRecord.actorNameOther = '';
-      draftRecord.relNameChoice = OTHER;
-      draftRecord.relNameOther = '';
-      draftRecord.related = [];
-      // 다음 메모가 빠르게 들어가도록 시간을 "지금"으로 갱신
-      draftRecord.ts = toLocalInputValue(nowISO());
+    'set-record-now': () => { draftRecord.ts = toLocalInputValue(nowISO()); render(); toast('사건시각: 지금'); log('record ts set now'); },
+    'set-record-edit-now': () => { draftRecordEdit.ts = toLocalInputValue(nowISO()); render(); toast('사건시각: 지금'); log('record edit ts set now'); },
+    'start-edit-record': (btn) => {
+      const id = String(btn.dataset.id || '').trim();
+      if (!id) return;
+      const r = S.records.find((x) => x.id === id);
+      if (!r) return;
+      ui.viewRecordId = id;
+      ui.recordEditId = id;
+      ui.recordModalTab = 'edit';
+      ui.recEditRelatedOpen = false;
+      loadRecordEditDraft(r);
       render();
-      (ui as any).lastSavedRecordId = record!.id;
-      setText('savedMsg', `“${String(record!.summary || '').trim() || '메모'}” 저장됨`);
-      setText('savedSub', sel ? '선택한 메모 묶음에 자동 반영됐어요.' : '사건(메모 묶음)에 모으려면 위에서 “스마트 모으기”를 사용해요.');
-      openDlg('savedModal'); window.setTimeout(() => closeDlg('savedModal'), 1800);
-      toast('저장 완료 ✅'); log('record saved', record!.id);
+      openRecordModal();
+      log('record edit open', id);
+    },
+    'cancel-record-edit': () => {
+      ui.recordEditId = null;
+      ui.recordModalTab = 'current';
+      ui.recEditRelatedOpen = false;
+      resetRecordEditDraft();
+      render();
+      openRecordModal();
+      log('record edit cancel');
     },
 
-    'view-record': (btn) => { const id = btn.dataset.id; if (!id) return; ui.viewRecordId = id; render(); openRecordModal(); log('record view', id); },
+    'save-record': async () => {
+      const prep = prepareRecordDraftForSeal() as any;
+      if (prep.error) return toast(prep.error);
+      (draftRecord as any).signerLabel = String((draftRecord as any).signerLabel || '').trim() || '기기 봉인서명';
+      (draftRecord as any).sealReason = String((draftRecord as any).sealReason || '').trim() || '초기 기록 봉인';
+      openSignatureModal('create');
+    },
+
+    'save-record-amend': async () => {
+      const id = String(ui.recordEditId || '').trim();
+      if (!id) return toast('수정할 기록을 찾을 수 없어요');
+      const idx = S.records.findIndex((x) => x.id === id);
+      if (idx < 0) return toast('수정할 기록을 찾을 수 없어요');
+      const prep = prepareRecordEditForSeal() as any;
+      if (prep.error) return toast(prep.error);
+      (draftRecordEdit as any).signerLabel = String((draftRecordEdit as any).signerLabel || '').trim() || '기기 봉인서명';
+      (draftRecordEdit as any).sealReason = String((draftRecordEdit as any).sealReason || '').trim() || '기록 정정 및 재봉인';
+      openSignatureModal('amend');
+    },
+
+    'view-record': (btn) => { const id = btn.dataset.id; if (!id) return; ui.viewRecordId = id; ui.recordEditId = null; ui.recordModalTab = 'current'; ui.recEditRelatedOpen = false; resetRecordEditDraft(); render(); openRecordModal(); log('record view', id); },
     'view-timeline': (btn) => { const id = btn.dataset.id; const kind = (btn.dataset.kind as any) || 'record'; if (!id) return; if (kind !== 'record' && kind !== 'advisor' && kind !== 'step') return; ui.viewTimelineItem = { kind, id }; render(); openTimelineModal(); log('timeline view', { kind, id }); },
 
     'delete-record': async (btn) => {
@@ -367,7 +671,7 @@ function bindEvents() {
     'remove-record-from-case': async (btn) => {
       const c = mustCase(); if (!c) return;
       const id = btn.dataset.id; if (!id) return;
-      if (!(await openConfirm('이 메모를 이 묶음에서 뺄까요? (메모 자체가 삭제되진 않아요)'))) return;
+      if (!(await openConfirm('이 증거를 이 사건에서 뺄까요? (증거 자체가 삭제되진 않아요)'))) return;
       
       const prevIds = (c.recordIds || []).slice();
       c.recordIds = prevIds.filter((x) => x !== id);
@@ -379,7 +683,7 @@ function bindEvents() {
     'copy-record': async (btn) => {
       const id = btn.dataset.id; if (!id) return;
       const r = S.records.find((x) => x.id === id); if (!r) return;
-      await navigator.clipboard.writeText(JSON.stringify(r, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(ensureRecordV8(r), null, 2));
       toast('복사'); log('record copied', id);
     },
 
@@ -427,21 +731,21 @@ function bindEvents() {
       }, S.records, () => uid('CASE'), nowISO);
 
       if (error) return toast(error);
-      const c = caseItem!; S.cases[c.id] = c; S.selectedCaseId = c.id; S.tab = 'cases';
+      const c = caseItem!; S.cases[c.id] = c; S.selectedCaseId = c.id; S.tab = 'cases'; ui.caseTab = 'list';
       Object.assign(draftCase, DEFAULT_CASE()); await SR(); closeCaseCreateModal(); render();
-      setText('caseCreatedMsg', `“${String(c.title || '').trim() || '메모 묶음'}” 생성됨`);
-      setText('caseCreatedSub', pickedCount ? `AI가 메모 ${pickedCount}개를 모았어요.` : 'AI가 포함할 메모를 찾지 못했어요.');
+      setText('caseCreatedMsg', `“${String(c.title || '').trim() || '사건'}” 생성됨`);
+      setText('caseCreatedSub', pickedCount ? `AI가 증거 ${pickedCount}개를 모았어요.` : 'AI가 포함할 증거를 찾지 못했어요.');
       openDlg('caseCreatedModal'); window.setTimeout(() => closeDlg('caseCreatedModal'), 2000);
       toast('생성 완료 ✅'); log('case created', c.id);
     },
 
-    'select-case': async (btn) => { const id = btn.dataset.id; if (!id || !S.cases[id]) return; S.selectedCaseId = id; S.tab = 'cases'; await SR(); log('case selected', id); },
-    'clear-case': async () => { S.selectedCaseId = null; ui.qTimeline = ''; await SR(); log('case cleared'); },
+    'select-case': async (btn) => { const id = btn.dataset.id; if (!id || !S.cases[id]) return; S.selectedCaseId = id; S.tab = 'cases'; ui.caseTab = 'list'; await SR(); log('case selected', id); },
+    'clear-case': async () => { S.selectedCaseId = null; ui.qTimeline = ''; ui.caseTab = 'list'; await SR(); log('case cleared'); },
 
-    'open-paper-picker': () => { if (!Object.keys(S.cases || {}).length) return toast('먼저 사건을 만들어주세요'); ui.paperPickOpen = true; ui.paperPickQuery = ''; render(); openPaperPickModal(); log('paper picker open'); },
+    'open-paper-picker': () => { if (!Object.keys(S.cases || {}).length) return toast('먼저 사건을 만들어주세요'); S.tab = 'cases' as any; ui.caseTab = 'print'; ui.paperPickOpen = false; ui.paperPickQuery = ''; render(); void saveState(S); log('paper section open'); },
     'close-paper-picker': () => (closePaperPickModal(), render(), log('paper picker close')),
     'pick-paper-case': async (btn) => { const id = String(btn.dataset.id || '').trim(); const c = id ? (S.cases[id] ?? null) : null; if (!c) return; ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c); closePaperPickModal(); render(); openPaperModal(); log('paper open (picker)', c.id); },
-    'paper-open-case-create': () => { closePaperPickModal(); S.tab = 'cases' as any; ui.caseCreateOpen = true; render(); openCaseCreateModal(); void saveState(S); log('case create modal open (from paper picker)'); },
+    'paper-open-case-create': () => { closePaperPickModal(); S.tab = 'cases' as any; ui.caseTab = 'create'; ui.caseCreateOpen = false; render(); void saveState(S); log('case create section open (from paper picker)'); },
 
     'open-paper': async () => { const c = mustCase(); if (!c) return; ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c); render(); openPaperModal(); log('paper open', c.id); },
     'close-paper': () => (closePaperModal(), render()),
@@ -472,7 +776,7 @@ function bindEvents() {
       }
       if (!ids.length) return toast('선택된 항목이 없어요');
       S.cases[c.id] = await addRecordsToCase(c, S.records, ids);
-      await SR(); closeCaseUpdateModal(); render(); toast(`${ids.length}개 메모 추가됨`); log('case records added', c.id, ids.length);
+      await SR(); closeCaseUpdateModal(); render(); toast(`${ids.length}개 증거 추가됨`); log('case records added', c.id, ids.length);
     },
     'delete-case': async (btn) => {
       const id = btn.dataset.id; if (!id || !S.cases[id]) return;
@@ -617,6 +921,39 @@ function bindEvents() {
     lvText: (v) => ((draftRecord as any).lvText = v, (LVS as any).includes(v as any) && (draftRecord.lv = v as Sensitivity)),
     ts: (v) => (draftRecord.ts = v),
     summary: (v) => (draftRecord.summary = v),
+    signerLabel: (v) => ((draftRecord as any).signerLabel = v),
+    sealReason: (v) => ((draftRecord as any).sealReason = v),
+  };
+
+  const recEdit: Record<string, (v: string) => void> = {
+    actorTypeText: (v) => {
+      const t = actorTypeInternalFromText(v);
+      draftRecordEdit.actorType = t;
+      (draftRecordEdit as any).actorTypeText = actorTypeTextFromInternal(t);
+      draftRecordEdit.actorNameChoice = OTHER;
+      draftRecordEdit.actorNameOther = '';
+      render();
+    },
+    actorNameOther: (v) => (draftRecordEdit.actorNameChoice = OTHER, draftRecordEdit.actorNameOther = v),
+    relTypeText: (v) => {
+      const t = actorTypeInternalFromText(v);
+      const prev = draftRecordEdit.relType;
+      draftRecordEdit.relType = t;
+      (draftRecordEdit as any).relTypeText = actorTypeTextFromInternal(t);
+      if (t !== prev) { draftRecordEdit.relNameChoice = OTHER; draftRecordEdit.relNameOther = ''; }
+      ui.recEditRelatedOpen = true;
+      render();
+    },
+    relNameOther: (v) => (draftRecordEdit.relNameChoice = OTHER, draftRecordEdit.relNameOther = v),
+    placeText: (v) => { (draftRecordEdit as any).placeText = v; draftRecordEdit.place = (PLACE_TYPES as any).includes(v as any) ? (v as PlaceType) : ('기타' as PlaceType); if (draftRecordEdit.place !== '기타') draftRecordEdit.placeOther = ''; render(); },
+    placeOther: (v) => (draftRecordEdit.placeOther = v),
+    storeTypeText: (v) => { (draftRecordEdit as any).storeTypeText = v; draftRecordEdit.storeType = (STORE_TYPES as any).includes(v as any) ? (v as StoreType) : ('기타' as StoreType); if (draftRecordEdit.storeType !== '기타') draftRecordEdit.storeOther = ''; render(); },
+    storeOther: (v) => (draftRecordEdit.storeOther = v),
+    lvText: (v) => ((draftRecordEdit as any).lvText = v, (LVS as any).includes(v as any) && (draftRecordEdit.lv = v as Sensitivity)),
+    ts: (v) => (draftRecordEdit.ts = v),
+    summary: (v) => (draftRecordEdit.summary = v),
+    signerLabel: (v) => ((draftRecordEdit as any).signerLabel = v),
+    sealReason: (v) => ((draftRecordEdit as any).sealReason = v),
   };
 
   const cas: Record<string, (v: string) => void> = {
@@ -659,22 +996,26 @@ function bindEvents() {
     if (action === 'search-timeline') return void (ui.qTimeline = v, render());
     if (action === 'search-paper-cases') return void (ui.paperPickQuery = v, render());
     if (action === 'search-update-candidates') return void (ui.qUpdate = v, render()); 
-    const table = action === 'draft-record' ? rec : action === 'draft-case' ? cas : action === 'draft-step' ? step : null;
+    const table = action === 'draft-record' ? rec : action === 'draft-record-edit' ? recEdit : action === 'draft-case' ? cas : action === 'draft-step' ? step : null;
     table?.[field]?.(v);
     if (action === 'draft-record') updateRecordComposerUI();
+    if (action === 'draft-record-edit') updateRecordEditUI();
   };
 
-  const watch = '[data-action="draft-record"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="search-timeline"],[data-action="search-paper-cases"],[data-action="search-update-candidates"]';
+  const watch = '[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="search-timeline"],[data-action="search-paper-cases"],[data-action="search-update-candidates"]';
   document.addEventListener('input', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(watch); el && handle(el); });
-  document.addEventListener('change', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[data-action="draft-record"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"]'); el && handle(el); });
+  document.addEventListener('change', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"]'); el && handle(el); });
 
   document.addEventListener('close', (e) => {
     const t = e.target as HTMLElement | null; if (!t) return;
     if (_isRerendering) return;
-    if ((t as any).id === 'recordModal') ui.viewRecordId = null;
+    if ((t as any).id === 'recordModal') { ui.viewRecordId = null; ui.recordEditId = null; ui.recordModalTab = 'current'; ui.recEditRelatedOpen = false; resetRecordEditDraft(); }
+    if ((t as any).id === 'recordComposerModal') ui.recordComposerOpen = false;
     if ((t as any).id === 'paperPickModal') ui.paperPickOpen = false;
     if ((t as any).id === 'paperModal') (ui.paperCaseId = null, ui.paperHash = null);
     if ((t as any).id === 'caseUpdateModal') (ui.updateCaseId = null, ui.updatePickIds = [], ui.updFilterActor = ui.updFilterPlace = ui.updFilterKeyword = '', ui.updFilterActorDraft = ui.updFilterPlaceDraft = ui.updFilterKeywordDraft = '', ui.updateCandidatesForCaseId = null, ui.updateCandidates = null, ui.updateCandidatesLoading = false);
+    if ((t as any).id === 'settingsModal') ui.settingsOpen = false;
+    if ((t as any).id === SIGNATURE_MODAL_ID) ui.signatureModalMode = null;
   }, true);
 
   window.addEventListener('keydown', (e) => {
@@ -705,14 +1046,19 @@ function bindEvents() {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       const ae = document.activeElement as HTMLElement | null; if (!ae) return;
       if (ae.closest('[data-action="draft-record"][data-field="summary"]')) return void (e.preventDefault(), (document.querySelector('[data-action="save-record"]') as HTMLButtonElement | null)?.click());
+      if (ae.closest('[data-action="draft-record-edit"][data-field="summary"]')) return void (e.preventDefault(), (document.querySelector('[data-action="save-record-amend"]') as HTMLButtonElement | null)?.click());
       if (ae.closest('[data-action="draft-step"][data-field="note"]')) return void (e.preventDefault(), (document.querySelector('[data-action="add-step"]') as HTMLButtonElement | null)?.click());
     }
 
     if (e.key === 'Escape') {
       const c = dlg('confirmModal'); if (c?.open) return void (e.preventDefault(), closeConfirm(false));
+      const sg = dlg(SIGNATURE_MODAL_ID); if (sg?.open) return void (e.preventDefault(), closeSignatureModal());
+      const ss = dlg(SIGN_SUCCESS_MODAL_ID); if (ss?.open) return void (e.preventDefault(), closeDlg(SIGN_SUCCESS_MODAL_ID));
       const sm = dlg('savedModal'); if (sm?.open) return void (e.preventDefault(), closeDlg('savedModal'));
       const cm = dlg('caseCreatedModal'); if (cm?.open) return void (e.preventDefault(), closeDlg('caseCreatedModal'));
       closeDlg('restoreModal'); closeDlg('logsModal');
+      const st = dlg('settingsModal'); if (st?.open) return void (e.preventDefault(), ui.settingsOpen = false, closeDlg('settingsModal'));
+      const composer = dlg('recordComposerModal'); if (composer?.open) return void (e.preventDefault(), ui.recordComposerOpen = false, closeDlg('recordComposerModal'), render());
       const rec = dlg('recordModal'); if (rec?.open) return void (e.preventDefault(), closeRecordModal(), render());
       const tl = dlg('timelineDetailModal'); if (tl?.open) return void (e.preventDefault(), closeTimelineModal(), render());
       const cu = dlg('caseUpdateModal'); if (cu?.open) return void (e.preventDefault(), closeCaseUpdateModal(), render());
@@ -721,9 +1067,13 @@ function bindEvents() {
 }
 
 function syncDraftDefaults() {
-  draftRecord.actorNameChoice = OTHER; draftRecord.relNameChoice = OTHER; draftCase.addNameChoice = OTHER;
+  draftRecord.actorNameChoice = OTHER; draftRecord.relNameChoice = OTHER; draftCase.addNameChoice = OTHER; draftRecordEdit.actorNameChoice = OTHER; draftRecordEdit.relNameChoice = OTHER;
   (draftRecord as any).placeText ||= draftRecord.place; (draftRecord as any).storeTypeText ||= draftRecord.storeType; (draftRecord as any).lvText ||= draftRecord.lv;
   (draftRecord as any).actorTypeText ||= actorTypeTextFromInternal(draftRecord.actorType); (draftRecord as any).relTypeText ||= actorTypeTextFromInternal(draftRecord.relType);
+  (draftRecord as any).signerLabel ||= '기기 봉인서명'; (draftRecord as any).sealReason ||= '';
+  (draftRecordEdit as any).placeText ||= draftRecordEdit.place; (draftRecordEdit as any).storeTypeText ||= draftRecordEdit.storeType; (draftRecordEdit as any).lvText ||= draftRecordEdit.lv;
+  (draftRecordEdit as any).actorTypeText ||= actorTypeTextFromInternal(draftRecordEdit.actorType); (draftRecordEdit as any).relTypeText ||= actorTypeTextFromInternal(draftRecordEdit.relType);
+  (draftRecordEdit as any).signerLabel ||= '기기 봉인서명'; (draftRecordEdit as any).sealReason ||= '';
   (draftCase as any).addTypeText ||= actorTypeTextFromInternal(draftCase.addType); (draftCase as any).sensFilterText ||= String(draftCase.sensFilter); (draftCase as any).statusText ||= draftCase.status;
 }
 
@@ -734,16 +1084,20 @@ export function initApp() {
     (document.getElementById('recordSummary') as HTMLTextAreaElement | null)?.focus();
   }, 0);
 
-  // ✅ 앱 실행 시 첫 화면: 메모하기(records)
-  (S as any).tab = 'records'; S.tab = 'records'; render(); focusRecordComposer();
+  // ✅ 앱 실행 시 첫 화면: 홈
+  (S as any).tab = 'home' as any; S.tab = 'home' as any; render();
 
   (async () => {
-    try { setState(await loadState()); log('state loaded'); }
+    try {
+      await refreshDeviceSignerInfo();
+      setState(await reverifyStateRecords(await loadState()));
+      log('state loaded');
+    }
     catch (e) { log('load failed', e); setState(defaultState()); }
 
-    // ✅ 로컬에 마지막 탭이 무엇이었든, 실행 시작은 records로 고정
-    (S as any).tab = 'records'; S.tab = 'records';
+    // ✅ 로컬에 마지막 탭이 무엇이었든, 실행 시작은 home으로 고정
+    (S as any).tab = 'home' as any; S.tab = 'home' as any;
 
-    syncDraftDefaults(); render(); focusRecordComposer();
+    syncDraftDefaults(); render();
   })();
 }
