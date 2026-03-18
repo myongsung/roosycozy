@@ -82,12 +82,12 @@ function renderAppSidebar(currentTab: string) {
   const isHome = currentTab === 'home';
   return `
     <aside class="serviceSidebar" aria-label="서비스 메뉴">
-      <button class="serviceLogo ${isHome ? 'active' : ''}" data-action="tab" data-tab="home" type="button" aria-label="홈으로 이동">
+      <button class="serviceLogo ${isHome ? 'active' : ''}" data-action="tab" data-tab="home" data-route-tab="home" type="button" aria-label="홈으로 이동">
         <span class="serviceLogoGlyph" aria-hidden="true">R</span>
       </button>
 
       <div class="serviceSidebarNav">
-        <button class="sidebarIconBtn ${isHome ? 'active' : ''}" data-action="tab" data-tab="home" type="button" aria-label="홈">
+        <button class="sidebarIconBtn ${isHome ? 'active' : ''}" data-action="tab" data-tab="home" data-route-tab="home" type="button" aria-label="홈">
           <span class="sidebarIcon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4.75 10.5L12 4.75L19.25 10.5V18C19.25 18.9665 18.4665 19.75 17.5 19.75H6.5C5.5335 19.75 4.75 18.9665 4.75 18V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -148,6 +148,74 @@ function renderHomeMain() {
     </section>
   `;
 }
+
+
+function renderLegalConsultMain() {
+  return `
+    <section class="legalHub" aria-label="원스톱 법률 자문 안내">
+      <article class="legalHeroCard">
+        <div class="legalHeroTop">
+          <span class="legalHeroBadge">4월 오픈 예정</span>
+          <span class="legalHeroMini">Roosycozy × 무료 법률 상담</span>
+        </div>
+
+        <div class="legalHeroBody">
+          <div class="legalHeroEyebrow">원스톱 법률 자문</div>
+          <h1 class="legalHeroTitle">이제 곧 루지코지의 데이터로 한번에 변호사와의 무료 상담이 가능해질 예정입니다.</h1>
+          <p class="legalHeroLead">4월에 만나요!</p>
+          <div class="legalHeroNote">본 계획은 협상여부에 따라 변동될 수 있음</div>
+        </div>
+      </article>
+
+      <section class="legalInfoGrid">
+        <article class="legalInfoCard">
+          <div class="legalInfoIcon" aria-hidden="true">①</div>
+          <div class="legalInfoText">
+            <div class="legalInfoTitle">루지코지 기록 그대로</div>
+            <div class="legalInfoDesc">쌓아둔 사건 흐름과 증빙 데이터를 상담 전 단계에서 더 빠르게 정리할 수 있게 준비 중입니다.</div>
+          </div>
+        </article>
+
+        <article class="legalInfoCard">
+          <div class="legalInfoIcon" aria-hidden="true">②</div>
+          <div class="legalInfoText">
+            <div class="legalInfoTitle">무료 상담 연결</div>
+            <div class="legalInfoDesc">필요한 내용을 한 번에 전달해, 변호사와의 첫 상담까지 자연스럽게 이어지는 경험을 목표로 하고 있습니다.</div>
+          </div>
+        </article>
+
+        <article class="legalInfoCard">
+          <div class="legalInfoIcon" aria-hidden="true">③</div>
+          <div class="legalInfoText">
+            <div class="legalInfoTitle">한 화면에서 바로 준비</div>
+            <div class="legalInfoDesc">사건 정리, 출력, 상담 준비 흐름이 끊기지 않도록 루지코지 안에서 이어지게 구성할 예정입니다.</div>
+          </div>
+        </article>
+      </section>
+    </section>
+  `;
+}
+
+
+const PRIMARY_TABS = new Set(['home', 'records', 'cases', 'legal']);
+let queuedPrimaryTab = '';
+
+function normalizePrimaryTab(value: string) {
+  const tab = String(value || '').trim();
+  return PRIMARY_TABS.has(tab) ? tab : '';
+}
+
+function bindPrimaryTabRouteOverrides(root: ParentNode = document) {
+  root.querySelectorAll<HTMLElement>('[data-route-tab]').forEach((el) => {
+    if ((el as any).__routeBound) return;
+    (el as any).__routeBound = true;
+    el.addEventListener('click', () => {
+      const next = normalizePrimaryTab(String(el.dataset.routeTab || ''));
+      if (next) queuedPrimaryTab = next;
+    });
+  });
+}
+
 
 function getRecordIntegrityMeta(record: RecordItem) {
   const vr = ensureRecordV8(record) as any;
@@ -308,11 +376,14 @@ export function render() {
     ui.paperPickOpen = false;
   }
 
-  const currentTab = String((S as any).tab || 'home');
+  const currentTab = normalizePrimaryTab(queuedPrimaryTab || String((S as any).tab || 'home')) || 'home';
+  (S as any).tab = currentTab;
+  queuedPrimaryTab = '';
   const selected = getSelectedCase();
   const activeCaseTab = ui.caseTab || 'create';
   const isHome = currentTab === 'home';
   const isEvidence = currentTab === 'records';
+  const isLegal = currentTab === 'legal';
   const isCasesListView = currentTab === 'cases' && activeCaseTab === 'list';
   const showCaseSide = isCasesListView && !!selected && !HIDE_CASE_ACTIONS_AND_GUIDES;
 
@@ -327,10 +398,12 @@ export function render() {
     ? `<section class="serviceSection homeSection"><main class="homeMain">${renderHomeMain()}</main></section>`
     : isEvidence
       ? `<section class="serviceSection recordsSection"><main class="recordsMain">${renderRecordsMain()}</main></section>`
-      : renderCasesShell(selected, gridClass, isCasesListView ? gridInner : '');
+      : isLegal
+        ? `<section class="serviceSection legalSection"><main class="legalMain">${renderLegalConsultMain()}</main></section>`
+        : renderCasesShell(selected, gridClass, isCasesListView ? gridInner : '');
 
   $app.innerHTML = `
-    <div class="container mobileRefined iphonePremium">
+    <div class="container mobileRefined iphonePremium fluidDesktopShell">
       <div class="appFrame">
         ${renderAppSidebar(currentTab)}
 
@@ -338,7 +411,7 @@ export function render() {
           <header class="topbar">
             <div class="topbarInner topbarCompact">
               <nav class="topNav topNavShifted" aria-label="주요 메뉴">
-                <button class="topNavBtn ${currentTab === 'records' ? 'active' : ''}" data-action="tab" data-tab="records" type="button" ${currentTab === 'records' ? 'aria-current="page"' : ''}>
+                <button class="topNavBtn ${currentTab === 'records' ? 'active' : ''}" data-action="tab" data-tab="records" data-route-tab="records" type="button" ${currentTab === 'records' ? 'aria-current="page"' : ''}>
                   <span class="topNavIcon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M7 3.75H13.5L18 8.25V18.25C18 19.2165 17.2165 20 16.25 20H7C5.89543 20 5 19.1046 5 18V5.75C5 4.64543 5.89543 3.75 7 3.75Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -349,7 +422,7 @@ export function render() {
                   </span>
                   <span class="topNavLabel">증거관리</span>
                 </button>
-                <button class="topNavBtn ${currentTab === 'cases' ? 'active' : ''}" data-action="tab" data-tab="cases" type="button" ${currentTab === 'cases' ? 'aria-current="page"' : ''}>
+                <button class="topNavBtn ${currentTab === 'cases' ? 'active' : ''}" data-action="tab" data-tab="cases" data-route-tab="cases" type="button" ${currentTab === 'cases' ? 'aria-current="page"' : ''}>
                   <span class="topNavIcon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M3.75 8C3.75 6.75736 4.75736 5.75 6 5.75H9.2C9.8066 5.75 10.3884 5.99553 10.8125 6.43089L11.6875 7.31911C12.1116 7.75447 12.6934 8 13.3 8H18C19.2426 8 20.25 9.00736 20.25 10.25V17C20.25 18.2426 19.2426 19.25 18 19.25H6C4.75736 19.25 3.75 18.2426 3.75 17V8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
@@ -357,6 +430,17 @@ export function render() {
                     </svg>
                   </span>
                   <span class="topNavLabel">사건</span>
+                </button>
+                <button class="topNavBtn topNavBtnLegal ${currentTab === 'legal' ? 'active' : ''}" data-action="tab" data-tab="legal" data-route-tab="legal" type="button" ${currentTab === 'legal' ? 'aria-current="page"' : ''}>
+                  <span class="topNavIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 5.25L18.75 8.75L12 12.25L5.25 8.75L12 5.25Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M7.75 11.5V14.25C7.75 15.7688 9.65279 17 12 17C14.3472 17 16.25 15.7688 16.25 14.25V11.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M18.75 8.75V14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                      <path d="M18.75 14.5C19.4404 14.5 20 15.0596 20 15.75C20 16.4404 19.4404 17 18.75 17C18.0596 17 17.5 16.4404 17.5 15.75C17.5 15.0596 18.0596 14.5 18.75 14.5Z" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <span class="topNavLabel">원스톱 법률 자문</span>
                 </button>
               </nav>
             </div>
@@ -386,6 +470,8 @@ export function render() {
       </div>
     </div>
   `;
+
+  bindPrimaryTabRouteOverrides($app);
 
   if (ui.settingsOpen) {
     const settingsDlg = document.getElementById('settingsModal') as HTMLDialogElement | null;

@@ -8437,3 +8437,773 @@ dialog.recordComposerModal{
 .recordComposerModal .recordComposerModalBody{
   max-height: calc(100vh - 104px) !important;
 }
+
+
+/* ========================================================================== 
+   2026-03-18 desktop scaling + legal consult page
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium{
+  --rc-fluid-space: clamp(14px, 1.2vw, 24px);
+  --rc-fluid-radius: clamp(18px, 1.1vw, 28px);
+  --rc-fluid-title: clamp(22px, 1.55vw, 30px);
+  --rc-fluid-text: clamp(13px, 0.88vw, 16px);
+}
+
+.container.mobileRefined.iphonePremium .appFrame{
+  grid-template-columns: clamp(68px, 4.8vw, 96px) minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebar{
+  padding: clamp(10px, 1vw, 18px) clamp(8px, 0.8vw, 14px) clamp(14px, 1.2vw, 20px) !important;
+  gap: clamp(16px, 1.2vw, 24px) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogo,
+.container.mobileRefined.iphonePremium .sidebarIconBtn{
+  width: clamp(40px, 2.9vw, 54px) !important;
+  min-width: clamp(40px, 2.9vw, 54px) !important;
+  height: clamp(40px, 2.9vw, 54px) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogoGlyph{
+  font-size: clamp(19px, 1.35vw, 24px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sidebarIcon,
+.container.mobileRefined.iphonePremium .sidebarIcon svg{
+  width: clamp(21px, 1.45vw, 26px) !important;
+  height: clamp(21px, 1.45vw, 26px) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarInner{
+  height: clamp(52px, 3.7vw, 66px) !important;
+  padding: clamp(10px, 1vw, 18px) clamp(14px, 1.3vw, 24px) !important;
+  gap: clamp(8px, 0.8vw, 14px) !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav,
+.container.mobileRefined.iphonePremium .topNav.topNavShifted{
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  gap: clamp(6px, 0.75vw, 12px) !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav::-webkit-scrollbar{
+  display: none;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn{
+  min-width: auto !important;
+  min-height: clamp(40px, 3vw, 50px);
+  padding: 0 clamp(12px, 1vw, 18px) !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap;
+}
+
+.container.mobileRefined.iphonePremium .topNavLabel{
+  font-size: clamp(12px, 0.82vw, 14px) !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtnLegal{
+  padding-inline: clamp(14px, 1.15vw, 20px) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceContent{
+  padding: clamp(14px, 1.2vw, 24px) !important;
+}
+
+.container.mobileRefined.iphonePremium .card,
+.container.mobileRefined.iphonePremium .caseCommandDeck,
+.container.mobileRefined.iphonePremium .side .card{
+  border-radius: var(--rc-fluid-radius) !important;
+  padding: clamp(16px, 1.2vw, 24px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTitle .h2,
+.container.mobileRefined.iphonePremium .caseShellList .sectionTitle .h2,
+.container.mobileRefined.iphonePremium .caseShellList .caseTitleLeft .h2{
+  font-size: var(--rc-fluid-title) !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTitle .muted,
+.container.mobileRefined.iphonePremium .muted,
+.container.mobileRefined.iphonePremium .meta,
+.container.mobileRefined.iphonePremium .detailNote,
+.container.mobileRefined.iphonePremium .recMiniMetaLine,
+.container.mobileRefined.iphonePremium .recMiniHash{
+  font-size: var(--rc-fluid-text) !important;
+}
+
+.container.mobileRefined.iphonePremium .title,
+.container.mobileRefined.iphonePremium .caseShellList .title{
+  font-size: clamp(15px, 1vw, 18px) !important;
+}
+
+.container.mobileRefined.iphonePremium .btn,
+.container.mobileRefined.iphonePremium .countPill,
+.container.mobileRefined.iphonePremium .badgeAI,
+.container.mobileRefined.iphonePremium .tag,
+.container.mobileRefined.iphonePremium .chip,
+.container.mobileRefined.iphonePremium .stepMiniTime,
+.container.mobileRefined.iphonePremium .caseShellList .countPill,
+.container.mobileRefined.iphonePremium .caseShellList .badgeAI,
+.container.mobileRefined.iphonePremium .caseShellList .tag,
+.container.mobileRefined.iphonePremium .caseShellList .chip,
+.container.mobileRefined.iphonePremium .caseShellList .stepMiniTime{
+  font-size: clamp(12px, 0.82vw, 14px) !important;
+}
+
+.container.mobileRefined.iphonePremium .btn{
+  min-height: clamp(42px, 3vw, 50px);
+  padding-inline: clamp(14px, 1vw, 18px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTabs,
+.container.mobileRefined.iphonePremium .caseCommandDeck .sectionTabs{
+  gap: clamp(6px, 0.7vw, 10px) !important;
+  padding: clamp(4px, 0.4vw, 6px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTab,
+.container.mobileRefined.iphonePremium .caseCommandDeck .sectionTab{
+  height: clamp(36px, 2.8vw, 44px) !important;
+  padding: 0 clamp(12px, 1vw, 18px) !important;
+  font-size: clamp(13px, 0.9vw, 15px) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandDeck{
+  width: min(100%, clamp(760px, 84vw, 1200px)) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll{
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 6px;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll{
+  max-height: min(64vh, calc(100vh - 220px)) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll{
+  max-height: min(66vh, calc(100vh - 220px)) !important;
+}
+
+.container.mobileRefined.iphonePremium .paperPickList{
+  display: grid;
+  gap: clamp(10px, 0.8vw, 14px);
+}
+
+.container.mobileRefined.iphonePremium .paperPickItem{
+  padding: clamp(14px, 1vw, 18px) !important;
+}
+
+.container.mobileRefined.iphonePremium .legalSection,
+.container.mobileRefined.iphonePremium .legalMain{
+  min-height: 0;
+}
+
+.container.mobileRefined.iphonePremium .legalMain{
+  display: flex;
+  flex-direction: column;
+}
+
+.legalHub{
+  display: grid;
+  gap: clamp(14px, 1.2vw, 22px);
+  width: min(100%, 1080px);
+}
+
+.legalHeroCard{
+  position: relative;
+  overflow: hidden;
+  border-radius: clamp(24px, 1.8vw, 34px);
+  padding: clamp(24px, 2.2vw, 38px);
+  background: linear-gradient(135deg, #0f172a 0%, #1f2937 52%, #374151 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.legalHeroCard::before,
+.legalHeroCard::after{
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.legalHeroCard::before{
+  width: 280px;
+  height: 280px;
+  right: -72px;
+  top: -98px;
+  background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 72%);
+}
+
+.legalHeroCard::after{
+  width: 220px;
+  height: 220px;
+  left: -88px;
+  bottom: -118px;
+  background: radial-gradient(circle, rgba(148,163,184,0.26) 0%, rgba(148,163,184,0) 76%);
+}
+
+.legalHeroTop,
+.legalHeroBody{
+  position: relative;
+  z-index: 1;
+}
+
+.legalHeroTop{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: clamp(22px, 1.8vw, 30px);
+}
+
+.legalHeroBadge,
+.legalHeroMini{
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: clamp(12px, 0.8vw, 14px);
+  font-weight: 800;
+}
+
+.legalHeroBadge{
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.26);
+}
+
+.legalHeroMini{
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.86);
+}
+
+.legalHeroEyebrow{
+  font-size: clamp(13px, 0.88vw, 15px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.72);
+}
+
+.legalHeroTitle{
+  margin: 14px 0 0;
+  font-size: clamp(30px, 2.5vw, 46px);
+  line-height: 1.22;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  max-width: 12ch;
+}
+
+.legalHeroLead{
+  margin: 18px 0 0;
+  font-size: clamp(22px, 1.6vw, 30px);
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.legalHeroNote{
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.78);
+  font-size: clamp(12px, 0.82vw, 14px);
+  font-weight: 700;
+}
+
+.legalInfoGrid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1vw, 16px);
+}
+
+.legalInfoCard{
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: clamp(18px, 1.25vw, 24px);
+  border-radius: clamp(18px, 1.2vw, 24px);
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+}
+
+.legalInfoIcon{
+  width: clamp(36px, 2.6vw, 46px);
+  min-width: clamp(36px, 2.6vw, 46px);
+  height: clamp(36px, 2.6vw, 46px);
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.06);
+  color: #111827;
+  font-weight: 900;
+}
+
+.legalInfoTitle{
+  font-size: clamp(15px, 1vw, 18px);
+  font-weight: 850;
+  color: #111827;
+}
+
+.legalInfoDesc{
+  margin-top: 6px;
+  color: #4b5563;
+  font-size: clamp(13px, 0.82vw, 15px);
+  line-height: 1.6;
+}
+
+@media (max-width: 980px){
+  .legalInfoGrid{
+    grid-template-columns: 1fr;
+  }
+
+  .container.mobileRefined.iphonePremium .topNavBtn{
+    padding-inline: 12px !important;
+  }
+
+  .container.mobileRefined.iphonePremium .topNavBtn .topNavIcon{
+    margin-right: 4px;
+  }
+}
+
+/* ========================================================================== 
+   2026-03-18 hotfix - real desktop scaling + legal tab visibility
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium{
+  --device-width: min(96vw, clamp(460px, 82vw, 1680px)) !important;
+  --device-height: min(92vh, clamp(680px, 88vh, 1040px)) !important;
+  --sidebar-fixed-width: clamp(66px, 4.8vw, 104px) !important;
+  --topbar-fixed-height: clamp(56px, 4.1vw, 78px) !important;
+  --rc-fluid-space: clamp(16px, 1.35vw, 30px) !important;
+  --rc-fluid-radius: clamp(18px, 1.25vw, 30px) !important;
+  --rc-fluid-title: clamp(22px, 1.8vw, 36px) !important;
+  --rc-fluid-text: clamp(13px, 0.95vw, 18px) !important;
+
+  width: var(--device-width) !important;
+  min-width: var(--device-width) !important;
+  max-width: var(--device-width) !important;
+  height: var(--device-height) !important;
+  min-height: var(--device-height) !important;
+  max-height: var(--device-height) !important;
+}
+
+.container.mobileRefined.iphonePremium .appFrame{
+  grid-template-columns: var(--sidebar-fixed-width) minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceSidebar{
+  width: var(--sidebar-fixed-width) !important;
+  min-width: var(--sidebar-fixed-width) !important;
+  max-width: var(--sidebar-fixed-width) !important;
+  padding: clamp(12px, 1vw, 22px) clamp(8px, 0.9vw, 16px) clamp(16px, 1.25vw, 24px) !important;
+  gap: clamp(16px, 1.25vw, 26px) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogo,
+.container.mobileRefined.iphonePremium .sidebarIconBtn{
+  width: clamp(42px, 3vw, 58px) !important;
+  min-width: clamp(42px, 3vw, 58px) !important;
+  height: clamp(42px, 3vw, 58px) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceLogoGlyph{
+  font-size: clamp(20px, 1.45vw, 28px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sidebarIcon,
+.container.mobileRefined.iphonePremium .sidebarIcon svg{
+  width: clamp(22px, 1.55vw, 28px) !important;
+  height: clamp(22px, 1.55vw, 28px) !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceMain{
+  grid-template-rows: var(--topbar-fixed-height) minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbar,
+.container.mobileRefined.iphonePremium .topbarInner,
+.container.mobileRefined.iphonePremium .topbarCompact{
+  height: var(--topbar-fixed-height) !important;
+  min-height: var(--topbar-fixed-height) !important;
+  max-height: var(--topbar-fixed-height) !important;
+}
+
+.container.mobileRefined.iphonePremium .topbarInner,
+.container.mobileRefined.iphonePremium .topbarCompact{
+  padding: clamp(12px, 1.1vw, 20px) clamp(16px, 1.4vw, 28px) clamp(10px, 0.95vw, 16px) clamp(16px, 1.4vw, 24px) !important;
+  gap: clamp(10px, 0.9vw, 16px) !important;
+}
+
+.container.mobileRefined.iphonePremium .topNav,
+.container.mobileRefined.iphonePremium .topNav.topNavShifted{
+  gap: clamp(12px, 0.95vw, 18px) !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtn{
+  min-height: clamp(36px, 2.9vw, 52px) !important;
+  padding: 0 0 8px !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavLabel{
+  font-size: clamp(15px, 1.05vw, 19px) !important;
+  font-weight: 850 !important;
+}
+
+.container.mobileRefined.iphonePremium .topNavBtnLegal{
+  min-width: max-content !important;
+}
+
+.container.mobileRefined.iphonePremium .serviceContent{
+  padding: clamp(18px, 1.45vw, 32px) !important;
+}
+
+.container.mobileRefined.iphonePremium .card,
+.container.mobileRefined.iphonePremium .caseCommandDeck,
+.container.mobileRefined.iphonePremium .side .card{
+  padding: clamp(18px, 1.4vw, 30px) !important;
+  border-radius: clamp(20px, 1.25vw, 30px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTitle .h2,
+.container.mobileRefined.iphonePremium .caseShellList .sectionTitle .h2,
+.container.mobileRefined.iphonePremium .caseShellList .caseTitleLeft .h2{
+  font-size: clamp(24px, 1.85vw, 38px) !important;
+}
+
+.container.mobileRefined.iphonePremium .title,
+.container.mobileRefined.iphonePremium .caseShellList .title,
+.container.mobileRefined.iphonePremium .paperPickTitle,
+.container.mobileRefined.iphonePremium .legalInfoTitle{
+  font-size: clamp(16px, 1.08vw, 21px) !important;
+}
+
+.container.mobileRefined.iphonePremium .muted,
+.container.mobileRefined.iphonePremium .meta,
+.container.mobileRefined.iphonePremium .detailNote,
+.container.mobileRefined.iphonePremium .paperPickMeta,
+.container.mobileRefined.iphonePremium .paperPickStat,
+.container.mobileRefined.iphonePremium .legalInfoDesc,
+.container.mobileRefined.iphonePremium .recMiniMetaLine,
+.container.mobileRefined.iphonePremium .recMiniHash{
+  font-size: clamp(13px, 0.95vw, 17px) !important;
+}
+
+.container.mobileRefined.iphonePremium .btn,
+.container.mobileRefined.iphonePremium .sectionTab,
+.container.mobileRefined.iphonePremium .countPill,
+.container.mobileRefined.iphonePremium .badgeAI,
+.container.mobileRefined.iphonePremium .tag,
+.container.mobileRefined.iphonePremium .chip,
+.container.mobileRefined.iphonePremium .stepMiniTime{
+  font-size: clamp(13px, 0.92vw, 16px) !important;
+}
+
+.container.mobileRefined.iphonePremium .btn{
+  min-height: clamp(42px, 3vw, 56px) !important;
+  padding-inline: clamp(14px, 1.05vw, 20px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTabs,
+.container.mobileRefined.iphonePremium .caseCommandDeck .sectionTabs{
+  gap: clamp(8px, 0.8vw, 12px) !important;
+  padding: clamp(4px, 0.45vw, 8px) !important;
+}
+
+.container.mobileRefined.iphonePremium .sectionTab,
+.container.mobileRefined.iphonePremium .caseCommandDeck .sectionTab{
+  height: clamp(38px, 3vw, 48px) !important;
+  padding: 0 clamp(12px, 1vw, 18px) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandDeck{
+  width: min(100%, clamp(860px, 90vw, 1460px)) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseShellList .caseWorkspace{
+  grid-template-columns: minmax(280px, 0.95fr) minmax(0, 1.35fr) !important;
+  gap: clamp(12px, 1vw, 18px) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .recordsListScroll,
+.container.mobileRefined.iphonePremium .paperPickList{
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-right: 6px;
+}
+
+.container.mobileRefined.iphonePremium .recordsListScroll{
+  max-height: min(70vh, calc(100vh - 220px)) !important;
+}
+
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .paperPickList{
+  max-height: min(72vh, calc(100vh - 210px)) !important;
+}
+
+.container.mobileRefined.iphonePremium .paperPickList{
+  display: grid !important;
+  gap: clamp(10px, 0.85vw, 16px) !important;
+}
+
+.container.mobileRefined.iphonePremium .paperPickItem{
+  padding: clamp(16px, 1.15vw, 22px) !important;
+}
+
+.container.mobileRefined.iphonePremium .legalHub{
+  width: min(100%, 1320px) !important;
+}
+
+@media (max-width: 980px){
+  .container.mobileRefined.iphonePremium{
+    --device-width: min(100vw, 460px) !important;
+    --device-height: min(100vh, 680px) !important;
+  }
+
+  .container.mobileRefined.iphonePremium .caseShellList .caseWorkspace{
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-18 final hotfix - fullscreen growth + reachable scroll without
+   breaking the original 390x640 nested-scroll behavior
+   ========================================================================== */
+
+@media (min-width: 1400px) and (min-height: 860px){
+  .container.mobileRefined.iphonePremium.fluidDesktopShell{
+    width: min(100vw, 1880px) !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 auto !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+  }
+
+  @supports not (height: 100dvh){
+    .container.mobileRefined.iphonePremium.fluidDesktopShell{
+      height: 100vh !important;
+      min-height: 100vh !important;
+      max-height: 100vh !important;
+    }
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell::before{
+    border-radius: 0 !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .appFrame{
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .serviceMain{
+    min-height: 0 !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .serviceContent{
+    min-height: 0 !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: clamp(18px, 1.5vw, 32px) !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSection,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsMain,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseBodyGrid,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseWorkspace,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseWorkspacePane,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandPanel,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .sideStack,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .legalMain,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .homeMain{
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSection{
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandPanelScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .stepMiniList,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell .paperPickList{
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-right: 6px !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll{
+    max-height: min(78dvh, calc(100dvh - 228px)) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandPanelScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell .paperPickList{
+    max-height: min(80dvh, calc(100dvh - 212px)) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseWorkspacePane,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseWorkspace,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseBodyGrid,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .sideStack{
+    overflow: visible !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .caseWorkspace{
+    grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.45fr) !important;
+    align-items: start !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .caseWorkspace.caseWorkspaceSingle{
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll .timeline,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll .list,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll .list,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell .paperPickList{
+    padding-bottom: clamp(32px, 3vw, 56px) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .card,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .side .card{
+    padding: clamp(20px, 1.55vw, 30px) !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-18 fullscreen clipping hotfix
+   - 전체화면/큰 데스크톱에서 shell이 충분히 커지도록 완화
+   - 내부 스크롤 끝에서 마지막 카드/타임라인이 하단 곡률에 가려지지 않도록
+     안전 여백 추가
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium .recordsListScroll,
+.container.mobileRefined.iphonePremium .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium .caseListScroll,
+.container.mobileRefined.iphonePremium .caseTimelineScroll,
+.container.mobileRefined.iphonePremium .stepMiniList,
+.container.mobileRefined.iphonePremium .paperPickList{
+  box-sizing: border-box !important;
+}
+
+.container.mobileRefined.iphonePremium .recordsListScroll .list,
+.container.mobileRefined.iphonePremium .caseListScroll .list,
+.container.mobileRefined.iphonePremium .caseTimelineScroll .timeline,
+.container.mobileRefined.iphonePremium .paperPickList{
+  padding-bottom: clamp(22px, 2.2vh, 38px) !important;
+}
+
+@media (min-width: 1180px) and (min-height: 700px){
+  .container.mobileRefined.iphonePremium.fluidDesktopShell{
+    width: min(calc(100vw - 20px), 1880px) !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: min(calc(100dvh - 20px), 1400px) !important;
+    min-height: min(calc(100dvh - 20px), 1400px) !important;
+    max-height: min(calc(100dvh - 20px), 1400px) !important;
+    margin: 10px auto !important;
+    border-radius: 28px !important;
+    overflow: hidden !important;
+  }
+
+  @supports not (height: 100dvh){
+    .container.mobileRefined.iphonePremium.fluidDesktopShell{
+      height: min(calc(100vh - 20px), 1400px) !important;
+      min-height: min(calc(100vh - 20px), 1400px) !important;
+      max-height: min(calc(100vh - 20px), 1400px) !important;
+    }
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell::before{
+    border-radius: 28px !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .serviceContent{
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: clamp(18px, 1.45vw, 32px) clamp(18px, 1.45vw, 32px) clamp(34px, 3vh, 56px) !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandPanelScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .stepMiniList,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickList{
+    padding-right: 8px !important;
+    padding-bottom: clamp(30px, 3.3vh, 56px) !important;
+    scroll-padding-bottom: clamp(30px, 3.3vh, 56px) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll .list,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll .list,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll .timeline,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickList{
+    padding-bottom: clamp(32px, 3.6vh, 64px) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll{
+    max-height: min(80vh, calc(100dvh - 198px)) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandPanelScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickList{
+    max-height: min(82vh, calc(100dvh - 186px)) !important;
+  }
+}
