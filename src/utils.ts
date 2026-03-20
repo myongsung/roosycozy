@@ -11,6 +11,7 @@ import type {
   StepItem,
   AdvisorItem,
   CaseItem,
+  RecordRisk,
 } from './engine';
 
 export const LS_KEY = 'roosycozy_state_v1';
@@ -943,8 +944,31 @@ export const verifyBackupEnvelope = async (raw: any): Promise<{ ok: boolean; sta
 
 export const defaultState = (): AppState => ({ v: 10, tab: 'records', selectedCaseId: null, records: [], cases: {} });
 
+
+const normRisk = (raw: any): RecordRisk | undefined => {
+  const r = obj(raw) ?? {};
+  const labelNum = Number(r.label);
+  const label = labelNum === 2 ? 2 : labelNum === 1 ? 1 : 0;
+  const probsRaw = Array.isArray(r.probs) ? r.probs : [];
+  const p0 = Number.isFinite(+probsRaw[0]) ? Math.max(0, Math.min(1, +probsRaw[0])) : 0;
+  const p1 = Number.isFinite(+probsRaw[1]) ? Math.max(0, Math.min(1, +probsRaw[1])) : 0;
+  const p2 = Number.isFinite(+probsRaw[2]) ? Math.max(0, Math.min(1, +probsRaw[2])) : 0;
+  const confidence = Number.isFinite(+r.confidence) ? Math.max(0, Math.min(1, +r.confidence)) : Math.max(p0, p1, p2);
+  const labelText = label === 2 ? '위험' : label === 1 ? '경고' : '평범';
+  return {
+    label: label as 0 | 1 | 2,
+    labelText,
+    probs: [p0, p1, p2],
+    confidence,
+    reasons: arr(r.reasons).map((x) => trim(x)).filter(Boolean).slice(0, 6),
+    modelVersion: trim(r.modelVersion) || 'unknown',
+    scoredAt: trim(r.scoredAt) || undefined,
+  } as RecordRisk;
+};
+
 const normRecord = (r: any): RecordV8 => {
   const o = obj(r) ?? {};
+  const risk = normRisk(o.risk);
   const base: RecordItem = {
     id: str(o.id, uid('REC')),
     ts: str(o.ts, nowISO()),
@@ -956,6 +980,7 @@ const normRecord = (r: any): RecordV8 => {
     place: (o.place ?? '기타') as PlaceType,
     placeOther: str(o.placeOther, ''),
     summary: str(o.summary, ''),
+    ...(risk ? { risk } : {}),
   };
   return ensureRecordV8({ ...base, integrity: o.integrity });
 };

@@ -1,5 +1,5 @@
 // src/engine.ts
-import { rustGenerateAdvisorsForCase, rustRankRecordsForCase } from './engine_rust';
+import { rustClassifyRecordsRisk, rustGenerateAdvisorsForCase, rustRankRecordsForCase } from './engine_rust';
 
 /* -------------------- Types -------------------- */
 
@@ -8,6 +8,18 @@ export type ActorType = '관리자' | '학부모' | '학생' | '동료교사' | 
 export type ActorRef = { type: ActorType; name: string };
 export type StoreType = string;
 export type PlaceType = string;
+
+export type ComplaintRiskLabel = 0 | 1 | 2;
+
+export type RecordRisk = {
+  label: ComplaintRiskLabel;
+  labelText: '평범' | '경고' | '위험';
+  probs: [number, number, number];
+  confidence: number;
+  reasons: string[];
+  modelVersion: string;
+  scoredAt?: string;
+};
 
 export type RecordItem = {
   id: string;
@@ -20,6 +32,7 @@ export type RecordItem = {
   place: PlaceType;
   placeOther: string;
   summary: string;
+  risk?: RecordRisk;
 };
 
 export type CaseSensFilter = 'any' | Sensitivity;
@@ -188,6 +201,15 @@ export async function rankRecordsForCase(
 
 export const regenerateCaseAdvisors = (c: CaseItem, records: RecordItem[]) =>
   rustGenerateAdvisorsForCase(records, c);
+
+export async function classifyRecordsRisk(records: RecordItem[]): Promise<RecordRisk[]> {
+  if (!Array.isArray(records) || !records.length) return [];
+  return rustClassifyRecordsRisk(records);
+}
+
+export function complaintRiskText(label: ComplaintRiskLabel): '평범' | '경고' | '위험' {
+  return label === 2 ? '위험' : label === 1 ? '경고' : '평범';
+}
 
 /* -------------------- builders -------------------- */
 

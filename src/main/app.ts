@@ -2,7 +2,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { save as saveDialog } from '@tauri-apps/plugin-dialog';
 import { uid, nowISO, toLocalInputValue, fromLocalInputValue, safeParseJSON, defaultState, normalizeState, loadState, saveState, wipeAll, STATUSES, ensureRecordV8, sealNewRecord, amendSignedRecord, verifyRecordIntegrity, buildSignedBackupEnvelope, verifyBackupEnvelope, reverifyStateRecords, refreshDeviceSignerInfo } from '../utils';
 import type { ActorRef, PlaceType, StoreType, Sensitivity, StepItem } from '../engine';
-import { OTHER, casesContainingRecord, addActorToList, buildRecordFromDraft, createCaseWithAdvisors, regenerateCaseAdvisors, buildCaseTimeline, getCaseUpdateCandidates, addRecordsToCase, recordsForCase } from '../engine';
+import { OTHER, casesContainingRecord, addActorToList, buildRecordFromDraft, createCaseWithAdvisors, regenerateCaseAdvisors, buildCaseTimeline, getCaseUpdateCandidates, addRecordsToCase, recordsForCase, classifyRecordsRisk } from '../engine';
 import { S, setState, ui, toast, runToastAction, log, openConfirm, closeConfirm, openRecordModal, closeRecordModal,  openCaseCreateModal, closeCaseCreateModal, openTimelineModal, closeTimelineModal, openPaperModal, closePaperModal, openPaperPickModal, closePaperPickModal, openCaseUpdateModal, closeCaseUpdateModal, draftRecord, draftRecordEdit, draftCase, draftStep, actorTypeTextFromInternal, actorTypeInternalFromText, getSelectedCase, logs, actorShort, LVS, PLACE_TYPES, STORE_TYPES, UI_OTHER_ACTOR_LABEL, loadRecordEditDraft, resetRecordEditDraft } from './state';
 import { ensurePaperStyles, buildPaperPayload, computeCasePaperHash } from './paper';
 import { render as renderView } from './views';
@@ -203,6 +203,77 @@ async function refreshUpdateCandidates(caseId: string) {
   }
 }
 
+
+const ACTIVE_RISK_MODEL_VERSION = 'risk-hash-logreg-syn3000-v1';
+
+function sameRisk(a: any, b: any) {
+  if (!a || !b) return false;
+  const aProb = Array.isArray(a.probs) ? a.probs.map((x: any) => Number(x).toFixed(4)).join('|') : '';
+  const bProb = Array.isArray(b.probs) ? b.probs.map((x: any) => Number(x).toFixed(4)).join('|') : '';
+  return (
+    Number(a.label) === Number(b.label) &&
+    String(a.labelText || '') === String(b.labelText || '') &&
+    Number(a.confidence || 0).toFixed(4) === Number(b.confidence || 0).toFixed(4) &&
+    aProb === bProb &&
+    String(a.modelVersion || '') === String(b.modelVersion || '')
+  );
+}
+
+async function classifyOneRecord(record: any) {
+  try {
+    const [pred] = await classifyRecordsRisk([ensureRecordV8(record) as any]);
+    if (!pred) return ensureRecordV8(record) as any;
+    return {
+      ...(ensureRecordV8(record) as any),
+      risk: {
+        ...pred,
+        scoredAt: nowISO(),
+      },
+    };
+  } catch (e) {
+    log('risk classify failed', e);
+    return ensureRecordV8(record) as any;
+  }
+}
+
+async function refreshRiskPredictionsOnState(force = true) {
+  const records = (S.records || []).map((r) => ensureRecordV8(r) as any);
+  if (!records.length) return false;
+
+  const targets = force
+    ? records
+    : records.filter((r) => !r?.risk || String(r.risk.modelVersion || '') !== ACTIVE_RISK_MODEL_VERSION);
+
+  if (!targets.length) return false;
+
+  try {
+    const preds = await classifyRecordsRisk(targets as any);
+    const byId = new Map<string, any>();
+    targets.forEach((r, i) => {
+      const pred = preds[i];
+      if (pred) {
+        byId.set(String(r.id), {
+          ...pred,
+          scoredAt: nowISO(),
+        });
+      }
+    });
+
+    let changed = false;
+    S.records = records.map((r) => {
+      const nextRisk = byId.get(String(r.id));
+      if (!nextRisk) return r;
+      if (!sameRisk((r as any).risk, nextRisk)) changed = true;
+      return { ...r, risk: nextRisk };
+    }) as any;
+    return changed;
+  } catch (e) {
+    log('risk refresh failed', e);
+    return false;
+  }
+}
+
+
 /* ---------- defaults (draft) ---------- */
 const DEFAULT_RECORD = () => ({
   intake: '상담', actorTypeText: '학생', actorType: '학생', actorNameChoice: OTHER, actorNameOther: '',
@@ -330,7 +401,8 @@ function bindEvents() {
       reason: String((draftRecord as any).sealReason || '').trim() || '초기 기록 봉인',
     });
 
-    S.records.unshift(sealed);
+    const sealedWithRisk = await classifyOneRecord(sealed);
+    S.records.unshift(sealedWithRisk as any);
     const sel = getSelectedCase();
     if (sel) S.cases[sel.id] = await addRecordsToCase(sel, S.records, [sealed.id]);
     await saveState(S);
@@ -390,8 +462,9 @@ function bindEvents() {
       reason: String((draftRecordEdit as any).sealReason || '').trim() || '기록 정정 및 재봉인',
     });
 
-    S.records[idx] = amended;
-    ui.viewRecordId = amended.id;
+    const amendedWithRisk = await classifyOneRecord(amended);
+    S.records[idx] = amendedWithRisk as any;
+    ui.viewRecordId = amendedWithRisk.id;
     ui.recordEditId = null;
     ui.recordModalTab = 'history';
     ui.recEditRelatedOpen = false;
@@ -406,7 +479,7 @@ function bindEvents() {
 
     const amendVerify = verifyRecordIntegrity(amended as any) as any;
     toast(`정정 봉인 완료 ✅ ${amendVerify.trusted ? '기기서명 확인' : '재봉인 저장됨'}`);
-    log('record amended', amended.id, amendVerify.verificationStatus);
+    log('record amended', amendedWithRisk.id, amendVerify.verificationStatus);
   };
 
   const click: Record<string, (btn: HTMLElement) => void | Promise<void>> = {
@@ -1091,6 +1164,8 @@ export function initApp() {
     try {
       await refreshDeviceSignerInfo();
       setState(await reverifyStateRecords(await loadState()));
+      const riskChanged = await refreshRiskPredictionsOnState(true);
+      if (riskChanged) await saveState(S);
       log('state loaded');
     }
     catch (e) { log('load failed', e); setState(defaultState()); }

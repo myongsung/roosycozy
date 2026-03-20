@@ -3350,8 +3350,17 @@ textarea.actionTa{
 .recMiniTrust{
   border:1px solid rgba(25,31,40,0.08);
 }
+.recMiniTrust.riskNormal{
+  border-color:#bfd8c5;
+}
+.recMiniTrust.riskWarn{
+  border-color:#e8ccb0;
+}
+.recMiniTrust.riskDanger{
+  border-color:#e4c1c1;
+}
 .recMiniTrust.amended{
-  border-color:rgba(17,24,39,0.22);
+  box-shadow: inset 0 0 0 1px rgba(17,24,39,0.10);
 }
 .recMiniTimes{
   display:flex;
@@ -9206,4 +9215,53 @@ dialog.recordComposerModal{
   .container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickList{
     max-height: min(82vh, calc(100dvh - 186px)) !important;
   }
+}
+
+
+/* ===== complaint risk ===== */
+.tag.riskNormal{
+  background: rgba(219,236,224,0.82);
+  color: #557863;
+  border-color: rgba(173,206,182,0.80);
+}
+.tag.riskWarn{
+  background: rgba(246,228,206,0.78);
+  color: #8b6b47;
+  border-color: rgba(223,191,152,0.72);
+}
+.tag.riskDanger{
+  background: rgba(244,214,214,0.72);
+  color: #8f5f5f;
+  border-color: rgba(217,164,164,0.70);
+}
+.riskBlock{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.riskHead{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+
+/* ===== evidence card risk border final override ===== */
+.recMini.recMiniTrust.riskNormal,
+.container.mobileRefined.iphonePremium .recMini.recMiniTrust.riskNormal{
+  border: 1.5px solid #bfd8c5 !important;
+  box-shadow: inset 0 0 0 1px rgba(191,216,197,0.34), 0 10px 28px rgba(15,23,42,0.035), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+}
+
+.recMini.recMiniTrust.riskWarn,
+.container.mobileRefined.iphonePremium .recMini.recMiniTrust.riskWarn{
+  border: 1.5px solid #e8ccb0 !important;
+  box-shadow: inset 0 0 0 1px rgba(232,204,176,0.36), 0 10px 28px rgba(15,23,42,0.035), 0 1px 0 rgba(255,255,255,0.98) inset !important;
+}
+
+.recMini.recMiniTrust.riskDanger,
+.container.mobileRefined.iphonePremium .recMini.recMiniTrust.riskDanger{
+  border: 1.5px solid #e4c1c1 !important;
+  box-shadow: inset 0 0 0 1px rgba(228,193,193,0.36), 0 10px 28px rgba(15,23,42,0.035), 0 1px 0 rgba(255,255,255,0.98) inset !important;
 }

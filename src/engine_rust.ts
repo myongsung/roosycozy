@@ -1,6 +1,6 @@
 // src/engine_rust.ts
 import { invoke } from '@tauri-apps/api/core';
-import type { CaseItem, RecordItem, AdvisorItem, RankedHit } from './engine';
+import type { CaseItem, RecordItem, AdvisorItem, RankedHit, RecordRisk } from './engine';
 
 export async function rustRankRecordsForCase(
   records: RecordItem[],
@@ -32,4 +32,10 @@ export async function rustGenerateAdvisorsForCase(
   caseItem: CaseItem
 ): Promise<AdvisorItem[]> {
   return invoke('engine_advise', { records, caseItem });
+}
+
+export async function rustClassifyRecordsRisk(
+  records: RecordItem[]
+): Promise<RecordRisk[]> {
+  return invoke('engine_classify_risk', { records });
 }

@@ -51,6 +51,60 @@ const H = {
     items.length ? `<div class="chips mini">${items.map((x) => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : '',
 };
 
+
+
+function riskToneClass(label: number) {
+  return label === 2 ? 'riskDanger' : label === 1 ? 'riskWarn' : 'riskNormal';
+}
+
+function riskInlineTagStyle(label: number) {
+  return label === 2
+    ? 'background:rgba(244,214,214,0.72);color:#8f5f5f;border-color:rgba(217,164,164,0.70);'
+    : label === 1
+      ? 'background:rgba(246,228,206,0.78);color:#8b6b47;border-color:rgba(223,191,152,0.72);'
+      : 'background:rgba(219,236,224,0.82);color:#557863;border-color:rgba(173,206,182,0.80);';
+}
+
+function riskInlineCardStyle(label: number) {
+  const color = label === 2 ? '#e4c1c1' : label === 1 ? '#e8ccb0' : '#bfd8c5';
+  return `border-color:${color};--risk-accent:${color};`;
+}
+
+function normalizeRisk(risk: any) {
+  if (!risk || typeof risk !== 'object') return null;
+  const label = Number(risk.label) === 2 ? 2 : Number(risk.label) === 1 ? 1 : 0;
+  const labelText = label === 2 ? '위험' : label === 1 ? '경고' : '평범';
+  const probs = Array.isArray(risk.probs) ? risk.probs : [0, 0, 0];
+  const confidence = Number.isFinite(+risk.confidence) ? Math.max(0, Math.min(1, +risk.confidence)) : Math.max(...probs.map((x: any) => Number(x) || 0));
+  const reasons = Array.isArray(risk.reasons) ? risk.reasons.map((x: any) => String(x || '').trim()).filter(Boolean).slice(0, 4) : [];
+  return { label, labelText, confidence, reasons };
+}
+
+function renderRiskTag(risk: any) {
+  const rr = normalizeRisk(risk);
+  if (!rr) return '';
+  return `<span class="tag ${riskToneClass(rr.label)}" style="${riskInlineTagStyle(rr.label)}">민원 ${esc(rr.labelText)}</span>`;
+}
+
+function renderRiskSummary(risk: any) {
+  const rr = normalizeRisk(risk);
+  if (!rr) return `<div class="muted">아직 분석되지 않았어요.</div>`;
+  const confidencePct = Math.round(rr.confidence * 100);
+  const reasonTags = rr.reasons.length
+    ? `<div class="tags mini" style="margin-top:8px">${rr.reasons.map((x) => `<span class="tag aiReason">${esc(String(x))}</span>`).join('')}</div>`
+    : '';
+  return `
+    <div class="riskBlock">
+      <div class="riskHead">
+        <span class="tag ${riskToneClass(rr.label)}" style="${riskInlineTagStyle(rr.label)}">민원 ${esc(rr.labelText)}</span>
+        <span class="muted">신뢰도 ${esc(String(confidencePct))}%</span>
+      </div>
+      ${reasonTags}
+    </div>
+  `;
+}
+
+
 const dl = (id: string, values: string[]) =>
   `<datalist id="${id}">${values.map((v) => `<option value="${esc(v)}"></option>`).join('')}</datalist>`;
 
@@ -893,7 +947,7 @@ function renderRecordModal() {
     <section class="recordHero">
       <div class="recordHeroTop">
         <div class="recordHeroTitle">${esc(r.summary || '')}</div>
-        <div class="recordHeroBadges">${integrityBadge}<span class="integrityCount">rev ${esc(String(getRecordRevisionCount(r as any)))}</span></div>
+        <div class="recordHeroBadges">${renderRiskTag((r as any).risk)}${integrityBadge}<span class="integrityCount">rev ${esc(String(getRecordRevisionCount(r as any)))}</span></div>
       </div>
       <div class="recordHeroMeta">
         <div class="recordHeroMetaItem"><span>사건시각</span><b>${esc(fmt(r.ts))}</b></div>
@@ -912,6 +966,7 @@ function renderRecordModal() {
         ${H.dr('정정 횟수', esc(String(Math.max(0, getRecordRevisionCount(r as any) - 1))))}
         ${H.ds('관련자', relatedHtml)}
         ${H.ds('현재 내용', `<div class="detailNote">${esc(r.summary || '')}</div>`)}
+        ${H.ds('AI 민원 위험도', renderRiskSummary((r as any).risk))}
       </div>
     </section>
   `;
@@ -987,9 +1042,12 @@ function renderRecordSidebar() {
     const amendCount = Math.max(0, revCount - 1);
     const lastSealedAt = String(r?.integrity?.lastSealedAt || r.ts || '');
     const integrity = verifyRecordIntegrity(r);
+    const rr = normalizeRisk((r as any).risk);
+    const riskLabel = rr?.label ?? 0;
     return `
-      <article class="recMini recMiniTrust ${amendCount ? 'amended' : ''}">
+      <article class="recMini recMiniTrust ${riskToneClass(riskLabel)} ${amendCount ? 'amended' : ''}" style="${riskInlineCardStyle(riskLabel)}">
         ${H.tags([
+          renderRiskTag((r as any).risk),
           H.tag(trunc(actorShort(r.actor), 18)),
           H.tag(placeLabel(r.place, r.placeOther)),
           `<span class="tag lilac">${esc(storeLabel(r.storeType, r.storeOther))}</span>`,
@@ -1645,6 +1703,7 @@ function renderCaseUpdateModal() {
             tags.push(`<span class="tag butter">#${rank ?? '?'} 점수 ${esc(score.toFixed(2))}</span>`);
             if (reasons) reasons.forEach((t: string) => tags.push(`<span class="tag aiReason">${esc(t)}</span>`));
           }
+          tags.push(renderRiskTag((record as any).risk));
           tags.push(H.tag(trunc(actorShort(record.actor), 18)));
           tags.push(H.tag(placeLabel(record.place, record.placeOther)));
 

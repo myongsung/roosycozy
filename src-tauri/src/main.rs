@@ -52,6 +52,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             commands::engine_rank,
             commands::engine_advise,
+            commands::engine_classify_risk,
             commands::get_device_signer_info,
             commands::sign_integrity_payload,
             commands::verify_integrity_payload,

@@ -1,6 +1,6 @@
 // src-tauri/src/commands.rs
 use crate::engine;
-use engine::{AdvisorItem, CaseItem, RankOpts, RankedHit, RecordItem};
+use engine::{AdvisorItem, CaseItem, RankOpts, RankedHit, RecordItem, RiskPrediction};
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -31,6 +31,10 @@ pub fn engine_advise(records: Vec<RecordItem>, case_item: CaseItem) -> Result<Ve
   Ok(engine::generate_advisors_for_case(&case_item, &records))
 }
 
+#[tauri::command]
+pub fn engine_classify_risk(records: Vec<RecordItem>) -> Result<Vec<RiskPrediction>, String> {
+  Ok(engine::classify_records_risk(&records))
+}
 
 
 fn bytes_to_hex(bytes: &[u8]) -> String {
