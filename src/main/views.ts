@@ -247,6 +247,50 @@ function renderUpdateNotesModal() {
   );
 }
 
+
+function renderTeacherAccountModal() {
+  return H.modal(
+    'teacherAccountModal',
+    H.modalHead('교사계정생성 안내', '후기 작성 후 계정 생성을 요청하시면 순서대로 도와드릴게요.', H.btn('닫기', 'close-teacher-account-modal', '', 'btn ghost')),
+    `
+      <div class="teacherAccountModalBody">
+        <div class="teacherAccountHero">
+          <div class="teacherAccountHeroBadge">교사 전용 계정</div>
+          <div class="teacherAccountHeroTitle">교사계정이 생성되면 4월에 추가될 법률상담서비스를 이용할 수 있어요.</div>
+          <div class="teacherAccountHeroDesc">아래 순서대로 진행해주시면 확인 후 교사계정을 생성해드립니다.</div>
+        </div>
+
+        <ol class="teacherAccountSteps">
+          <li class="teacherAccountStep">
+            <div class="teacherAccountStepNo">1</div>
+            <div class="teacherAccountStepBody">
+              <div class="teacherAccountStepTitle">교사계정 생성 혜택</div>
+              <div class="teacherAccountStepDesc">교사계정이 생성되면 4월에 추가될 법률상담서비스 이용 대상에 포함됩니다.</div>
+            </div>
+          </li>
+          <li class="teacherAccountStep">
+            <div class="teacherAccountStepNo">2</div>
+            <div class="teacherAccountStepBody">
+              <div class="teacherAccountStepTitle">사용후기 작성</div>
+              <div class="teacherAccountStepDesc">인디스쿨 커뮤니티 - 함께해요 - 도구 게시판에 사용후기 글을 작성해주세요.</div>
+            </div>
+          </li>
+          <li class="teacherAccountStep">
+            <div class="teacherAccountStepNo">3</div>
+            <div class="teacherAccountStepBody">
+              <div class="teacherAccountStepTitle">쪽지 보내기</div>
+              <div class="teacherAccountStepDesc"><b>[루지코지by노명성]</b>에게 쪽지로 생성하고 싶은 ID와 비밀번호를 보내주시면 계정을 생성해드립니다.</div>
+            </div>
+          </li>
+        </ol>
+
+        <div class="teacherAccountFootNote">후기 확인 후 순차적으로 교사계정이 생성됩니다.</div>
+      </div>
+    `,
+    'modal teacherAccountModal'
+  );
+}
+
 function renderHomeMain() {
   return `
     <section class="homeSectionStack" aria-label="홈">
@@ -655,6 +699,10 @@ export function render() {
                   </span>
                   <span class="topNavLabel">원스톱 법률자문</span>
                 </button>
+                <button class="topNavBtn topNavBtnTeacherCreate" data-action="open-teacher-account-modal" type="button" aria-haspopup="dialog" aria-label="교사계정생성 안내 열기">
+                  <span class="topNavIcon" aria-hidden="true">✦</span>
+                  <span class="topNavLabel">교사계정생성</span>
+                </button>
               </nav>
             </div>
           </header>
@@ -668,6 +716,7 @@ export function render() {
         ${renderScreenPinModal()}
         ${renderSettingsModal()}
         ${renderUpdateNotesModal()}
+        ${renderTeacherAccountModal()}
         ${renderLogsModal()}
         ${renderConfirmModal()}
         ${renderSignatureModal()}
@@ -691,7 +740,7 @@ export function render() {
 
   if (ui.settingsOpen) {
     const settingsDlg = document.getElementById('settingsModal') as HTMLDialogElement | null;
-    if (settingsDlg && !settingsDlg.open) settingsDlg.showModal();
+    if (settingsDlg && typeof settingsDlg.showModal === 'function' && !settingsDlg.open) settingsDlg.showModal();
   }
   installToastPortal();
   portalToast();
@@ -798,7 +847,7 @@ function renderSettingsModal() {
   const pinReady = hasScreenPin();
   return H.modal(
     'settingsModal',
-    H.modalHead('설정', '백업, 복구, 삭제와 화면 잠금 PIN을 여기에서 관리합니다.', H.btn('닫기', 'close-settings')),
+    H.modalHead('설정', '백업, 삭제와 화면 잠금 PIN을 여기에서 관리합니다.', H.btn('닫기', 'close-settings')),
     `
       <div class="settingsGrid">
         <button class="settingsAction" data-action="backup" type="button">
@@ -806,10 +855,12 @@ function renderSettingsModal() {
           <div class="muted">현재 데이터를 JSON 파일로 저장합니다.</div>
         </button>
 
+        <!--
         <button class="settingsAction" data-action="open-restore" type="button">
           <div class="settingsActionTitle">복구</div>
           <div class="muted">백업 파일로 현재 데이터를 덮어씁니다.</div>
         </button>
+        -->
 
         <button class="settingsAction danger" data-action="wipe" type="button">
           <div class="settingsActionTitle">삭제</div>
@@ -843,7 +894,7 @@ function renderSettingsModal() {
         </div>
       </div>
 
-      <div class="muted" style="margin-top:12px; font-size:12px">복구와 삭제는 되돌리기 전에 현재 데이터를 꼭 백업해 두는 편이 안전합니다.</div>
+      <div class="muted" style="margin-top:12px; font-size:12px">삭제 전에는 현재 데이터를 꼭 백업해 두는 편이 안전합니다.</div>
     `
   );
 }
@@ -1703,6 +1754,8 @@ function renderRecordComposerModal() {
 
 
 function renderStudentRosterModal() {
+  if (!ui.classRosterOpen) return '';
+
   const roster = Array.isArray(ui.classRosterDraft) && ui.classRosterDraft.length === CLASS_ROSTER_SIZE
     ? ui.classRosterDraft
     : getClassRoster();
@@ -1728,21 +1781,26 @@ function renderStudentRosterModal() {
       </div>
     `;
   }).join('');
-  const body = `
-    <div class="classRosterModalBody">
-      <div class="classRosterHero">
-        <div>
-          <div class="classRosterTitle">1번부터 40번까지 학생 이름을 등록하세요.</div>
-          <div class="muted">아무 칸에나 여러 줄 붙여넣기하면 아래로 자동 배치됩니다. 저장 후 증거기록/증거모으기의 <b>우리반</b> 항목에서 바로 선택할 수 있어요.</div>
+
+  return `
+    <div class="classRosterLayer" id="classRosterModal" role="presentation">
+      <section class="classRosterPanel" role="dialog" aria-modal="true" aria-labelledby="classRosterModalTitle">
+        ${H.modalHead('학생 명부 등록', '우리반 리스트를 한 번 등록해두면 기록 입력 때 바로 불러옵니다.', headActions).replace('<div class="h2">', '<div class="h2" id="classRosterModalTitle">')}
+        <div class="classRosterModalBody">
+          <div class="classRosterHero">
+            <div>
+              <div class="classRosterTitle">1번부터 40번까지 학생 이름을 등록하세요.</div>
+              <div class="muted">아무 칸에나 여러 줄 붙여넣기하면 아래로 자동 배치됩니다. 저장 후 증거기록/증거모으기의 <b>우리반</b> 항목에서 바로 선택할 수 있어요.</div>
+            </div>
+            <div class="classRosterCount"><span id="classRosterFilledCount">${esc(String(filled))}</span> / ${esc(String(CLASS_ROSTER_SIZE))}</div>
+          </div>
+          <div class="classRosterGrid" role="table" aria-label="학생 명부 등록표">
+            ${rows}
+          </div>
         </div>
-        <div class="classRosterCount"><span id="classRosterFilledCount">${esc(String(filled))}</span> / ${esc(String(CLASS_ROSTER_SIZE))}</div>
-      </div>
-      <div class="classRosterGrid" role="table" aria-label="학생 명부 등록표">
-        ${rows}
-      </div>
+      </section>
     </div>
   `;
-  return H.modal('classRosterModal', H.modalHead('학생 명부 등록', '우리반 리스트를 한 번 등록해두면 기록 입력 때 바로 불러옵니다.', headActions), body, 'modal classRosterModal');
 }
 
 /* ==================== CASES ==================== */

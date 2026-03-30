@@ -267,9 +267,10 @@ export const openConfirm = (message: string) => {
 export const closeConfirm = (ok: boolean) => { confirmResolver?.(ok); confirmResolver = null; const dlg = document.getElementById('confirmModal') as HTMLDialogElement | null; dlg?.open && dlg.close(); };
 
 /* dialogs */
-const dlg = (id: string) => document.getElementById(id) as HTMLDialogElement | null;
-const openDlg = (id: string) => { const d = dlg(id); d && !d.open && d.showModal(); };
-const closeDlg = (id: string) => { const d = dlg(id); d?.open && d.close(); };
+const dlg = (id: string) => document.getElementById(id) as (HTMLDialogElement | HTMLElement | null);
+const isDialogEl = (el: unknown): el is HTMLDialogElement => !!el && typeof (el as HTMLDialogElement).showModal === 'function' && typeof (el as HTMLDialogElement).close === 'function';
+const openDlg = (id: string) => { const d = dlg(id); if (isDialogEl(d) && !d.open) d.showModal(); };
+const closeDlg = (id: string) => { const d = dlg(id); if (isDialogEl(d) && d.open) d.close(); };
 
 export const openRecordModal = () => openDlg('recordModal');
 export const closeRecordModal = () => { ui.viewRecordId = null; ui.recordEditId = null; ui.recordModalTab = 'current'; ui.recEditRelatedOpen = false; closeDlg('recordModal'); };
@@ -278,7 +279,7 @@ export const openRecordsListModal = () => {
   // 현재 UI에서는 우측 목록이 항상 보일 수 있어요.
   // 1) dialog가 있으면 열고, 2) 없으면 목록/필터로 스크롤 + 포커스만 이동.
   const d = dlg('recordsListModal');
-  if (d) {
+  if (isDialogEl(d)) {
     ui.recordsListOpen = true;
     if (!d.open) d.showModal();
     return;
@@ -294,7 +295,7 @@ export const closeRecordsListModal = () => {
 };
 
 export const openCaseCreateModal = () => {
-  const d = dlg('caseCreateModal'); if (!d) return;
+  const d = dlg('caseCreateModal'); if (!isDialogEl(d)) return;
   const any = d as any;
   if (!any.__wired) { any.__wired = true; d.addEventListener('close', () => (ui.caseCreateOpen = false)); }
   !d.open && d.showModal();
@@ -309,7 +310,7 @@ export const closePaperModal = () => { ui.paperCaseId = null; ui.paperHash = nul
 
 export const openPaperPickModal = () => {
   ui.paperPickOpen = true;
-  const d = dlg('paperPickModal'); if (!d) return;
+  const d = dlg('paperPickModal'); if (!isDialogEl(d)) return;
   const any = d as any;
   if (!any.__wired) { any.__wired = true; d.addEventListener('close', () => (ui.paperPickOpen = false)); }
   !d.open && d.showModal();

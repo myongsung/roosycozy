@@ -9270,11 +9270,67 @@ dialog.recordComposerModal{
 /* ========================================================================== 
    2026-03-21 학생 명부 등록 모달
    ========================================================================== */
+.classRosterLayer{
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  background: rgba(15, 23, 42, 0.26);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.classRosterPanel{
+  width: min(calc(100vw - 28px), 560px);
+  max-width: 560px;
+  max-height: min(calc(100dvh - 28px), 860px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.24);
+}
+
+.classRosterPanel .modalHead{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.94);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.classRosterModalBody{
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 14px;
+  overflow: auto;
+  background: linear-gradient(180deg, #f7f8fb 0%, #ffffff 100%);
+}
+
+@media (max-width: 640px){
+  .classRosterLayer{
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .classRosterPanel{
+    width: min(calc(100vw - 20px), 560px);
+    max-height: min(calc(100dvh - 20px), 860px);
+    border-radius: 22px;
+  }
+}
+
 .container.mobileRefined.iphonePremium .serviceSidebarBottom{
   gap: 10px;
 }
 
-dialog.modal.classRosterModal{
+dialog.modal.classRosterModal.__legacy_unused__{
   width: min(calc(100vw - 28px), 560px);
   max-width: 560px;
   max-height: min(calc(100dvh - 28px), 860px);
@@ -9284,14 +9340,16 @@ dialog.modal.classRosterModal{
   overflow: hidden;
   background: #ffffff;
   box-shadow: 0 28px 60px rgba(15, 23, 42, 0.24);
+  display: flex;
+  flex-direction: column;
 }
 
-dialog.modal.classRosterModal::backdrop{
+dialog.modal.classRosterModal.__legacy_unused__::backdrop{
   background: rgba(15, 23, 42, 0.26);
   backdrop-filter: blur(10px);
 }
 
-.classRosterModal .modalHead{
+.classRosterModal.__legacy_unused__ .modalHead{
   position: sticky;
   top: 0;
   z-index: 2;
@@ -9303,8 +9361,12 @@ dialog.modal.classRosterModal::backdrop{
 
 .classRosterModalBody{
   padding: 14px;
-  max-height: calc(860px - 88px);
-  overflow: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: linear-gradient(180deg, #f7f8fb 0%, #ffffff 100%);
 }
 
@@ -9345,6 +9407,7 @@ dialog.modal.classRosterModal::backdrop{
 .classRosterGrid{
   display: grid;
   gap: 8px;
+  padding-bottom: 18px;
 }
 
 .classRosterRow{
@@ -9387,7 +9450,7 @@ dialog.modal.classRosterModal::backdrop{
 }
 
 @media (max-width: 640px){
-  dialog.modal.classRosterModal{
+  dialog.modal.classRosterModal.__legacy_unused__{
     width: calc(100vw - 18px);
     max-height: calc(100dvh - 18px);
     border-radius: 22px;
@@ -12877,5 +12940,156 @@ body{
     width:32px;
     height:32px;
     border-radius:10px;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-30 교사계정생성 버튼 + 안내 모달
+   ========================================================================== */
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtnTeacherCreate,
+.container.mobileRefined.iphonePremium .topNavBtnTeacherCreate,
+.topNavBtnTeacherCreate{
+  background: linear-gradient(180deg, #ff6fa8 0%, #ff4f95 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,79,149,0.92) !important;
+  box-shadow: 0 10px 22px rgba(255,79,149,0.24) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtnTeacherCreate:hover,
+.container.mobileRefined.iphonePremium .topNavBtnTeacherCreate:hover,
+.topNavBtnTeacherCreate:hover,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtnTeacherCreate:focus-visible,
+.container.mobileRefined.iphonePremium .topNavBtnTeacherCreate:focus-visible,
+.topNavBtnTeacherCreate:focus-visible{
+  background: linear-gradient(180deg, #ff7bb0 0%, #ff5a9c 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(255,79,149,0.96) !important;
+  box-shadow: 0 12px 26px rgba(255,79,149,0.28) !important;
+  transform: translateY(-1px);
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtnTeacherCreate .topNavIcon,
+.container.mobileRefined.iphonePremium .topNavBtnTeacherCreate .topNavIcon,
+.topNavBtnTeacherCreate .topNavIcon,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtnTeacherCreate .topNavLabel,
+.container.mobileRefined.iphonePremium .topNavBtnTeacherCreate .topNavLabel,
+.topNavBtnTeacherCreate .topNavLabel{
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.teacherAccountModal{
+  max-width: 560px;
+}
+
+.teacherAccountModalBody{
+  display: grid;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.teacherAccountHero{
+  padding: 16px 16px 14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,111,168,0.12) 0%, rgba(255,79,149,0.06) 100%);
+  border: 1px solid rgba(255,79,149,0.18);
+}
+
+.teacherAccountHeroBadge{
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255,79,149,0.14);
+  color: #d63384;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.teacherAccountHeroTitle{
+  margin-top: 10px;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 950;
+  color: #202632;
+}
+
+.teacherAccountHeroDesc{
+  margin-top: 8px;
+  color: var(--grey-600);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.teacherAccountSteps{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.teacherAccountStep{
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(25,31,40,0.08);
+}
+
+.teacherAccountStepNo{
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,79,149,0.12);
+  color: #d63384;
+  font-weight: 950;
+}
+
+.teacherAccountStepTitle{
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--grey-900);
+}
+
+.teacherAccountStepDesc{
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--grey-700);
+}
+
+.teacherAccountFootNote{
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--grey-500);
+}
+
+@media (max-width: 720px){
+  .teacherAccountModal{
+    width: min(calc(100vw - 18px), 560px);
+  }
+
+  .teacherAccountHeroTitle{
+    font-size: 16px;
+  }
+
+  .teacherAccountStep{
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .teacherAccountStepNo{
+    width: 32px;
+    height: 32px;
   }
 }

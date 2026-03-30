@@ -8,14 +8,16 @@ import { ensurePaperStyles, buildPaperPayload, computeCasePaperHash } from './pa
 import { render as renderView } from './views';
 
 /* ---------- micro helpers ---------- */
-const dlg = (id: string) => document.getElementById(id) as HTMLDialogElement | null;
-const closeDlg = (id: string) => { const d = dlg(id); if (d?.open) d.close(); };
-const openDlg = (id: string) => dlg(id)?.showModal();
+const dlg = (id: string) => document.getElementById(id) as (HTMLDialogElement | HTMLElement | null);
+const isDialogEl = (el: unknown): el is HTMLDialogElement => !!el && typeof (el as HTMLDialogElement).showModal === 'function' && typeof (el as HTMLDialogElement).close === 'function';
+const closeDlg = (id: string) => { const d = dlg(id); if (isDialogEl(d) && d.open) d.close(); };
+const openDlg = (id: string) => { const d = dlg(id); if (isDialogEl(d) && !d.open) d.showModal(); };
 const setText = (id: string, text: string) => { const el = document.getElementById(id); if (el) el.textContent = text; };
 
 const SIGNATURE_MODAL_ID = 'signatureModal';
 const SIGN_SUCCESS_MODAL_ID = 'signSuccessModal';
 const SCREEN_PIN_MODAL_ID = 'screenPinModal';
+const TEACHER_ACCOUNT_MODAL_ID = 'teacherAccountModal';
 
 const resetScreenPinModalDraft = () => {
   ui.pinEntryDraft = '';
@@ -61,6 +63,7 @@ const syncDialogs = () => {
   if (ui.settingsOpen) openDlg('settingsModal');
   if (ui.updatesNoteOpen) openDlg('updateNotesModal');
   if (ui.classRosterOpen) openDlg('classRosterModal');
+  if ((ui as any).teacherAccountOpen) openDlg(TEACHER_ACCOUNT_MODAL_ID);
   if (ui.signatureModalMode) openDlg(SIGNATURE_MODAL_ID);
   if (ui.pinModalOpen) openDlg(SCREEN_PIN_MODAL_ID);
 };
@@ -771,6 +774,8 @@ function bindEvents() {
     'close-settings': () => (ui.settingsOpen = false, resetScreenPinSettingsDraft(), closeDlg('settingsModal'), log('settings modal close')),
     'open-updates-note': () => (ui.updatesNoteOpen = true, render(), log('updates note modal open')),
     'close-updates-note': () => (ui.updatesNoteOpen = false, closeDlg('updateNotesModal'), render(), log('updates note modal close')),
+    'open-teacher-account-modal': () => ((ui as any).teacherAccountOpen = true, render(), log('teacher account modal open')),
+    'close-teacher-account-modal': () => ((ui as any).teacherAccountOpen = false, closeDlg(TEACHER_ACCOUNT_MODAL_ID), render(), log('teacher account modal close')),
     'open-screen-lock': () => {
       resetScreenPinModalDraft();
       if (!hasScreenPin()) {
@@ -1547,6 +1552,7 @@ function bindEvents() {
     if ((t as any).id === 'caseUpdateModal') (ui.updateCaseId = null, ui.updatePickIds = [], ui.updFilterActor = ui.updFilterPlace = ui.updFilterKeyword = '', ui.updFilterActorDraft = ui.updFilterPlaceDraft = ui.updFilterKeywordDraft = '', ui.updateCandidatesForCaseId = null, ui.updateCandidates = null, ui.updateCandidatesLoading = false);
     if ((t as any).id === 'settingsModal') { ui.settingsOpen = false; resetScreenPinSettingsDraft(); }
     if ((t as any).id === 'updateNotesModal') ui.updatesNoteOpen = false;
+    if ((t as any).id === TEACHER_ACCOUNT_MODAL_ID) (ui as any).teacherAccountOpen = false;
     if ((t as any).id === 'classRosterModal') { ui.classRosterOpen = false; ui.classRosterDraft = getClassRoster().slice(); }
     if ((t as any).id === SIGNATURE_MODAL_ID) ui.signatureModalMode = null;
     if ((t as any).id === SCREEN_PIN_MODAL_ID) {
@@ -1593,21 +1599,22 @@ function bindEvents() {
     }
 
     if (e.key === 'Escape') {
-      const c = dlg('confirmModal'); if (c?.open) return void (e.preventDefault(), closeConfirm(false));
-      const sg = dlg(SIGNATURE_MODAL_ID); if (sg?.open) return void (e.preventDefault(), closeSignatureModal());
-      const ss = dlg(SIGN_SUCCESS_MODAL_ID); if (ss?.open) return void (e.preventDefault(), closeDlg(SIGN_SUCCESS_MODAL_ID));
-      const sm = dlg('savedModal'); if (sm?.open) return void (e.preventDefault(), closeDlg('savedModal'));
-      const cm = dlg('caseCreatedModal'); if (cm?.open) return void (e.preventDefault(), closeDlg('caseCreatedModal'));
-      const pin = dlg(SCREEN_PIN_MODAL_ID); if (pin?.open && ui.pinLocked) return void (e.preventDefault());
-      if (pin?.open) return void (e.preventDefault(), ui.pinModalOpen = false, resetScreenPinModalDraft(), closeDlg(SCREEN_PIN_MODAL_ID), render());
+      const c = dlg('confirmModal'); if (isDialogEl(c) && c.open) return void (e.preventDefault(), closeConfirm(false));
+      const sg = dlg(SIGNATURE_MODAL_ID); if (isDialogEl(sg) && sg.open) return void (e.preventDefault(), closeSignatureModal());
+      const ss = dlg(SIGN_SUCCESS_MODAL_ID); if (isDialogEl(ss) && ss.open) return void (e.preventDefault(), closeDlg(SIGN_SUCCESS_MODAL_ID));
+      const sm = dlg('savedModal'); if (isDialogEl(sm) && sm.open) return void (e.preventDefault(), closeDlg('savedModal'));
+      const cm = dlg('caseCreatedModal'); if (isDialogEl(cm) && cm.open) return void (e.preventDefault(), closeDlg('caseCreatedModal'));
+      const pin = dlg(SCREEN_PIN_MODAL_ID); if (isDialogEl(pin) && pin.open && ui.pinLocked) return void (e.preventDefault());
+      if (isDialogEl(pin) && pin.open) return void (e.preventDefault(), ui.pinModalOpen = false, resetScreenPinModalDraft(), closeDlg(SCREEN_PIN_MODAL_ID), render());
       closeDlg('restoreModal'); closeDlg('logsModal');
-      const st = dlg('settingsModal'); if (st?.open) return void (e.preventDefault(), ui.settingsOpen = false, closeDlg('settingsModal'));
-      const un = dlg('updateNotesModal'); if (un?.open) return void (e.preventDefault(), ui.updatesNoteOpen = false, closeDlg('updateNotesModal'), render());
-      const roster = dlg('classRosterModal'); if (roster?.open) return void (e.preventDefault(), ui.classRosterOpen = false, ui.classRosterDraft = getClassRoster().slice(), closeDlg('classRosterModal'), render());
-      const composer = dlg('recordComposerModal'); if (composer?.open) return void (e.preventDefault(), ui.recordComposerOpen = false, closeDlg('recordComposerModal'), render());
-      const rec = dlg('recordModal'); if (rec?.open) return void (e.preventDefault(), closeRecordModal(), render());
-      const tl = dlg('timelineDetailModal'); if (tl?.open) return void (e.preventDefault(), closeTimelineModal(), render());
-      const cu = dlg('caseUpdateModal'); if (cu?.open) return void (e.preventDefault(), closeCaseUpdateModal(), render());
+      const st = dlg('settingsModal'); if (isDialogEl(st) && st.open) return void (e.preventDefault(), ui.settingsOpen = false, closeDlg('settingsModal'));
+      const un = dlg('updateNotesModal'); if (isDialogEl(un) && un.open) return void (e.preventDefault(), ui.updatesNoteOpen = false, closeDlg('updateNotesModal'), render());
+      const teacher = dlg(TEACHER_ACCOUNT_MODAL_ID); if (isDialogEl(teacher) && teacher.open) return void (e.preventDefault(), (ui as any).teacherAccountOpen = false, closeDlg(TEACHER_ACCOUNT_MODAL_ID), render());
+      const roster = dlg('classRosterModal'); if (ui.classRosterOpen || (isDialogEl(roster) && roster.open)) return void (e.preventDefault(), ui.classRosterOpen = false, ui.classRosterDraft = getClassRoster().slice(), closeDlg('classRosterModal'), render());
+      const composer = dlg('recordComposerModal'); if (isDialogEl(composer) && composer.open) return void (e.preventDefault(), ui.recordComposerOpen = false, closeDlg('recordComposerModal'), render());
+      const rec = dlg('recordModal'); if (isDialogEl(rec) && rec.open) return void (e.preventDefault(), closeRecordModal(), render());
+      const tl = dlg('timelineDetailModal'); if (isDialogEl(tl) && tl.open) return void (e.preventDefault(), closeTimelineModal(), render());
+      const cu = dlg('caseUpdateModal'); if (isDialogEl(cu) && cu.open) return void (e.preventDefault(), closeCaseUpdateModal(), render());
     }
   });
 }
