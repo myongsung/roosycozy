@@ -9,6 +9,15 @@ export type ActorRef = { type: ActorType; name: string };
 export type StoreType = string;
 export type PlaceType = string;
 
+export type RecordSummaryParts = {
+  overview?: string;
+  background?: string;
+  issues?: string;
+  evidenceList?: string;
+  teacherActions?: string;
+  other?: string;
+};
+
 export type ComplaintRiskLabel = 0 | 1 | 2;
 
 export type RecordRisk = {
@@ -28,10 +37,12 @@ export type RecordItem = {
   storeOther: string;
   lv: Sensitivity;
   actor: ActorRef;
+  actors?: ActorRef[];
   related: ActorRef[];
   place: PlaceType;
   placeOther: string;
   summary: string;
+  summaryParts?: RecordSummaryParts;
   risk?: RecordRisk;
 };
 
@@ -73,6 +84,7 @@ export type RankedComponents = {
 
   actorScore: number;
   actorMatch: boolean;
+  actorHits?: number;
   isMainActor: boolean;
 
   relatedScore: number;
@@ -149,8 +161,25 @@ export function resolveName(choice: string, other: string) {
   return !c || c === OTHER ? String(other || '').trim() : c;
 }
 
+export function recordMainActors(r: RecordItem) {
+  const mains = (Array.isArray((r as any)?.actors) && (r as any).actors.length
+    ? (r as any).actors
+    : [r.actor]) as ActorRef[];
+
+  const arr = mains
+    .map((a) => ({
+      type: (a?.type ?? '외부인') as ActorType,
+      name: String(a?.name ?? '').trim(),
+    }))
+    .filter((a) => a.name);
+
+  const out: ActorRef[] = [];
+  for (const a of arr) if (!out.some((x) => actorEq(x, a))) out.push(a);
+  return out.length ? out : [{ type: (r.actor?.type ?? '외부인') as ActorType, name: String(r.actor?.name ?? '').trim() }].filter((a) => a.name);
+}
+
 export function recordActors(r: RecordItem) {
-  const arr = [r.actor, ...(Array.isArray(r.related) ? r.related : [])]
+  const arr = [...recordMainActors(r), ...(Array.isArray(r.related) ? r.related : [])]
     .map((a) => ({
       type: (a?.type ?? '외부인') as ActorType,
       name: String(a?.name ?? '').trim(),
@@ -176,7 +205,7 @@ export async function rankRecordsForCase(
 ): Promise<RankedHit[]> {
   // Rust에서 전체 데이터(reasons, components 포함)를 받아옴
   const main = (c as any).onlyMainActor ? ((c.actors || [])[0] ?? null) : null;
-  const scoped = main ? records.filter((r) => actorEq(r.actor, main)) : records;
+  const scoped = main ? records.filter((r) => recordMainActors(r).some((a) => actorEq(a, main))) : records;
   const hits: any[] = await rustRankRecordsForCase(scoped, c, opts);
 
   const map = new Map(scoped.map((r) => [r.id, r]));
@@ -218,21 +247,39 @@ export type RecordDraftInput = {
   storeType: StoreType;
   storeOther: string;
   lv: Sensitivity;
-  actorType: ActorType;
-  actorNameChoice: string;
-  actorNameOther: string;
+  actorType?: ActorType;
+  actorNameChoice?: string;
+  actorNameOther?: string;
+  actors?: ActorRef[];
   related: ActorRef[];
   place: PlaceType;
   placeOther: string;
   summary: string;
+  summaryParts?: RecordSummaryParts;
 };
 
 export function buildRecordFromDraft(d: RecordDraftInput, makeId: () => string) {
   const summary = String(d.summary || '').trim();
   if (!summary) return { error: '내용을 입력하세요' } as const;
 
-  const actorName = resolveName(d.actorNameChoice, d.actorNameOther);
-  if (!actorName) return { error: '주체 이름을 입력하세요' } as const;
+  const actorList = (Array.isArray(d.actors) ? d.actors : [])
+    .map((a) => ({
+      type: (a?.type ?? '외부인') as ActorType,
+      name: String(a?.name ?? '').trim(),
+    }))
+    .filter((a) => a.name)
+    .reduce((acc, a) => addActorToList(acc, a), [] as ActorRef[]);
+
+  const actorName = resolveName(String(d.actorNameChoice || ''), String(d.actorNameOther || ''));
+  if (actorName) {
+    actorList.splice(0, actorList.length, ...addActorToList(actorList, {
+      type: (d.actorType ?? '외부인') as ActorType,
+      name: actorName.trim(),
+    }));
+  }
+
+  const main = actorList[0];
+  if (!main) return { error: '주체 이름을 입력하세요' } as const;
 
   if (d.storeType === '기타' && !String(d.storeOther || '').trim())
     return { error: '보관형태 상세(기타)를 입력하세요' } as const;
@@ -240,15 +287,23 @@ export function buildRecordFromDraft(d: RecordDraftInput, makeId: () => string) 
   if (d.place === '기타' && !String(d.placeOther || '').trim())
     return { error: '장소 상세(기타)를 입력하세요' } as const;
 
-  const main: ActorRef = { type: d.actorType, name: actorName.trim() };
-
   const related = (Array.isArray(d.related) ? d.related : [])
     .map((a) => ({
       type: (a?.type ?? '외부인') as ActorType,
       name: String(a?.name ?? '').trim(),
     }))
-    .filter((a) => a.name && !actorEq(a, main))
+    .filter((a) => a.name && !actorList.some((mainActor) => actorEq(a, mainActor)))
     .reduce((acc, a) => addActorToList(acc, a), [] as ActorRef[]);
+
+  const rawParts = (d.summaryParts && typeof d.summaryParts === 'object') ? d.summaryParts : {};
+  const summaryParts: RecordSummaryParts = {
+    overview: String(rawParts.overview || '').trim(),
+    background: String(rawParts.background || '').trim(),
+    issues: String(rawParts.issues || '').trim(),
+    evidenceList: String(rawParts.evidenceList || '').trim(),
+    teacherActions: String(rawParts.teacherActions || '').trim(),
+    other: String(rawParts.other || '').trim(),
+  };
 
   return {
     record: {
@@ -258,10 +313,12 @@ export function buildRecordFromDraft(d: RecordDraftInput, makeId: () => string) 
       storeOther: d.storeType === '기타' ? String(d.storeOther || '').trim() : '',
       lv: d.lv,
       actor: main,
+      actors: actorList,
       related,
       place: d.place,
       placeOther: d.place === '기타' ? String(d.placeOther || '').trim() : '',
       summary,
+      summaryParts,
     },
   } as const;
 }

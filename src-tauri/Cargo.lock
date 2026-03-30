@@ -3288,7 +3288,7 @@ dependencies = [
 
 [[package]]
 name = "roosycozy"
-version = "1.0.44"
+version = "1.0.45"
 dependencies = [
  "base64 0.22.1",
  "chrono",

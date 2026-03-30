@@ -142,6 +142,42 @@ fn text_similarity_stats(q_tokens: &[String], summary: &str) -> (usize, usize, f
   (hit, total, ratio)
 }
 
+
+fn record_main_actor_names(r: &RecordItem) -> Vec<String> {
+  let mut out = Vec::<String>::new();
+  let mut seen = HashSet::<String>::new();
+
+  for a in &r.actors {
+    let n = norm(&a.name);
+    if !n.is_empty() && seen.insert(n.clone()) {
+      out.push(n);
+    }
+  }
+
+  let fallback = norm(&r.actor.name);
+  if !fallback.is_empty() && seen.insert(fallback.clone()) {
+    out.push(fallback);
+  }
+
+  out
+}
+
+fn has_actor_type(r: &RecordItem, actor_type: &str) -> bool {
+  let target = actor_type.trim();
+  if !target.is_empty() {
+    if r.actor.r#type.trim() == target {
+      return true;
+    }
+    for a in &r.actors {
+      if a.r#type.trim() == target {
+        return true;
+      }
+    }
+  }
+  false
+}
+
+
 /* -------------------- shared types (proto) -------------------- */
 
 pub type Sensitivity = String;
@@ -167,6 +203,8 @@ pub struct RecordItem {
   pub store_other: String,
   pub lv: Sensitivity,
   pub actor: ActorRef,
+  #[serde(default)]
+  pub actors: Vec<ActorRef>,
   #[serde(default)]
   pub related: Vec<ActorRef>,
   pub place: PlaceType,
@@ -232,6 +270,8 @@ pub struct RankedComponents {
 
   pub actor_score: f32,
   pub actor_match: bool,
+  #[serde(default)]
+  pub actor_hits: u32,
   pub is_main_actor: bool,
 
   pub related_score: f32,
@@ -324,25 +364,35 @@ pub fn rank_records_for_case(
       continue;
     }
 
-    let r_actor_name = norm(&r.actor.name);
-    let actor_match_any = !r_actor_name.is_empty() && case_actor_names.contains(&r_actor_name);
+    let r_actor_names = record_main_actor_names(r);
+    let actor_hits = r_actor_names
+      .iter()
+      .filter(|name| case_actor_names.contains(*name))
+      .count();
+    let actor_match_any = actor_hits > 0;
 
     let is_main_actor = main_actor_name
       .as_ref()
-      .map(|m| &r_actor_name == m)
+      .map(|m| r_actor_names.iter().any(|name| name == m))
       .unwrap_or(false);
 
+    let main_actor_name_set: HashSet<String> = r_actor_names.iter().cloned().collect();
     let mut related_hits = 0usize;
     for ra in &r.related {
       let rn = norm(&ra.name);
-      if !rn.is_empty() && case_actor_names.contains(&rn) {
+      if !rn.is_empty() && !main_actor_name_set.contains(&rn) && case_actor_names.contains(&rn) {
         related_hits += 1;
       }
     }
 
     let (q_hit, q_total, sim) = text_similarity_stats(&q_tokens, &r.summary);
 
-    let actor_score = if actor_match_any { w_actor } else { 0.0 };
+    let actor_bonus = if actor_hits > 1 {
+      (((actor_hits - 1) as f32) * (w_actor * 0.35)).min(w_actor * 0.75)
+    } else {
+      0.0
+    };
+    let actor_score = if actor_match_any { w_actor + actor_bonus } else { 0.0 };
     let related_score = (related_hits as f32) * w_related;
     let keyword_score = sim * w_text;
     let score: f32 = actor_score + related_score + keyword_score;
@@ -350,9 +400,10 @@ pub fn rank_records_for_case(
     let mut reasons: Vec<String> = Vec::new();
     reasons.push("자동(랭킹)".into());
     if is_main_actor {
-      reasons.push("주요 당사자(기본 포함)".into());
-    } else if actor_match_any {
-      reasons.push("당사자 일치".into());
+      reasons.push("주요 당사자 포함".into());
+    }
+    if actor_hits > 0 {
+      reasons.push(format!("주체 일치 {}명", actor_hits));
     }
     if related_hits > 0 {
       reasons.push(format!("관련자 일치 {}명", related_hits));
@@ -372,6 +423,7 @@ pub fn rank_records_for_case(
 
       actor_score,
       actor_match: actor_match_any,
+      actor_hits: actor_hits as u32,
       is_main_actor,
 
       related_score,
@@ -534,6 +586,12 @@ fn risk_feature_counts(r: &RecordItem) -> HashMap<usize, f32> {
   };
 
   add_feature(&mut feats, &format!("actor={}", r.actor.r#type.trim()));
+  for a in &r.actors {
+    let actor_type = a.r#type.trim();
+    if !actor_type.is_empty() {
+      add_feature(&mut feats, &format!("actor={}", actor_type));
+    }
+  }
   add_feature(&mut feats, &format!("place={}", r.place.trim()));
   add_feature(&mut feats, &format!("store={}", r.store_type.trim()));
   add_feature(&mut feats, &format!("lv={}", r.lv.trim()));
@@ -630,7 +688,7 @@ fn collect_risk_reasons(r: &RecordItem, label: usize, confidence: f32) -> Vec<St
     }
   }
 
-  if label >= 1 && r.actor.r#type.trim() == "학부모" {
+  if label >= 1 && has_actor_type(r, "학부모") {
     push_reason(&mut out, "학부모 직접 민원 반응");
   }
 

@@ -60,6 +60,7 @@ export type RecordRevisionV8 = {
   signerFingerprint?: string;
   signerPublicKey?: string;
   actorSnapshot: ActorRef;
+  actorsSnapshot?: ActorRef[];
   relatedSnapshot: ActorRef[];
   placeSnapshot: PlaceType;
   placeOtherSnapshot: string;
@@ -93,10 +94,11 @@ export type RecordV8 = RecordItem & { integrity?: RecordIntegrityV8 };
 
 export type AppState = {
   v: 10;
-  tab: 'records' | 'cases';
+  tab: 'home' | 'records' | 'cases' | 'legal';
   selectedCaseId: string | null;
   records: RecordV8[];
   cases: Record<string, CaseItem>;
+  classRoster: string[];
 };
 
 export type DeviceSignerInfo = {
@@ -325,6 +327,18 @@ const actorRel = (a: any): ActorRef | null => {
   const a2 = actorMain(a);
   return a2.name ? a2 : null;
 };
+const actorList = (actorsLike: any, fallback: any): ActorRef[] => {
+  const out: ActorRef[] = [];
+  const push = (src: any) => {
+    const a = actorRel(src);
+    if (!a) return;
+    if (!out.some((x) => x.type === a.type && x.name === a.name)) out.push(a);
+  };
+  if (Array.isArray(actorsLike)) for (const item of actorsLike) push(item);
+  push(fallback);
+  return out;
+};
+const actorListKey = (list: any) => (Array.isArray(list) ? list : []).map((a: any) => `${String(a?.type || '').trim()}|${String(a?.name || '').trim()}`).filter(Boolean).join('||');
 
 export type RecordSnapshotV8 = {
   id: string;
@@ -333,24 +347,29 @@ export type RecordSnapshotV8 = {
   storeOther: string;
   lv: Sensitivity;
   actor: ActorRef;
+  actors: ActorRef[];
   related: ActorRef[];
   place: PlaceType;
   placeOther: string;
   summary: string;
 };
 
-export const getRecordSnapshot = (r: any): RecordSnapshotV8 => ({
-  id: str(r?.id, uid('REC')),
-  eventAt: str(r?.ts, nowISO()),
-  storeType: (r?.storeType ?? '문서') as StoreType,
-  storeOther: str(r?.storeOther, ''),
-  lv: (r?.lv ?? 'LV2') as Sensitivity,
-  actor: actorMain(r?.actor),
-  related: arr(r?.related).map(actorRel).filter(Boolean) as ActorRef[],
-  place: (r?.place ?? '기타') as PlaceType,
-  placeOther: str(r?.placeOther, ''),
-  summary: str(r?.summary, ''),
-});
+export const getRecordSnapshot = (r: any): RecordSnapshotV8 => {
+  const actors = actorList(r?.actors, r?.actor);
+  return ({
+    id: str(r?.id, uid('REC')),
+    eventAt: str(r?.ts, nowISO()),
+    storeType: (r?.storeType ?? '문서') as StoreType,
+    storeOther: str(r?.storeOther, ''),
+    lv: (r?.lv ?? 'LV2') as Sensitivity,
+    actor: actorMain(actors[0] ?? r?.actor),
+    actors,
+    related: arr(r?.related).map(actorRel).filter(Boolean) as ActorRef[],
+    place: (r?.place ?? '기타') as PlaceType,
+    placeOther: str(r?.placeOther, ''),
+    summary: str(r?.summary, ''),
+  });
+};
 
 const revisionPayload = (args: {
   recordId: string;
@@ -363,6 +382,7 @@ const revisionPayload = (args: {
   signerLabel: string;
   prevHash: string;
   actorSnapshot: ActorRef;
+  actorsSnapshot?: ActorRef[];
   relatedSnapshot: ActorRef[];
   placeSnapshot: PlaceType;
   placeOtherSnapshot: string;
@@ -383,6 +403,7 @@ const revisionPayload = (args: {
   signerLabel: args.signerLabel,
   prevHash: args.prevHash,
   actorSnapshot: { type: str(args.actorSnapshot?.type, '외부인'), name: trim(args.actorSnapshot?.name) },
+  ...(Array.isArray(args.actorsSnapshot) && args.actorsSnapshot.length ? { actorsSnapshot: args.actorsSnapshot.map((x) => ({ type: str(x?.type, '외부인'), name: trim(x?.name) })).filter((x) => x.name) } : {}),
   relatedSnapshot: (args.relatedSnapshot || []).map((x) => ({ type: str(x?.type, '외부인'), name: trim(x?.name) })),
   placeSnapshot: args.placeSnapshot,
   placeOtherSnapshot: str(args.placeOtherSnapshot, ''),
@@ -405,6 +426,7 @@ const buildRevisionPayloadFromSnapshot = (snapshot: RecordSnapshotV8, args: { re
   signerLabel: str(args.signerLabel, '기기 봉인서명'),
   prevHash: str(args.prevHash, ''),
   actorSnapshot: snapshot.actor,
+  actorsSnapshot: snapshot.actors,
   relatedSnapshot: snapshot.related,
   placeSnapshot: snapshot.place,
   placeOtherSnapshot: snapshot.placeOther,
@@ -477,6 +499,7 @@ const applySnapshot = (base: any, snapshot: RecordSnapshotV8, integrity: RecordI
   storeOther: snapshot.storeOther,
   lv: snapshot.lv,
   actor: clone(snapshot.actor),
+  actors: clone(snapshot.actors),
   related: clone(snapshot.related),
   place: snapshot.place,
   placeOther: snapshot.placeOther,
@@ -526,6 +549,7 @@ const hydrateRecord = (record: any, rawIntegrity: any): RecordV8 => {
       storeOther: str(rr.storeOtherSnapshot, fallback.storeOther),
       lv: (rr.lvSnapshot ?? fallback.lv) as Sensitivity,
       actor: actorMain(rr.actorSnapshot ?? fallback.actor),
+      actors: actorList(rr.actorsSnapshot ?? fallback.actors, rr.actorSnapshot ?? fallback.actor),
       related: arr(rr.relatedSnapshot ?? fallback.related).map(actorRel).filter(Boolean) as ActorRef[],
       place: (rr.placeSnapshot ?? fallback.place) as PlaceType,
       placeOther: str(rr.placeOtherSnapshot, fallback.placeOther),
@@ -566,6 +590,7 @@ const hydrateRecord = (record: any, rawIntegrity: any): RecordV8 => {
     storeOther: str(last?.storeOtherSnapshot, fallback.storeOther),
     lv: (last?.lvSnapshot ?? fallback.lv) as Sensitivity,
     actor: actorMain(last?.actorSnapshot ?? fallback.actor),
+    actors: actorList(last?.actorsSnapshot ?? fallback.actors, last?.actorSnapshot ?? fallback.actor),
     related: arr(last?.relatedSnapshot ?? fallback.related).map(actorRel).filter(Boolean) as ActorRef[],
     place: (last?.placeSnapshot ?? fallback.place) as PlaceType,
     placeOther: str(last?.placeOtherSnapshot, fallback.placeOther),
@@ -634,7 +659,7 @@ export const amendSignedRecord = async (prevRecord: any, nextRecord: RecordItem,
         signerLabel: str(opts?.signerLabel, '레거시 봉인'),
         prevHash: integrity?.currentHash || '',
       });
-  return applySnapshot(current, snapshot, buildIntegrity(snapshot.id, [...(integrity?.revisions || []), rev], { crypto: cryptoCacheForNewSignature(rev) }));
+  return applySnapshot({ ...current, ...(nextRecord as any) }, snapshot, buildIntegrity(snapshot.id, [...(integrity?.revisions || []), rev], { crypto: cryptoCacheForNewSignature(rev) }));
 };
 
 export const getRecordRevisions = (record: any): RecordRevisionV8[] => {
@@ -654,6 +679,7 @@ const revisionPayloadFromRevision = (rev: any) => revisionPayload({
   signerLabel: str(rev.signerLabel, ''),
   prevHash: str(rev.prevHash, ''),
   actorSnapshot: actorMain(rev.actorSnapshot),
+  actorsSnapshot: actorList(rev.actorsSnapshot, rev.actorSnapshot),
   relatedSnapshot: arr(rev.relatedSnapshot).map(actorRel).filter(Boolean) as ActorRef[],
   placeSnapshot: (rev.placeSnapshot ?? '기타') as PlaceType,
   placeOtherSnapshot: str(rev.placeOtherSnapshot, ''),
@@ -805,6 +831,7 @@ export const verifyRecordIntegrity = (record: any) => {
       base.summary !== str(last.summarySnapshot, base.summary) ||
       str(base.actor?.type) !== str(last.actorSnapshot?.type) ||
       str(base.actor?.name) !== str(last.actorSnapshot?.name) ||
+      actorListKey((base as any).actors || [base.actor]) !== actorListKey(last.actorsSnapshot ?? [last.actorSnapshot]) ||
       str(base.place) !== str(last.placeSnapshot) ||
       str(base.placeOther) !== str(last.placeOtherSnapshot) ||
       str(base.storeType) !== str(last.storeTypeSnapshot) ||
@@ -942,7 +969,14 @@ export const verifyBackupEnvelope = async (raw: any): Promise<{ ok: boolean; sta
   };
 };
 
-export const defaultState = (): AppState => ({ v: 10, tab: 'records', selectedCaseId: null, records: [], cases: {} });
+export const defaultState = (): AppState => ({
+  v: 10,
+  tab: 'records',
+  selectedCaseId: null,
+  records: [],
+  cases: {},
+  classRoster: Array.from({ length: 40 }, () => ''),
+});
 
 
 const normRisk = (raw: any): RecordRisk | undefined => {
@@ -969,17 +1003,27 @@ const normRisk = (raw: any): RecordRisk | undefined => {
 const normRecord = (r: any): RecordV8 => {
   const o = obj(r) ?? {};
   const risk = normRisk(o.risk);
+  const actors = actorList(o.actors, o.actor);
   const base: RecordItem = {
     id: str(o.id, uid('REC')),
     ts: str(o.ts, nowISO()),
     storeType: (o.storeType ?? '문서') as StoreType,
     storeOther: str(o.storeOther, ''),
     lv: (o.lv ?? 'LV2') as Sensitivity,
-    actor: actorMain(o.actor),
+    actor: actorMain(actors[0] ?? o.actor),
+    actors,
     related: arr(o.related).map(actorRel).filter(Boolean) as ActorRef[],
     place: (o.place ?? '기타') as PlaceType,
     placeOther: str(o.placeOther, ''),
     summary: str(o.summary, ''),
+    ...(o.summaryParts && typeof o.summaryParts === 'object' ? { summaryParts: {
+      overview: str(o.summaryParts.overview, ''),
+      background: str(o.summaryParts.background, ''),
+      issues: str(o.summaryParts.issues, ''),
+      evidenceList: str(o.summaryParts.evidenceList, ''),
+      teacherActions: str(o.summaryParts.teacherActions, ''),
+      other: str(o.summaryParts.other, ''),
+    } } : {}),
     ...(risk ? { risk } : {}),
   };
   return ensureRecordV8({ ...base, integrity: o.integrity });
@@ -1005,13 +1049,15 @@ export const normalizeState = (anyObj: any): AppState => {
   const base = defaultState();
   const o = obj(anyObj?.state && typeof anyObj.state === 'object' ? anyObj.state : anyObj);
   if (!o) return base;
-  base.tab = o.tab === 'cases' ? 'cases' : 'records';
+  base.tab = o.tab === 'cases' ? 'cases' : o.tab === 'legal' ? 'legal' : o.tab === 'home' ? 'home' : 'records';
   base.selectedCaseId = typeof o.selectedCaseId === 'string' ? o.selectedCaseId : null;
   base.records = arr(o.records).map(normRecord);
   const cs = obj(o.cases) ?? {};
   const out: Record<string, CaseItem> = {};
   for (const id of Object.keys(cs)) out[id] = normCase((cs as any)[id], id);
   base.cases = out;
+  const rosterRaw = arr(o.classRoster).slice(0, 40).map((x: any) => trim(x));
+  base.classRoster = Array.from({ length: 40 }, (_, i) => rosterRaw[i] || '');
   return base;
 };
 

@@ -234,6 +234,14 @@ pub struct PaperRecordRow {
   pub revision_count: Option<u32>,
   pub integrity_hash: Option<String>,
   pub revision_trail: Option<Vec<String>>,
+  pub verification_status: Option<String>,
+  pub verification_message: Option<String>,
+  pub signature_algorithm: Option<String>,
+  pub signer_fingerprint: Option<String>,
+  pub trusted: Option<bool>,
+  pub signed_on_this_device: Option<bool>,
+  pub integrity_verdict: Option<String>,
+  pub integrity_evidence: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -243,10 +251,14 @@ pub struct PaperPayload {
   pub case_id: String,
   pub generated_at: String,
   pub hash_sha256: String,
-
-  pub overview_lines: Vec<String>,
-  pub advisors: Vec<String>,
-  pub facts: Vec<String>,
+  pub sender_name: String,
+  pub sender_address: String,
+  pub recipient_name: String,
+  pub recipient_address: String,
+  pub subject: String,
+  pub statement_lines: Vec<String>,
+  pub action_lines: Vec<String>,
+  pub integrity_lines: Vec<String>,
   pub records: Vec<PaperRecordRow>,
 }
 
@@ -337,9 +349,21 @@ fn prepare_genpdf_font_family(src: &Path) -> Result<(PathBuf, String), String> {
   std::fs::create_dir_all(&work_dir).map_err(|e| format!("cannot create temp font dir: {e}"))?;
 
   fn copy_force(src: &Path, dst: &Path) -> Result<(), String> {
+    let src_len = std::fs::metadata(src)
+      .map_err(|e| format!("font source metadata read failed: {e}"))?
+      .len();
+
     if dst.exists() {
-      return Ok(());
+      let should_refresh = std::fs::metadata(dst)
+        .map(|m| m.len() != src_len || m.len() == 0)
+        .unwrap_or(true);
+      if should_refresh {
+        let _ = std::fs::remove_file(dst);
+      } else {
+        return Ok(());
+      }
     }
+
     std::fs::copy(src, dst).map_err(|e| format!("font copy failed: cannot copy to {dst:?}: {e}"))?;
     Ok(())
   }
@@ -380,13 +404,151 @@ fn wrap_every(s: &str, n: usize) -> String {
   out
 }
 
+/// PDF 본문용 텍스트 정리:
+/// - 줄바꿈/탭/제어문자를 공백으로 바꿔 네모(□) 깨짐을 막음
+/// - 연속 공백을 하나로 줄임
+fn normalize_pdf_inline_text(s: &str) -> String {
+  let normalized = s.replace("\r\n", "\n").replace('\r', "\n");
+  let mut out = String::with_capacity(normalized.len());
+  let mut prev_space = false;
+
+  for ch in normalized.chars() {
+    let mapped = match ch {
+      '\n' | '\t' | '\u{2028}' | '\u{2029}' => ' ',
+      c if c.is_control() => ' ',
+      c => c,
+    };
+    if mapped.is_whitespace() {
+      if !prev_space {
+        out.push(' ');
+        prev_space = true;
+      }
+    } else {
+      out.push(mapped);
+      prev_space = false;
+    }
+  }
+
+  let trimmed = out.trim();
+  if trimmed.is_empty() { "-".to_string() } else { trimmed.to_string() }
+}
+
+fn normalize_pdf_lines(s: &str) -> Vec<String> {
+  let normalized = s.replace("\r\n", "\n").replace('\r', "\n");
+  let mut out: Vec<String> = Vec::new();
+  for raw in normalized.lines() {
+    let line = normalize_pdf_inline_text(raw);
+    if line != "-" {
+      out.push(line);
+    }
+  }
+  if out.is_empty() {
+    out.push("-".to_string());
+  }
+  out
+}
+
+fn normalize_pdf_blocks(s: &str) -> Vec<String> {
+  let normalized = s.replace("\r\n", "\n").replace('\r', "\n");
+  let mut blocks: Vec<String> = Vec::new();
+  let mut current: Vec<String> = Vec::new();
+
+  for raw in normalized.lines() {
+    let line = normalize_pdf_inline_text(raw);
+    if line == "-" {
+      if !current.is_empty() {
+        blocks.push(current.join(" "));
+        current.clear();
+      }
+      continue;
+    }
+    current.push(line);
+  }
+
+  if !current.is_empty() {
+    blocks.push(current.join(" "));
+  }
+  if blocks.is_empty() {
+    blocks.push("-".to_string());
+  }
+  blocks
+}
+
+
+fn panic_message(err: Box<dyn std::any::Any + Send>) -> String {
+  if let Some(msg) = err.downcast_ref::<&str>() {
+    return (*msg).to_string();
+  }
+  if let Some(msg) = err.downcast_ref::<String>() {
+    return msg.clone();
+  }
+  "unexpected panic while generating pdf".to_string()
+}
+
+fn temp_pdf_output_path(out_path: &Path) -> PathBuf {
+  let file_name = out_path
+    .file_name()
+    .and_then(|s| s.to_str())
+    .filter(|s| !s.is_empty())
+    .unwrap_or("document.pdf");
+  let parent = out_path.parent().unwrap_or_else(|| Path::new("."));
+  parent.join(format!(".{file_name}.part"))
+}
+
+fn compact_hash(s: &str, head: usize, tail: usize) -> String {
+  let trimmed = s.trim();
+  if trimmed.is_empty() {
+    return "-".to_string();
+  }
+  let chars: Vec<char> = trimmed.chars().collect();
+  if chars.len() <= head + tail + 1 {
+    return trimmed.to_string();
+  }
+  let start: String = chars.iter().take(head).collect();
+  let end: String = chars.iter().rev().take(tail).collect::<Vec<_>>().into_iter().rev().collect();
+  format!("{start}…{end}")
+}
+
+fn clamp_chars(s: &str, max_chars: usize) -> String {
+  let trimmed = s.trim();
+  if trimmed.is_empty() {
+    return "-".to_string();
+  }
+  let count = trimmed.chars().count();
+  if count <= max_chars {
+    return trimmed.to_string();
+  }
+  let mut out = String::new();
+  for (idx, ch) in trimmed.chars().enumerate() {
+    if idx >= max_chars {
+      break;
+    }
+    out.push(ch);
+  }
+  out.push('…');
+  out
+}
+
+fn compact_record_id(id: &str) -> String {
+  let trimmed = id.trim();
+  if trimmed.is_empty() {
+    return "-".to_string();
+  }
+  let chars: Vec<char> = trimmed.chars().collect();
+  if chars.len() <= 18 {
+    return trimmed.to_string();
+  }
+  let start: String = chars.iter().take(8).collect();
+  let end: String = chars.iter().rev().take(6).collect::<Vec<_>>().into_iter().rev().collect();
+  format!("{start}…{end}")
+}
+
+
 #[tauri::command]
 pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
   use genpdf::{elements, style, Alignment};
 
   let paper = args.paper;
-
-  // ✅ 기존 동작 유지: fileName은 필수
   let file_name = args
     .file_name
     .as_ref()
@@ -397,455 +559,203 @@ pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
   let out_path = ensure_pdf_ext(PathBuf::from(file_name));
   ensure_parent_dir(&out_path)?;
 
-  // 1) font source
-  let src_font = find_korean_font_source()
-    .ok_or_else(|| "Korean font not found (AppleGothic/Malgun/Nanum/Noto).".to_string())?;
+  let tmp_path = temp_pdf_output_path(&out_path);
+  if tmp_path.exists() {
+    let _ = std::fs::remove_file(&tmp_path);
+  }
 
-  // 2) temp 4종 생성
-  let (font_dir, family) = prepare_genpdf_font_family(&src_font)?;
+  let render_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> Result<(), String> {
+    let src_font = find_korean_font_source()
+      .ok_or_else(|| "Korean font not found (AppleGothic/Malgun/Nanum/Noto).".to_string())?;
+    let (font_dir, family) = prepare_genpdf_font_family(&src_font)?;
+    let font_family = genpdf::fonts::from_files(&font_dir, &family, None)
+      .map_err(|e| format!("font load failed: {e}"))?;
 
-  // 3) load family
-  let font_family = genpdf::fonts::from_files(&font_dir, &family, None)
-    .map_err(|e| format!("font load failed: {e}"))?;
+    let mut doc = genpdf::Document::new(font_family);
+    doc.set_title(&paper.title);
+    doc.set_font_size(9);
+    doc.set_line_spacing(1.14);
 
-  // 4) render
-  let mut doc = genpdf::Document::new(font_family);
-  doc.set_title(&paper.title);
-  doc.set_font_size(10);
-  doc.set_line_spacing(1.25);
+    let mut decorator = genpdf::SimplePageDecorator::new();
+    decorator.set_margins(16);
+    doc.set_page_decorator(decorator);
 
-  // ✅ 문서 여백(균일)
-  let mut decorator = genpdf::SimplePageDecorator::new();
-  decorator.set_margins(18);
-  doc.set_page_decorator(decorator);
+    let s_title = style::Style::new().bold().with_font_size(17);
+    let s_h1 = style::Style::new().bold().with_font_size(12);
+    let s_h2 = style::Style::new().bold().with_font_size(10);
+    let s_body = style::Style::new().with_font_size(9);
+    let s_meta = style::Style::new().with_font_size(8);
+    let hr = "────────────────────────────────────────────────────────";
 
-  // --------------------
-  // 스타일 세트 (공문/법률 톤)
-  // --------------------
-  let s_cover_title = style::Style::new().bold().with_font_size(22);
-  let s_cover_sub = style::Style::new().bold().with_font_size(12);
-
-  let s_h1 = style::Style::new().bold().with_font_size(13);
-  let s_h2 = style::Style::new().bold().with_font_size(11);
-  let s_body = style::Style::new().with_font_size(10);
-  let s_meta = style::Style::new().with_font_size(9);
-
-  let s_table_head = style::Style::new().bold().with_font_size(9);
-  let s_table = style::Style::new().with_font_size(9);
-
-  let hr = "────────────────────────────────────────────────────────";
-
-  // 유틸
     fn clean<'a>(s: &'a str) -> &'a str {
       let t = s.trim();
       if t.is_empty() { "-" } else { t }
     }
 
-  let kind_ko = |k: &str| -> &'static str {
-    match k.trim().to_ascii_lowercase().as_str() {
-      "record" => "기록",
-      "step" => "조치",
-      "advisor" => "권고",
-      _ => "기타",
-    }
-  };
-
-  // =========================
-  // 표지(cover)
-  // =========================
-  doc.push(
-    elements::Paragraph::new("사 건 보 고 서")
-      .aligned(Alignment::Center)      // ✅ aligned 먼저!
-      .styled(s_cover_title.clone())
-  );
-
-  doc.push(
-    elements::Paragraph::new("제출용(법률 검토/대리인 제출 가능본)")
-      .aligned(Alignment::Center)      // ✅ aligned 먼저!
-      .styled(s_cover_sub.clone())
-      .padded((3.0, 0.0, 0.0, 0.0))
-  );
-
-  doc.push(
-    elements::Paragraph::new(hr)
-      .styled(s_meta.clone())
-      .padded((4.0, 0.0, 2.0, 0.0))
-  );
-
-  // 사건 정보 블록(키-값)
-  {
-    let mut meta = elements::TableLayout::new(vec![2, 6]);
-    meta.set_cell_decorator(elements::FrameCellDecorator::new(true, true, false));
-
-    let mut row = meta.row();
-    row.push_element(elements::Paragraph::new("사건명").styled(s_table_head.clone()).padded(1.0));
-    row.push_element(elements::Paragraph::new(paper.title.clone()).styled(s_table.clone()).padded(1.0));
-    row.push().map_err(|e| format!("meta table row invalid: {e}"))?;
-
-    let mut row = meta.row();
-    row.push_element(elements::Paragraph::new("사건번호").styled(s_table_head.clone()).padded(1.0));
-    row.push_element(elements::Paragraph::new(paper.case_id.clone()).styled(s_table.clone()).padded(1.0));
-    row.push().map_err(|e| format!("meta table row invalid: {e}"))?;
-
-    let mut row = meta.row();
-    row.push_element(elements::Paragraph::new("작성/출력").styled(s_table_head.clone()).padded(1.0));
-    row.push_element(elements::Paragraph::new(paper.generated_at.clone()).styled(s_table.clone()).padded(1.0));
-    row.push().map_err(|e| format!("meta table row invalid: {e}"))?;
-
-    let mut row = meta.row();
-    row.push_element(elements::Paragraph::new("배포등급").styled(s_table_head.clone()).padded(1.0));
-    row.push_element(
-      elements::Paragraph::new("내부검토용(업무상 필요자 한정) / 외부 제출 시 문구 검토 권장")
-        .styled(s_table.clone())
-        .padded(1.0)
-    );
-    row.push().map_err(|e| format!("meta table row invalid: {e}"))?;
-
-    let mut row = meta.row();
-    row.push_element(elements::Paragraph::new("무결성 해시").styled(s_table_head.clone()).padded(1.0));
-    // 해시는 길어서 끊어쓰기(줄바꿈 도움)
-    let hash_pretty = wrap_every(paper.hash_sha256.trim(), 32);
-    row.push_element(
-      elements::Paragraph::new(format!("SHA-256: {}", hash_pretty))
-        .styled(s_table.clone())
-        .padded(1.0)
-    );
-    row.push().map_err(|e| format!("meta table row invalid: {e}"))?;
-
-    doc.push(meta.padded((2.0, 0.0, 0.0, 0.0)));
-  }
-
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()).padded((3.0, 0.0, 0.0, 0.0)));
-  doc.push(
-    elements::Paragraph::new(
-      "※ 본 문서는 시스템 출력물로서, 사실관계 및 표현은 최종 제출 전 담당자/대리인이 확인·수정하여 사용하시기 바랍니다."
-    )
-    .styled(s_meta.clone())
-    .padded((2.0, 0.0, 0.0, 0.0))
-  );
-
-  doc.push(elements::PageBreak::new());
-
-  // =========================
-  // 목차
-  // =========================
-  doc.push(elements::Paragraph::new("목차").styled(s_h1.clone()));
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
-
-  // ✅ genpdf 0.2.0 호환: element 체인 대신 push 사용
-  {
-    let mut toc = elements::OrderedList::new();
-    toc.push(elements::Paragraph::new("Ⅰ. 사건 개요").styled(s_body.clone()));
-    toc.push(elements::Paragraph::new("Ⅱ. 대응 권고(핵심 권고)").styled(s_body.clone()));
-    toc.push(elements::Paragraph::new("Ⅲ. 주요 사실관계(요약) 및 연표").styled(s_body.clone()));
-    toc.push(elements::Paragraph::new("Ⅳ. 증빙/첨부 목록표").styled(s_body.clone()));
-    toc.push(elements::Paragraph::new("Ⅴ. 첨부(증빙) 상세").styled(s_body.clone()));
-    toc.push(elements::Paragraph::new("Ⅵ. 확인 및 서명").styled(s_body.clone()));
-    doc.push(toc.padded((2.0, 0.0, 0.0, 0.0)));
-  }
-
-  doc.push(elements::PageBreak::new());
-
-  // =========================
-  // Ⅰ. 사건 개요
-  // =========================
-  doc.push(elements::Paragraph::new("Ⅰ. 사건 개요").styled(s_h1.clone()));
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
-
-  if paper.overview_lines.iter().all(|s| s.trim().is_empty()) {
-    doc.push(elements::Paragraph::new("  1. -").styled(s_body.clone()));
-  } else {
-    let mut list = elements::OrderedList::new();
-    for line in paper.overview_lines.iter().map(|s| s.trim()).filter(|s| !s.is_empty()) {
-      list.push(elements::Paragraph::new(line.to_string()).styled(s_body.clone()));
-    }
-    doc.push(list.padded((1.5, 0.0, 0.0, 0.0)));
-  }
-
-  doc.push(elements::Break::new(1));
-
-  // =========================
-  // Ⅱ. 대응 권고
-  // =========================
-  doc.push(elements::Paragraph::new("Ⅱ. 대응 권고(핵심 권고)").styled(s_h1.clone()));
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
-
-  if paper.advisors.iter().all(|s| s.trim().is_empty()) {
-    doc.push(elements::Paragraph::new("  1. -").styled(s_body.clone()));
-  } else {
-    let mut list = elements::OrderedList::new();
-    for a in paper.advisors.iter().map(|s| s.trim()).filter(|s| !s.is_empty()) {
-      list.push(elements::Paragraph::new(a.to_string()).styled(s_body.clone()));
-    }
-    doc.push(list.padded((1.5, 0.0, 0.0, 0.0)));
-  }
-
-  doc.push(elements::Break::new(1));
-
-  // =========================
-  // Ⅲ. 주요 사실관계 + 연표
-  // =========================
-  doc.push(elements::Paragraph::new("Ⅲ. 주요 사실관계(요약) 및 연표").styled(s_h1.clone()));
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
-
-  doc.push(
-    elements::Paragraph::new("1. 요약(핵심 사실)")
-      .styled(s_h2.clone())
-      .padded((1.5, 0.0, 0.0, 0.0))
-  );
-
-  if paper.facts.iter().all(|s| s.trim().is_empty()) {
-    doc.push(
-      elements::Paragraph::new("  1) -")
-        .styled(s_body.clone())
-        .padded((1.0, 0.0, 0.0, 0.0))
-    );
-  } else {
-    let mut list = elements::OrderedList::new();
-    for f in paper.facts.iter().map(|s| s.trim()).filter(|s| !s.is_empty()) {
-      list.push(elements::Paragraph::new(f.to_string()).styled(s_body.clone()));
-    }
-    doc.push(list.padded((1.0, 0.0, 0.0, 0.0)));
-  }
-
-  doc.push(elements::Break::new(1));
-
-  doc.push(
-    elements::Paragraph::new("2. 연표(기록/조치/권고 목록)")
-      .styled(s_h2.clone())
-      .padded((1.5, 0.0, 0.0, 0.0))
-  );
-
-  if paper.records.is_empty() {
-    doc.push(
-      elements::Paragraph::new("  ※ 등록된 항목 없음")
-        .styled(s_body.clone())
-        .padded((1.0, 0.0, 0.0, 0.0))
-    );
-  } else {
-    // 표: No / 일시 / 구분 / 요약 / 주체·장소 / 등급
-    let mut table = elements::TableLayout::new(vec![1, 2, 1, 4, 2, 1]);
-    table.set_cell_decorator(elements::FrameCellDecorator::new(true, true, false));
-
-    // header
-    {
-      let mut row = table.row();
-      row.push_element(elements::Paragraph::new("No").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("일시").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("구분").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("요약").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("주체·장소").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("등급").styled(s_table_head.clone()).padded(1.0));
-      row.push().map_err(|e| format!("timeline table header invalid: {e}"))?;
-    }
-
-    for (idx, r) in paper.records.iter().enumerate() {
-      let no = idx + 1;
-
-      let when = clean(&r.when);
-      let kind = kind_ko(&r.kind);
-      let summary = clean(&r.summary);
-      let actor = clean(&r.actor);
-      let place = clean(&r.place);
-      let lv = clean(&r.lv);
-
-      let actor_place = if actor == "-" && place == "-" {
-        "-".to_string()
-      } else if place == "-" {
-        actor.to_string()
-      } else if actor == "-" {
-        place.to_string()
-      } else {
-        format!("{actor} / {place}")
-      };
-
-      let rev_count = r.revision_count.unwrap_or(0);
-      let amend_count = rev_count.saturating_sub(1);
-      let original_sealed_at = r.original_sealed_at.as_deref().map(clean).unwrap_or("-");
-      let last_sealed_at = r.last_sealed_at.as_deref().map(clean).unwrap_or("-");
-      let integrity_hash = r.integrity_hash.as_deref().map(clean).unwrap_or("-");
-      let mut summary_block = summary.to_string();
-      if rev_count > 0 || original_sealed_at != "-" || last_sealed_at != "-" {
-        summary_block.push_str(&format!("\n입력/봉인: {original_sealed_at} / 최종 수정봉인: {last_sealed_at}"));
-        if amend_count > 0 {
-          summary_block.push_str(&format!("\n수정이력: 정정 {amend_count}회 / REV {rev_count} / {integrity_hash}"));
-        } else {
-          summary_block.push_str(&format!("\n수정이력: 원본 / REV {rev_count} / {integrity_hash}"));
-        }
+    fn verdict_ko(row: &PaperRecordRow) -> String {
+      if !row.kind.trim().eq_ignore_ascii_case("record") {
+        return row.integrity_verdict.clone().unwrap_or_else(|| "사건 대응 조치 로그".to_string());
       }
-
-      let mut row = table.row();
-      row.push_element(elements::Paragraph::new(format!("{no}")).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(when.to_string()).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(kind).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(summary_block).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(actor_place).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(lv.to_string()).styled(s_table.clone()).padded(1.0));
-      row.push().map_err(|e| format!("timeline table row invalid: {e}"))?;
-    }
-
-    doc.push(table.padded((1.0, 0.0, 0.0, 0.0)));
-    doc.push(
-      elements::Paragraph::new("※ 표의 상세(포함근거/식별자 등)는 ‘Ⅴ. 첨부(증빙) 상세’에 기재함.")
-        .styled(s_meta.clone())
-        .padded((1.0, 0.0, 0.0, 0.0))
-    );
-  }
-
-  doc.push(elements::PageBreak::new());
-
-  // =========================
-  // Ⅳ. 증빙/첨부 목록표
-  // =========================
-  doc.push(elements::Paragraph::new("Ⅳ. 증빙/첨부 목록표").styled(s_h1.clone()));
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
-
-  if paper.records.is_empty() {
-    doc.push(elements::Paragraph::new("  ※ 등록된 증빙 항목 없음").styled(s_body.clone()));
-  } else {
-    let mut table = elements::TableLayout::new(vec![1, 2, 5, 2]);
-    table.set_cell_decorator(elements::FrameCellDecorator::new(true, true, false));
-
-    // header
-    {
-      let mut row = table.row();
-      row.push_element(elements::Paragraph::new("첨부").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("일시").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("제목/요지").styled(s_table_head.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new("구분").styled(s_table_head.clone()).padded(1.0));
-      row.push().map_err(|e| format!("evidence table header invalid: {e}"))?;
-    }
-
-    for (idx, r) in paper.records.iter().enumerate() {
-      let no = idx + 1;
-      let when = clean(&r.when);
-      let summary = clean(&r.summary);
-      let kind = kind_ko(&r.kind);
-
-      let mut row = table.row();
-      row.push_element(elements::Paragraph::new(format!("제{no}호")).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(when.to_string()).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(summary.to_string()).styled(s_table.clone()).padded(1.0));
-      row.push_element(elements::Paragraph::new(kind).styled(s_table.clone()).padded(1.0));
-      row.push().map_err(|e| format!("evidence table row invalid: {e}"))?;
-    }
-
-    doc.push(table.padded((1.0, 0.0, 0.0, 0.0)));
-  }
-
-  doc.push(elements::PageBreak::new());
-
-  // =========================
-  // Ⅴ. 첨부(증빙) 상세
-  // =========================
-  doc.push(elements::Paragraph::new("Ⅴ. 첨부(증빙) 상세").styled(s_h1.clone()));
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
-
-  if paper.records.is_empty() {
-    doc.push(elements::Paragraph::new("  ※ 등록된 증빙 항목 없음").styled(s_body.clone()));
-  } else {
-    for (idx, r) in paper.records.iter().enumerate() {
-      let no = idx + 1;
-
-      let kind = kind_ko(&r.kind);
-      let when = clean(&r.when);
-      let lv = clean(&r.lv);
-      let actor = clean(&r.actor);
-      let place = clean(&r.place);
-      let summary = clean(&r.summary);
-
-      // ID는 길면 끊어쓰기(줄바꿈 도움)
-      let id_pretty = wrap_every(clean(&r.id), 24);
-
-      // 블록 헤더
-      doc.push(
-        elements::Paragraph::new(format!("【첨부 제{no}호】 {summary}"))
-          .styled(style::Style::new().bold().with_font_size(11))
-          .padded((2.0, 0.0, 0.0, 0.0))
-      );
-
-      // 필드(공문/법률 서식)  ✅ 괄호/체인 전부 정상화
-      doc.push(elements::Paragraph::new(format!("  1) 구분: {kind}")).styled(s_body.clone()));
-      doc.push(elements::Paragraph::new(format!("  2) 일시: {when}")).styled(s_body.clone()));
-      doc.push(elements::Paragraph::new(format!("  3) 등급: {lv}")).styled(s_body.clone()));
-      doc.push(elements::Paragraph::new(format!("  4) 주체: {actor}")).styled(s_body.clone()));
-      doc.push(elements::Paragraph::new(format!("  5) 장소: {place}")).styled(s_body.clone()));
-      doc.push(
-        elements::Paragraph::new(format!("  6) 식별자(ID): {id_pretty}"))
-          .styled(s_meta.clone())
-      );
-
-      let rev_count = r.revision_count.unwrap_or(0);
-      let amend_count = rev_count.saturating_sub(1);
-      let has_integrity_meta = rev_count > 0
-        || r.original_sealed_at.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false)
-        || r.last_sealed_at.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false)
-        || r.integrity_hash.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false);
-
-      if has_integrity_meta {
-        doc.push(elements::Paragraph::new("  7) 봉인/수정 메타").styled(s_meta.clone()));
-        if let Some(original) = &r.original_sealed_at {
-          let v = original.trim();
-          if !v.is_empty() {
-            doc.push(elements::Paragraph::new(format!("      - 최초 입력봉인: {}", clean(v))).styled(s_meta.clone()));
-          }
-        }
-        if let Some(last) = &r.last_sealed_at {
-          let v = last.trim();
-          if !v.is_empty() {
-            doc.push(elements::Paragraph::new(format!("      - 최종 수정봉인: {}", clean(v))).styled(s_meta.clone()));
-          }
-        }
-        if rev_count > 0 {
-          let rev_line = if amend_count > 0 {
-            format!("      - 수정이력: 정정 {amend_count}회 / REV {rev_count}")
+      if let Some(v) = row.integrity_verdict.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+        return v.to_string();
+      }
+      match row.verification_status.as_deref().unwrap_or("").trim() {
+        "verified" => {
+          if row.signed_on_this_device.unwrap_or(false) {
+            "기기서명·해시체인 검증완료".to_string()
           } else {
-            format!("      - 수정이력: 원본 / REV {rev_count}")
-          };
-          doc.push(elements::Paragraph::new(rev_line).styled(s_meta.clone()));
-        }
-        if let Some(hash) = &r.integrity_hash {
-          let v = hash.trim();
-          if !v.is_empty() {
-            let pretty = wrap_every(v, 24);
-            doc.push(elements::Paragraph::new(format!("      - 현재 해시: {pretty}")).styled(s_meta.clone()));
+            "기기서명 검증완료".to_string()
           }
         }
-        if let Some(trail) = &r.revision_trail {
-          for line in trail.iter().map(|s| s.trim()).filter(|s| !s.is_empty()).take(6) {
-            doc.push(elements::Paragraph::new(format!("      - {line}")).styled(s_meta.clone()));
-          }
-        }
+        "foreign" => "해시체인 일치 · 타기기 서명".to_string(),
+        "legacy" => "SHA-256 리비전 체인 보존".to_string(),
+        "pending" => "해시체인 일치 · 서명검증 대기".to_string(),
+        "missing" => "해시체인 점검 가능 · 메타 보강 필요".to_string(),
+        _ => "추가 포렌식 검토 필요".to_string(),
       }
-
-      if let Some(reason) = &r.reason {
-        let rr = reason.trim();
-        if !rr.is_empty() {
-          doc.push(
-            elements::Paragraph::new(format!("  8) 포함근거: {rr}"))
-              .styled(s_meta.clone())
-          );
-        }
-      }
-
-      doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()).padded((1.5, 0.0, 0.0, 0.0)));
     }
+
+    fn evidence_ko(row: &PaperRecordRow) -> String {
+      if !row.kind.trim().eq_ignore_ascii_case("record") {
+        return row.integrity_evidence.clone().unwrap_or_else(|| clean(row.verification_message.as_deref().unwrap_or("사건 대응 경과 로그입니다.")).to_string());
+      }
+      if let Some(v) = row.integrity_evidence.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+        return v.to_string();
+      }
+      let mut parts: Vec<String> = vec![format!("REV {}", row.revision_count.unwrap_or(0))];
+      if let Some(sealed) = row.last_sealed_at.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        parts.push(format!("최종 봉인 {}", sealed));
+      }
+      if let Some(hash) = row.integrity_hash.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        parts.push(format!("SHA-256 {}", hash.chars().take(14).collect::<String>()));
+      }
+      parts.push(if row.signature_algorithm.as_deref().unwrap_or("") == "rust-ed25519-v1" {
+        "Ed25519 전자서명".to_string()
+      } else {
+        "해시 체인 봉인".to_string()
+      });
+      if let Some(fp) = row.signer_fingerprint.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        parts.push(format!("지문 {}", fp.chars().take(12).collect::<String>()));
+      }
+      let tail = clean(row.verification_message.as_deref().unwrap_or(""));
+      if tail != "-" {
+        parts.push(clamp_chars(tail, 84));
+      }
+      parts.join(" / ")
+    }
+
+    let kind_ko = |k: &str| -> &'static str {
+      match k.trim().to_ascii_lowercase().as_str() {
+        "record" => "기록",
+        "step" => "조치",
+        "advisor" => "권고",
+        _ => "기타",
+      }
+    };
+
+    doc.push(elements::Paragraph::new("내 용 증 명 서").aligned(Alignment::Center).styled(s_title.clone()));
+    doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()).padded((2.0, 0.0, 1.0, 0.0)));
+
+    doc.push(elements::Paragraph::new("발신인").styled(s_h2.clone()));
+    doc.push(elements::Paragraph::new(format!("성명 : {}", normalize_pdf_inline_text(clean(&paper.sender_name)))).styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    for (line_idx, line) in normalize_pdf_lines(clean(&paper.sender_address)).iter().enumerate() {
+      let prefix = if line_idx == 0 { "주소 : " } else { "       " };
+      doc.push(elements::Paragraph::new(format!("{prefix}{line}")).styled(s_body.clone()).padded((0.3, 0.0, 0.0, 0.0)));
+    }
+    doc.push(elements::Break::new(1));
+
+    doc.push(elements::Paragraph::new("수신인").styled(s_h2.clone()));
+    doc.push(elements::Paragraph::new(format!("성명 : {}", normalize_pdf_inline_text(clean(&paper.recipient_name)))).styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    for (line_idx, line) in normalize_pdf_lines(clean(&paper.recipient_address)).iter().enumerate() {
+      let prefix = if line_idx == 0 { "주소 : " } else { "       " };
+      doc.push(elements::Paragraph::new(format!("{prefix}{line}")).styled(s_body.clone()).padded((0.3, 0.0, 0.0, 0.0)));
+    }
+    doc.push(elements::Break::new(1));
+
+    doc.push(elements::Paragraph::new(format!("제목 : {}", normalize_pdf_inline_text(clean(&paper.subject)))).styled(s_h1.clone()));
+    doc.push(elements::Paragraph::new(format!("문서 생성일시 : {}", normalize_pdf_inline_text(clean(&paper.generated_at)))).styled(s_meta.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    doc.push(elements::Paragraph::new(format!("사건 식별값 : {}", compact_record_id(&normalize_pdf_inline_text(clean(&paper.case_id))))).styled(s_meta.clone()));
+    if !paper.hash_sha256.trim().is_empty() {
+      doc.push(elements::Paragraph::new(format!("문서 전체 SHA-256 : {}", compact_hash(&normalize_pdf_inline_text(paper.hash_sha256.trim()), 14, 10))).styled(s_meta.clone()));
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new("1. 통지 내용").styled(s_h1.clone()));
+    for (idx, line) in paper.statement_lines.iter().map(|s| s.trim()).filter(|s| !s.is_empty()).take(5).enumerate() {
+      doc.push(elements::Paragraph::new(format!("{}. {}", idx + 1, clamp_chars(&normalize_pdf_inline_text(line), 220))).styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new("2. 요구 및 향후 조치").styled(s_h1.clone()));
+    for (idx, line) in paper.action_lines.iter().map(|s| s.trim()).filter(|s| !s.is_empty()).take(3).enumerate() {
+      doc.push(elements::Paragraph::new(format!("{}. {}", idx + 1, clamp_chars(&normalize_pdf_inline_text(line), 200))).styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new("3. 증빙자료 요약").styled(s_h1.clone()));
+    doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
+
+    if paper.records.is_empty() {
+      doc.push(elements::Paragraph::new("※ 등록된 증빙 항목이 없습니다.").styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    } else {
+      for (idx, r) in paper.records.iter().enumerate() {
+        doc.push(elements::Paragraph::new(format!("[{}] {} / {}", idx + 1, normalize_pdf_inline_text(kind_ko(&r.kind)), normalize_pdf_inline_text(clean(&r.when)))).styled(s_h2.clone()).padded((0.6, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("요지 : {}", clamp_chars(&normalize_pdf_inline_text(clean(&r.summary)), 110))).styled(s_body.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("주체 / 장소 : {} / {}", clamp_chars(&normalize_pdf_inline_text(clean(&r.actor)), 42), clamp_chars(&normalize_pdf_inline_text(clean(&r.place)), 28))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("무결성 결론 : {}", clamp_chars(&normalize_pdf_inline_text(&verdict_ko(r)), 50))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        let evidence = clamp_chars(&normalize_pdf_inline_text(&evidence_ko(r)), 110);
+        if r.kind.trim().eq_ignore_ascii_case("record") {
+          let rev = r.revision_count.unwrap_or(0);
+          let sealed = compact_hash(&normalize_pdf_inline_text(clean(r.last_sealed_at.as_deref().unwrap_or("-"))), 10, 8);
+          let hash = compact_hash(&normalize_pdf_inline_text(clean(r.integrity_hash.as_deref().unwrap_or("-"))), 10, 8);
+          doc.push(elements::Paragraph::new(format!("검증 근거 : {}", evidence)).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+          doc.push(elements::Paragraph::new(format!("REV / 봉인 / 해시 / ID : {} / {} / {} / {}", rev, sealed, hash, compact_record_id(&normalize_pdf_inline_text(clean(&r.id))))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        } else {
+          doc.push(elements::Paragraph::new(format!("보조 정보 : {}", evidence)).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        }
+        doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+      }
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new("4. 무결성 검증 요약").styled(s_h1.clone()));
+    doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
+    for (idx, line) in paper.integrity_lines.iter().map(|s| s.trim()).filter(|s| !s.is_empty()).take(3).enumerate() {
+      doc.push(elements::Paragraph::new(format!("{}. {}", idx + 1, clamp_chars(&normalize_pdf_inline_text(line), 220))).styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new(normalize_pdf_inline_text(clean(&paper.generated_at))).aligned(Alignment::Center).styled(s_body.clone()));
+    doc.push(elements::Paragraph::new(format!("발신인 성명 : {}", normalize_pdf_inline_text(clean(&paper.sender_name)))).aligned(Alignment::Center).styled(s_body.clone()).padded((1.5, 0.0, 0.0, 0.0)));
+    for (line_idx, line) in normalize_pdf_lines(clean(&paper.sender_address)).iter().enumerate() {
+      let prefix = if line_idx == 0 { "발신인 주소 : " } else { "             " };
+      doc.push(elements::Paragraph::new(format!("{prefix}{line}")).aligned(Alignment::Center).styled(s_meta.clone()));
+    }
+
+    doc.render_to_file(&tmp_path)
+      .map_err(|e| format!("pdf render failed: {e}"))?;
+    Ok(())
+  })).map_err(panic_message)?;
+
+  render_result?;
+
+  let tmp_meta = std::fs::metadata(&tmp_path)
+    .map_err(|e| format!("pdf file check failed: {e}"))?;
+  if tmp_meta.len() < 512 {
+    let _ = std::fs::remove_file(&tmp_path);
+    return Err("PDF 파일이 정상적으로 생성되지 않았어요. 내용을 단순화해 다시 저장하거나 앱을 다시 실행한 뒤 시도해주세요.".to_string());
   }
 
-  doc.push(elements::Break::new(1));
+  if out_path.exists() {
+    let _ = std::fs::remove_file(&out_path);
+  }
 
-  // =========================
-  // Ⅵ. 확인 및 서명
-  // =========================
-  doc.push(elements::Paragraph::new("Ⅵ. 확인 및 서명").styled(s_h1.clone()));
-  doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
-  doc.push(elements::Paragraph::new("  작성자(담당): __________________________   (서명) __________").styled(s_body.clone()));
-  doc.push(elements::Paragraph::new("  검토(관리/법률): _______________________   (서명) __________").styled(s_body.clone()));
-  doc.push(elements::Paragraph::new("  승인자: _________________________________   (서명) __________").styled(s_body.clone()));
-
-  // 출력
-  doc.render_to_file(&out_path)
-    .map_err(|e| format!("pdf render failed: {e}"))?;
+  std::fs::rename(&tmp_path, &out_path).or_else(|_| {
+    std::fs::copy(&tmp_path, &out_path)
+      .map_err(|e| format!("pdf finalize copy failed: {e}"))?;
+    let _ = std::fs::remove_file(&tmp_path);
+    Ok::<(), String>(())
+  })?;
 
   Ok(out_path.to_string_lossy().to_string())
 }

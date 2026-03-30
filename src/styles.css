@@ -9265,3 +9265,3617 @@ dialog.recordComposerModal{
   border: 1.5px solid #e4c1c1 !important;
   box-shadow: inset 0 0 0 1px rgba(228,193,193,0.36), 0 10px 28px rgba(15,23,42,0.035), 0 1px 0 rgba(255,255,255,0.98) inset !important;
 }
+
+
+/* ========================================================================== 
+   2026-03-21 학생 명부 등록 모달
+   ========================================================================== */
+.container.mobileRefined.iphonePremium .serviceSidebarBottom{
+  gap: 10px;
+}
+
+dialog.modal.classRosterModal{
+  width: min(calc(100vw - 28px), 560px);
+  max-width: 560px;
+  max-height: min(calc(100dvh - 28px), 860px);
+  padding: 0;
+  border: none;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.24);
+}
+
+dialog.modal.classRosterModal::backdrop{
+  background: rgba(15, 23, 42, 0.26);
+  backdrop-filter: blur(10px);
+}
+
+.classRosterModal .modalHead{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.94);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.classRosterModalBody{
+  padding: 14px;
+  max-height: calc(860px - 88px);
+  overflow: auto;
+  background: linear-gradient(180deg, #f7f8fb 0%, #ffffff 100%);
+}
+
+.classRosterHero{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.classRosterTitle{
+  font-size: 15px;
+  font-weight: 900;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.classRosterCount{
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 74px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(17,24,39,0.08);
+  color: #111827;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.classRosterGrid{
+  display: grid;
+  gap: 8px;
+}
+
+.classRosterRow{
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.92);
+}
+
+.classRosterNo{
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.classRosterInput{
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 700;
+}
+
+.classRosterInput:focus{
+  border-color: rgba(17,24,39,0.52);
+  box-shadow: 0 0 0 4px rgba(17,24,39,0.10);
+}
+
+@media (max-width: 640px){
+  dialog.modal.classRosterModal{
+    width: calc(100vw - 18px);
+    max-height: calc(100dvh - 18px);
+    border-radius: 22px;
+  }
+
+  .classRosterModalBody{
+    padding: 12px;
+  }
+
+  .classRosterHero{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .classRosterCount{
+    width: fit-content;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-21 legal partner profile refresh
+   ========================================================================== */
+
+.legalPartnerHub{
+  padding-bottom: clamp(10px, 1vw, 18px);
+}
+
+.legalProfileHero{
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.92fr);
+  gap: clamp(18px, 1.5vw, 28px);
+  align-items: stretch;
+  position: relative;
+  overflow: hidden;
+  border-radius: clamp(26px, 1.9vw, 36px);
+  padding: clamp(22px, 2vw, 34px);
+  background: linear-gradient(145deg, #0f172a 0%, #172554 48%, #1e293b 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.24);
+}
+
+.legalProfileHero::before,
+.legalProfileHero::after{
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.legalProfileHero::before{
+  width: 320px;
+  height: 320px;
+  right: -110px;
+  top: -126px;
+  background: radial-gradient(circle, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0) 72%);
+}
+
+.legalProfileHero::after{
+  width: 260px;
+  height: 260px;
+  left: -96px;
+  bottom: -132px;
+  background: radial-gradient(circle, rgba(96,165,250,0.22) 0%, rgba(96,165,250,0) 74%);
+}
+
+.legalProfileIntro,
+.legalPartnerCard{
+  position: relative;
+  z-index: 1;
+}
+
+.legalProfileIntro{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.legalProfileTop{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.legalProfileBadge,
+.legalProfileMini,
+.legalProfileChip,
+.legalPartnerPill{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.legalProfileBadge,
+.legalProfileMini{
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: clamp(12px, 0.82vw, 14px);
+  font-weight: 800;
+}
+
+.legalProfileBadge{
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.24);
+}
+
+.legalProfileMini{
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.84);
+}
+
+.legalProfileEyebrow{
+  margin-top: 18px;
+  font-size: clamp(13px, 0.88vw, 15px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.70);
+}
+
+.legalProfileTitle{
+  margin: 16px 0 0;
+  max-width: 13ch;
+  font-size: clamp(32px, 2.65vw, 50px);
+  line-height: 1.18;
+  letter-spacing: -0.05em;
+  font-weight: 900;
+}
+
+.legalProfileLead{
+  margin: 18px 0 0;
+  max-width: 57ch;
+  color: rgba(248,250,252,0.9);
+  font-size: clamp(15px, 1vw, 18px);
+  line-height: 1.72;
+}
+
+.legalProfileChipRow{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.legalProfileChip{
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.10);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.legalProfileNotice{
+  margin-top: 22px;
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.16);
+  color: rgba(255,255,255,0.78);
+  font-size: clamp(12px, 0.84vw, 14px);
+  font-weight: 700;
+}
+
+.legalPartnerCard{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  padding: clamp(18px, 1.5vw, 22px);
+  border-radius: 28px;
+  background: rgba(255,255,255,0.94);
+  color: #0f172a;
+  border: 1px solid rgba(255,255,255,0.40);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 18px 42px rgba(15,23,42,0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.legalPartnerPhotoWrap{
+  width: clamp(86px, 6.2vw, 112px);
+  min-width: clamp(86px, 6.2vw, 112px);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(226,232,240,0.68) 0%, rgba(241,245,249,0.94) 100%);
+  box-shadow: inset 0 0 0 1px rgba(15,23,42,0.08);
+}
+
+.legalPartnerPhoto{
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.legalPartnerBody{
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.legalPartnerRole{
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.legalPartnerOrg{
+  font-size: clamp(24px, 1.5vw, 30px);
+  line-height: 1.22;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.legalPartnerDesc{
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.legalPartnerStats{
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.legalPartnerPill{
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid rgba(30,64,175,0.10);
+  color: #1e3a8a;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.legalResumeGrid{
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  gap: clamp(14px, 1.15vw, 18px);
+}
+
+.legalResumeCard{
+  padding: clamp(18px, 1.35vw, 24px);
+  border-radius: clamp(20px, 1.4vw, 26px);
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+}
+
+.legalResumeCardAccent{
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.legalResumeCardWide{
+  grid-column: 1 / -1;
+}
+
+.legalResumeLabel{
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.legalResumeValue{
+  margin-top: 10px;
+  color: #0f172a;
+  font-size: clamp(22px, 1.45vw, 28px);
+  line-height: 1.32;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+}
+
+.legalResumeSub{
+  color: #475569;
+  font-size: 0.68em;
+  font-weight: 700;
+}
+
+.legalResumeText{
+  margin-top: 10px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.legalBulletList,
+.legalCareerList,
+.legalFlowList{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.legalBulletItem,
+.legalFlowStep{
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.legalBulletDot{
+  width: 9px;
+  height: 9px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e293b 100%);
+  box-shadow: 0 0 0 6px rgba(29,78,216,0.08);
+}
+
+.legalBulletText{
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.7;
+}
+
+.legalCareerItem{
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding: 14px 0;
+  border-top: 1px solid rgba(15,23,42,0.08);
+}
+
+.legalCareerItem:first-child{
+  border-top: 0;
+  padding-top: 2px;
+}
+
+.legalCareerIndex{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.legalCareerTitle{
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 850;
+}
+
+.legalCareerMeta,
+.legalFlowDesc{
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.legalFlowCard{
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.legalFlowNo{
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.legalFlowTitle{
+  color: #0f172a;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 850;
+}
+
+@media (max-width: 1080px){
+  .legalProfileHero,
+  .legalResumeGrid{
+    grid-template-columns: 1fr;
+  }
+
+  .legalProfileTitle{
+    max-width: none;
+  }
+
+  .legalPartnerCard{
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 720px){
+  .legalProfileHero{
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .legalProfileBadge,
+  .legalProfileMini,
+  .legalProfileChip,
+  .legalPartnerPill{
+    font-size: 12px;
+  }
+
+  .legalPartnerCard{
+    padding: 16px;
+    border-radius: 22px;
+    gap: 14px;
+  }
+
+  .legalPartnerPhotoWrap{
+    width: 78px;
+    min-width: 78px;
+    aspect-ratio: 3 / 4;
+    border-radius: 16px;
+  }
+
+  .legalResumeCard{
+    padding: 18px;
+  }
+
+  .legalCareerItem{
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: 12px;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-21 compact legal hub refinement
+   ========================================================================== */
+
+.legalHubCompact{
+  gap: 10px;
+  width: min(100%, 980px);
+}
+
+.legalProfileHeroCompact{
+  grid-template-columns: minmax(0, 1.2fr) minmax(240px, 0.8fr);
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.18);
+}
+
+.legalProfileHeroCompact::before{
+  width: 220px;
+  height: 220px;
+  right: -98px;
+  top: -108px;
+  opacity: 0.72;
+}
+
+.legalProfileHeroCompact::after{
+  width: 180px;
+  height: 180px;
+  left: -86px;
+  bottom: -100px;
+  opacity: 0.62;
+}
+
+.legalProfileIntroCompact{
+  justify-content: center;
+}
+
+.legalProfileHeroCompact .legalProfileTop{
+  gap: 8px;
+}
+
+.legalProfileHeroCompact .legalProfileBadge,
+.legalProfileHeroCompact .legalProfileMini{
+  min-height: 28px;
+  padding: 0 11px;
+  font-size: 11px;
+}
+
+.legalProfileHeroCompact .legalProfileTitle{
+  margin-top: 12px;
+  max-width: none;
+  font-size: clamp(24px, 2vw, 34px);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+
+.legalProfileHeroCompact .legalProfileLead{
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 48ch;
+}
+
+.legalProfileSubLead{
+  margin: 6px 0 0;
+  max-width: 58ch;
+  color: rgba(248,250,252,0.78);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.legalProfileChipRowCompact{
+  margin-top: 12px;
+  gap: 7px;
+}
+
+.legalProfileHeroCompact .legalProfileChip{
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.legalProfileHeroCompact .legalProfileNotice{
+  margin-top: 12px;
+  padding: 7px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.legalPartnerCardCompact{
+  gap: 12px;
+  padding: 12px;
+  border-radius: 20px;
+  align-items: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 10px 24px rgba(15,23,42,0.12);
+}
+
+.legalPartnerCardCompact .legalPartnerPhotoWrap{
+  width: 66px;
+  min-width: 66px;
+  border-radius: 14px;
+}
+
+.legalPartnerCardCompact .legalPartnerBody{
+  gap: 5px;
+  padding-top: 0;
+}
+
+.legalPartnerCardCompact .legalPartnerRole{
+  font-size: 10px;
+  letter-spacing: 0.11em;
+}
+
+.legalPartnerCardCompact .legalPartnerOrg{
+  font-size: clamp(18px, 1.2vw, 22px);
+  line-height: 1.18;
+}
+
+.legalPartnerCardCompact .legalPartnerDesc{
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.legalPartnerCardCompact .legalPartnerStats{
+  gap: 6px;
+  margin-top: 0;
+}
+
+.legalPartnerCardCompact .legalPartnerPill{
+  min-height: 26px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+
+.legalResumeGridCompact{
+  grid-template-columns: minmax(220px, 0.95fr) minmax(320px, 1.25fr) minmax(220px, 0.9fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.legalResumeGridCompact .legalResumeCard{
+  padding: 14px 14px 13px;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.legalResumeGridCompact .legalResumeLabel{
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.legalResumeGridCompact .legalResumeValue{
+  margin-top: 7px;
+  font-size: clamp(16px, 1.15vw, 20px);
+  line-height: 1.3;
+}
+
+.legalResumeGridCompact .legalResumeSub{
+  font-size: 0.72em;
+}
+
+.legalBulletListCompact,
+.legalCareerListCompact,
+.legalFlowListCompact{
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.legalResumeGridCompact .legalBulletItem,
+.legalResumeGridCompact .legalFlowStep{
+  gap: 9px;
+}
+
+.legalResumeGridCompact .legalBulletDot{
+  width: 7px;
+  height: 7px;
+  margin-top: 6px;
+  box-shadow: 0 0 0 4px rgba(29,78,216,0.08);
+}
+
+.legalResumeGridCompact .legalBulletText{
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.legalCompactCareerCard .legalCareerItem{
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.legalCompactCareerCard .legalCareerIndex,
+.legalCompactFlowCard .legalFlowNo{
+  min-height: 24px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  font-size: 10px;
+}
+
+.legalCompactCareerCard .legalCareerTitle,
+.legalCompactFlowCard .legalFlowTitle{
+  font-size: 12px;
+  line-height: 1.42;
+}
+
+.legalCompactCareerCard .legalCareerMeta,
+.legalCompactFlowCard .legalFlowDesc{
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.legalCompactFlowCard{
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+@media (max-width: 1080px){
+  .legalResumeGridCompact{
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .legalCompactFlowCard{
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px){
+  .legalHubCompact{
+    width: 100%;
+  }
+
+  .legalProfileHeroCompact{
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 12px;
+    border-radius: 18px;
+  }
+
+  .legalProfileHeroCompact .legalProfileTitle{
+    font-size: 22px;
+  }
+
+  .legalPartnerCardCompact{
+    padding: 11px;
+    border-radius: 16px;
+  }
+
+  .legalPartnerCardCompact .legalPartnerPhotoWrap{
+    width: 58px;
+    min-width: 58px;
+  }
+
+  .legalResumeGridCompact{
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .legalResumeGridCompact .legalResumeCard{
+    padding: 12px;
+    border-radius: 14px;
+  }
+}
+
+
+/* ===================== Screen PIN lock ===================== */
+
+.sidebarIconBtn.lockActive{
+  background: rgba(17,24,39,0.10);
+  border-color: rgba(17,24,39,0.18);
+}
+
+.sidebarPinDot{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  border:1.5px solid #fff;
+  background:#cbd5e1;
+  box-shadow:none;
+}
+.sidebarPinDot.isReady{
+  background:#94a3b8;
+}
+.sidebarPinDot.isLocked{
+  background:#111827;
+}
+.sidebarPinDot.isEmpty{
+  background:#e5e7eb;
+}
+
+.appIsLocked .serviceSidebar,
+.appIsLocked .serviceMain{
+  filter: blur(5px);
+  pointer-events:none;
+  user-select:none;
+}
+
+.pinModal{
+  width:min(420px, calc(100vw - 28px));
+}
+
+.pinModalBody{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.pinStatus{
+  padding:12px 14px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:1px solid rgba(15,23,42,0.08);
+  color:#475569;
+  font-size:13px;
+  font-weight:800;
+}
+
+.pinStatus.locked{
+  background:#111827;
+  color:#fff;
+  border-color:#111827;
+}
+
+.pinStatus.setup{
+  background:#f3f4f6;
+  color:#374151;
+}
+
+.pinField{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.pinField > span{
+  font-size:13px;
+  font-weight:800;
+  color:#374151;
+}
+
+.pinInput,
+.settingsPinCard input[data-action="draft-pin-settings"]{
+  width:100%;
+  height:46px;
+  border-radius:14px;
+  border:1px solid rgba(15,23,42,0.12);
+  background:#fff;
+  padding:0 14px;
+  font-size:18px;
+  font-weight:800;
+  letter-spacing:0.24em;
+  color:#111827;
+}
+
+.pinInput::placeholder,
+.settingsPinCard input[data-action="draft-pin-settings"]::placeholder{
+  letter-spacing:0;
+  font-size:14px;
+  font-weight:600;
+}
+
+.pinHelp{
+  font-size:12px;
+  line-height:1.5;
+}
+
+.settingsPinCard{
+  margin-top:18px;
+  padding:18px;
+  border-radius:18px;
+  border:1px solid rgba(15,23,42,0.10);
+  background:#fff;
+}
+
+.settingsPinHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.settingsPinBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:64px;
+  height:28px;
+  padding:0 10px;
+  border-radius:999px;
+  background:#f3f4f6;
+  color:#6b7280;
+  font-size:12px;
+  font-weight:900;
+}
+
+.settingsPinBadge.ready{
+  background:#111827;
+  color:#fff;
+}
+
+.settingsPinFields{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:12px;
+}
+
+@media (max-width: 720px){
+  .settingsPinFields{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ========================================================================== 
+   2026-03-30 requested retune
+   - target shell: 920x680
+   - slimmer header / slimmer sidebar
+   - denser modern spacing for landscape compact desktop preview
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell{
+  --rc-shell-w: 920px;
+  --rc-shell-h: 680px;
+  --rc-shell-radius: 26px;
+  --rc-sidebar-w: 58px;
+  --rc-header-h: 46px;
+  --rc-compact-gap: 12px;
+  --rc-compact-card-pad: 14px;
+  --rc-compact-control-h: 36px;
+  --rc-compact-shadow: 0 18px 44px rgba(15,23,42,0.14), 0 8px 18px rgba(15,23,42,0.08);
+
+  width: min(var(--rc-shell-w), calc(100vw - 28px)) !important;
+  min-width: min(var(--rc-shell-w), calc(100vw - 28px)) !important;
+  max-width: min(var(--rc-shell-w), calc(100vw - 28px)) !important;
+  height: min(var(--rc-shell-h), calc(100dvh - 28px)) !important;
+  min-height: min(var(--rc-shell-h), calc(100dvh - 28px)) !important;
+  max-height: min(var(--rc-shell-h), calc(100dvh - 28px)) !important;
+  border-radius: var(--rc-shell-radius) !important;
+  box-shadow: var(--rc-compact-shadow) !important;
+  overflow: hidden !important;
+}
+
+@supports not (height: 100dvh){
+  .container.mobileRefined.iphonePremium.fluidDesktopShell{
+    height: min(var(--rc-shell-h), calc(100vh - 28px)) !important;
+    min-height: min(var(--rc-shell-h), calc(100vh - 28px)) !important;
+    max-height: min(var(--rc-shell-h), calc(100vh - 28px)) !important;
+  }
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell::before{
+  border-radius: var(--rc-shell-radius) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .appFrame{
+  grid-template-columns: var(--rc-sidebar-w) minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSidebar{
+  padding: 10px 7px 12px !important;
+  gap: 12px !important;
+  border-right: 1px solid rgba(15,23,42,0.06) !important;
+  background: linear-gradient(180deg, #f7f8fa 0%, #f1f4f7 100%) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSidebarNav{
+  gap: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn{
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  border-radius: 13px !important;
+  border: 1px solid rgba(15,23,42,0.07) !important;
+  background: rgba(255,255,255,0.76) !important;
+  box-shadow: 0 4px 12px rgba(15,23,42,0.05) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo:hover,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 14px rgba(15,23,42,0.08) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogoGlyph{
+  font-size: 15px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIcon,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIcon svg{
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarPinDot{
+  width: 7px !important;
+  height: 7px !important;
+  right: 7px !important;
+  bottom: 7px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbar,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbar.aiFocus{
+  background: rgba(255,255,255,0.86) !important;
+  border-bottom: 1px solid rgba(15,23,42,0.07) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbarInner{
+  height: var(--rc-header-h) !important;
+  padding: 6px 10px 6px 12px !important;
+  gap: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbarCompact{
+  gap: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNav,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNav.topNavShifted{
+  gap: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topGearBtn{
+  min-height: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+  padding: 0 11px !important;
+  border: 1px solid rgba(15,23,42,0.07) !important;
+  background: rgba(248,250,252,0.92) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn.active,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topGearBtn.active{
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #111827 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavLabel{
+  font-size: 11.5px !important;
+  letter-spacing: -0.02em;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavIcon,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavIcon svg{
+  width: 13px !important;
+  height: 13px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceContent{
+  padding: 12px 12px 14px !important;
+  background: linear-gradient(180deg, #f7f9fb 0%, #ffffff 28%) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSection,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsMain,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeMain,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedWrap,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .legalMain,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseBodyGrid,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseWorkspace,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseWorkspacePane,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sideStack{
+  gap: var(--rc-compact-gap) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .card,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .side .card,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .sideCard{
+  padding: var(--rc-compact-card-pad) !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+  box-shadow: 0 10px 24px rgba(15,23,42,0.06) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .card::before{
+  left: 12px !important;
+  right: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTitle,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseMainTitle,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .sectionTitle{
+  margin-bottom: 10px !important;
+  gap: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTitle .h2,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .sectionTitle .h2,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .caseTitleLeft .h2{
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+  margin-bottom: 2px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTitle .muted,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .muted,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .meta,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .detailNote,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniMetaLine,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniHash,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .helperBox,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedMeta,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedSub,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedStat{
+  font-size: 12px !important;
+  line-height: 1.48 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .title,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedName,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniTitle{
+  font-size: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .countPill,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .badgeAI,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .tag,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .chip,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .stepMiniTime,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .countPill,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .badgeAI,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .tag,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .chip,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .stepMiniTime{
+  font-size: 11px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .countPill{
+  height: 28px !important;
+  padding: 0 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .btn{
+  height: var(--rc-compact-control-h) !important;
+  min-height: var(--rc-compact-control-h) !important;
+  padding: 0 12px !important;
+  border-radius: 12px !important;
+  font-size: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .btn.small,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .btn.mini,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .mfBtn,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .memoFilterCard .mfBtn,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .memoFilterCard .sideCardActions .btn{
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 9px !important;
+  border-radius: 10px !important;
+  font-size: 11px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .actionsRow{
+  gap: 7px !important;
+  margin-top: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field{
+  gap: 6px !important;
+  margin-bottom: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field label,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .pinField > span{
+  font-size: 11px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field input,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field select,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field textarea,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .searchInput,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .pinInput,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .settingsPinCard input[data-action="draft-pin-settings"]{
+  border-radius: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field input,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field select,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .searchInput,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .pinInput,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .settingsPinCard input[data-action="draft-pin-settings"]{
+  height: 40px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field textarea{
+  min-height: 86px !important;
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .searchInput{
+  width: 100% !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTabs,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTabs{
+  gap: 5px !important;
+  padding: 4px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTab,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTab{
+  height: 32px !important;
+  padding: 0 11px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsMain{
+  padding-top: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell{
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .sideStack{
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .compactFilterBar{
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .compactFilterBar .mfFields,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .compactFilterBar .mfFields.twoUp{
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .memoFilterCard .mfInput,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .memoFilterCard .mfSelect{
+  height: 32px !important;
+  font-size: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll{
+  margin-top: 8px !important;
+  max-height: 430px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMini,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .item,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .stepMini{
+  border-radius: 16px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMini + .recMini{
+  margin-top: 8px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedWrap{
+  padding-top: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedCard{
+  max-width: 540px;
+  margin: 0 auto;
+  border-radius: 24px;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedHead,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homePhotoFrame{
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homePhotoFrame{
+  padding-bottom: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedImage{
+  border-radius: 20px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .legalHub{
+  width: min(100%, 760px) !important;
+  margin: 0 auto;
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .caseWorkspace{
+  grid-template-columns: minmax(270px, 0.88fr) minmax(0, 1.12fr) !important;
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSection{
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .stepMiniList,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickList{
+  max-height: 420px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickItem{
+  padding: 12px !important;
+}
+
+@media (max-width: 980px), (max-height: 720px){
+  .container.mobileRefined.iphonePremium.fluidDesktopShell{
+    width: min(var(--rc-shell-w), calc(100vw - 20px)) !important;
+    min-width: min(var(--rc-shell-w), calc(100vw - 20px)) !important;
+    max-width: min(var(--rc-shell-w), calc(100vw - 20px)) !important;
+    height: min(var(--rc-shell-h), calc(100dvh - 20px)) !important;
+    min-height: min(var(--rc-shell-h), calc(100dvh - 20px)) !important;
+    max-height: min(var(--rc-shell-h), calc(100dvh - 20px)) !important;
+  }
+
+  @supports not (height: 100dvh){
+    .container.mobileRefined.iphonePremium.fluidDesktopShell{
+      height: min(var(--rc-shell-h), calc(100vh - 20px)) !important;
+      min-height: min(var(--rc-shell-h), calc(100vh - 20px)) !important;
+      max-height: min(var(--rc-shell-h), calc(100vh - 20px)) !important;
+    }
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellList .caseWorkspace{
+    grid-template-columns: 1fr !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .compactFilterBar,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .compactFilterBar .mfFields,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell .compactFilterBar .mfFields.twoUp{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-30 header / sidebar minimal pass
+   - active header tab = underline only
+   - no background/border on header & sidebar buttons
+   - records / cases more compact and easier to scan
+   ========================================================================== */
+.container.mobileRefined.iphonePremium.fluidDesktopShell{
+  --header-height: 44px;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .appFrame{
+  grid-template-columns: 52px minmax(0, 1fr) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSidebar{
+  background: #ffffff !important;
+  border-right: 1px solid rgba(15, 23, 42, 0.06) !important;
+  padding: 10px 6px 10px !important;
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSidebarNav{
+  gap: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSidebarBottom{
+  margin-top: auto !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding-top: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarSettingsBtn{
+  position: relative !important;
+  width: 36px !important;
+  height: 36px !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  color: var(--grey-500) !important;
+  transform: none !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo:hover,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn:hover,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarSettingsBtn:hover{
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--grey-900) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo.active,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn.active,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarSettingsBtn.active,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn.accent{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--grey-950) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo.active::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn.active::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarSettingsBtn.active::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn.accent::before{
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 999px;
+  background: var(--grey-950);
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogoGlyph{
+  font-size: 15px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIcon,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIcon svg{
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbar,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbar.aiFocus{
+  background: rgba(255,255,255,0.98) !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbarInner{
+  height: var(--header-height) !important;
+  padding: 6px 14px 4px !important;
+  justify-content: flex-start !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNav{
+  width: auto !important;
+  gap: 18px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topGearBtn{
+  position: relative !important;
+  height: 30px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  color: var(--grey-500) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn{
+  flex: 0 0 auto !important;
+  min-width: fit-content !important;
+  justify-content: center !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topGearBtn{
+  width: 18px !important;
+  min-width: 18px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn::after{
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: -7px !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: var(--grey-950) !important;
+  transform: scaleX(0) !important;
+  transform-origin: center !important;
+  transition: transform .18s ease !important;
+  display: block !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn:hover,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topGearBtn:hover{
+  border: none !important;
+  background: transparent !important;
+  color: var(--grey-900) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn.active,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topGearBtn.active{
+  background: transparent !important;
+  border: none !important;
+  color: var(--grey-950) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn.active::after{
+  transform: scaleX(1) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavIcon{
+  display: none !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavLabel{
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceContent{
+  padding-top: 0 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSection,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .legalHub{
+  margin-top: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .card,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .side .card{
+  border-radius: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTitle{
+  margin-bottom: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTitle .h2,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseMainTitle{
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTitle .muted,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .muted,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .meta{
+  font-size: 11.5px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .countPill,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCountPill,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .statPill,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .tag,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .chip{
+  min-height: 22px !important;
+  height: auto !important;
+  padding: 3px 8px !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickItem,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .item,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseItem,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMini,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .tCard,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timelineMetaBlock{
+  border-radius: 12px !important;
+  padding: 11px 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickItem,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .item,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseItem,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMini,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timelineMetaBlock{
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .item::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .tCard::before{
+  width: 3px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .title,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniTitle,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordSectionTitle{
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  margin-bottom: 4px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniMeta,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniHash,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniMetaLine,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timelineRevText,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .paperMeta{
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recMiniTimes,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timelineRevTrail,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .tags.mini,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .chips.mini,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .actionsRow{
+  gap: 6px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timeline,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timeline.timelineEm{
+  gap: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timeline::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timeline.timelineEm::before{
+  left: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .tItem,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timeline.timelineEm .tItem{
+  padding-left: 42px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .tItem .dot,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .timeline.timelineEm .tItem .dot{
+  left: 7px !important;
+  top: 16px !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .btn{
+  height: 34px !important;
+  padding: 0 11px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field input,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field select{
+  height: 40px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field textarea{
+  min-height: 84px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field input,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field select,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .field textarea,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .searchInput{
+  font-size: 13px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .grid.caseGrid{
+  grid-template-columns: minmax(260px, 310px) minmax(0, 1fr) !important;
+  gap: 12px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShellSolo .caseCommandDeck{
+  width: min(720px, 100%) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck{
+  padding: 14px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTabs,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTabs{
+  padding: 0 !important;
+  gap: 14px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTab,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTab{
+  position: relative !important;
+  height: 28px !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--grey-500) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTab::after,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTab::after{
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--grey-950);
+  transform: scaleX(0);
+  transition: transform .18s ease;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTab:hover,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTab:hover{
+  background: transparent !important;
+  color: var(--grey-800) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTab.active,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTab.active{
+  border: none !important;
+  background: transparent !important;
+  color: var(--grey-950) !important;
+  box-shadow: none !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sectionTab.active::after,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandDeck .sectionTab.active::after{
+  transform: scaleX(1);
+}
+
+@media (max-width: 980px), (max-height: 720px){
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .appFrame{
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSidebar{
+    padding: 8px 5px !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn,
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarSettingsBtn{
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .topbarInner{
+    padding: 6px 12px 4px !important;
+  }
+
+  .container.mobileRefined.iphonePremium.fluidDesktopShell .topNav{
+    gap: 14px !important;
+  }
+}
+
+/* ========================================================================== 
+   2026-03-30 edge-flush refinement
+   - slightly wider sidebar
+   - header text sits closer to top like the logo
+   - remove outer shell frame/margins on all sides
+   - keep records/cases compact and readable
+   ========================================================================== */
+
+html, body, #app{
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+body{
+  overflow:hidden !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell{
+  width:100vw !important;
+  min-width:100vw !important;
+  max-width:100vw !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  max-height:100dvh !important;
+  margin:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  overflow:hidden !important;
+}
+
+@supports not (height: 100dvh){
+  .container.mobileRefined.iphonePremium.fluidDesktopShell{
+    height:100vh !important;
+    min-height:100vh !important;
+    max-height:100vh !important;
+  }
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell::before{
+  border-radius:0 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .appFrame{
+  grid-template-columns:60px minmax(0, 1fr) !important;
+  height:100% !important;
+  min-height:0 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSidebar{
+  padding:10px 8px 10px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarSettingsBtn{
+  width:40px !important;
+  height:40px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn.active::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarSettingsBtn.active::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .sidebarIconBtn.accent::before,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceLogo.active::before{
+  left:-5px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceMain,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceContent{
+  min-height:0 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceContent{
+  padding:0 12px 12px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbar,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbar.aiFocus{
+  top:0 !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topbarInner{
+  height:40px !important;
+  padding:1px 14px 0 12px !important;
+  align-items:flex-start !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNav,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNav.topNavShifted{
+  align-items:flex-start !important;
+  gap:16px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topGearBtn{
+  height:27px !important;
+  min-height:27px !important;
+  align-self:flex-start !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .topNavBtn::after{
+  bottom:-5px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .serviceSection,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsMain,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsPageShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseShell,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .legalHub,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeMain{
+  margin-top:8px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .recordsListScroll,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseListScroll,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseTimelineScroll,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .caseCommandPanelScroll,
+.container.mobileRefined.iphonePremium.fluidDesktopShell .paperPickList{
+  max-height:none !important;
+}
+
+/* ========================================================================== 
+   2026-03-30 legal header/right align + advisor profile executive refresh
+   ========================================================================== */
+
+.container.mobileRefined.iphonePremium .topbarInner.topbarCompact,
+.topbarInner.topbarCompact{
+  justify-content: flex-end;
+}
+
+.container.mobileRefined.iphonePremium .topNav.topNavShifted,
+.topNav.topNavShifted{
+  width: 100%;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.legalHubShell{
+  width: min(100%, 1120px);
+}
+
+.legalHubPanel{
+  display: grid;
+  gap: 24px;
+}
+
+.legalAdvisorPanel{
+  display: grid;
+  gap: 12px;
+}
+
+.legalAdvisorPanelCompact{
+  gap: 12px;
+}
+
+.legalAdvisorTop{
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 22px;
+  background: #ffffff;
+  padding: 16px 18px 18px;
+}
+
+.legalAdvisorIdentity{
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.legalAdvisorPhotoCol{
+  display: flex;
+  justify-content: flex-start;
+}
+
+.legalAdvisorPhotoFrame{
+  width: 100%;
+  max-width: 88px;
+  aspect-ratio: 0.9 / 1;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #eef2f6;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  box-shadow: none;
+}
+
+.legalAdvisorPhotoFrameCompact{
+  max-width: 88px;
+}
+
+.legalAdvisorPhoto{
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.92) contrast(1.02);
+}
+
+.legalAdvisorCopyCol{
+  min-width: 0;
+}
+
+.legalAdvisorCopyColCompact{
+  display: grid;
+  gap: 6px;
+  align-content: center;
+}
+
+.legalAdvisorKicker{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--grey-600);
+}
+
+.legalAdvisorHeadingRow{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.legalAdvisorTitle{
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+  color: var(--grey-900);
+  font-family: inherit;
+}
+
+.legalAdvisorMiniBadge{
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(17,24,39,0.12);
+  background: var(--surface-2);
+  color: var(--grey-700);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.legalAdvisorLaunchRow{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.legalAdvisorOpenBadge{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(236, 72, 153, 0.28);
+  background: linear-gradient(135deg, rgba(253, 242, 248, 0.98) 0%, rgba(252, 231, 243, 0.96) 100%);
+  color: #be185d;
+  font-size: 11.5px;
+  font-weight: 950;
+  letter-spacing: -0.01em;
+  box-shadow: 0 8px 22px rgba(236, 72, 153, 0.14);
+  white-space: nowrap;
+}
+
+.legalAdvisorOpenHint{
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: #db2777;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 850;
+}
+
+.legalAdvisorRole{
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--grey-800);
+  font-weight: 850;
+}
+
+.legalAdvisorLead{
+  margin: 2px 0 0;
+  max-width: 64ch;
+  font-size: 12.5px;
+  line-height: 1.58;
+  color: var(--grey-600);
+}
+
+.legalAdvisorQuickFacts{
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.legalAdvisorQuickFactsBalanced{
+  align-items: stretch;
+}
+
+.legalAdvisorQuickFact{
+  margin: 0;
+  padding: 11px 12px;
+  border: 1px solid rgba(17,24,39,0.08);
+  border-radius: 16px;
+  background: var(--surface-2);
+  display: grid;
+  gap: 4px;
+}
+
+.legalAdvisorQuickFact dt{
+  margin: 0;
+  font-size: 11px;
+  color: var(--grey-500);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.legalAdvisorQuickFact dd{
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--grey-900);
+  font-weight: 850;
+}
+
+.legalAdvisorGrid{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.legalAdvisorGridCompact,
+.legalAdvisorGridBalanced{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.legalAdvisorCard{
+  position: relative;
+  padding: 15px 16px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,0.08);
+  box-shadow: none;
+}
+
+.legalAdvisorCard::before{
+  display: none;
+}
+
+.legalAdvisorCardDense{
+  min-height: 100%;
+}
+
+.legalAdvisorCardWide{
+  grid-column: auto;
+}
+
+.legalAdvisorCareerCard{
+  min-width: 0;
+}
+
+.legalAdvisorCardLabel{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: var(--grey-500);
+  margin-bottom: 9px;
+}
+
+.legalAdvisorList,
+.legalAdvisorTimeline{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.legalAdvisorListDense{
+  gap: 7px;
+}
+
+.legalAdvisorTimelineDense{
+  gap: 0;
+}
+
+.legalAdvisorList li,
+.legalAdvisorTimeline li{
+  position: relative;
+  color: var(--grey-900);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.legalAdvisorList li{
+  padding-left: 13px;
+}
+
+.legalAdvisorList li::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.72em;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--grey-700);
+}
+
+.legalAdvisorTimeline li{
+  padding: 8px 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.legalAdvisorTimeline li:first-child{
+  padding-top: 0;
+  border-top: 0;
+}
+
+.legalAdvisorTimeline li::before{
+  display: none;
+}
+
+.legalAdvisorTimelineTitle{
+  display: block;
+  color: var(--grey-900);
+  font-size: 13px;
+  line-height: 1.42;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 980px){
+  .container.mobileRefined.iphonePremium .topNav.topNavShifted,
+  .topNav.topNavShifted{
+    justify-content: flex-start;
+  }
+
+  .legalAdvisorQuickFacts,
+  .legalAdvisorGridCompact,
+  .legalAdvisorGrid{
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px){
+  .legalHubShell{
+    width: 100%;
+  }
+
+  .legalAdvisorIdentity{
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .legalAdvisorPhotoFrame,
+  .legalAdvisorPhotoFrameCompact{
+    max-width: 84px;
+    border-radius: 14px;
+  }
+
+  .legalAdvisorHeadingRow{
+    gap: 8px;
+  }
+
+  .legalAdvisorTitle{
+    font-size: 22px;
+  }
+
+  .legalAdvisorMiniBadge{
+    min-height: 24px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  .legalAdvisorLaunchRow{
+    gap: 8px;
+  }
+
+  .legalAdvisorOpenBadge{
+    min-height: 26px;
+    padding: 0 10px;
+    font-size: 10.5px;
+  }
+
+  .legalAdvisorOpenHint{
+    font-size: 11px;
+  }
+
+  .legalAdvisorLead,
+  .legalAdvisorList li,
+  .legalAdvisorQuickFact dd,
+  .legalAdvisorTimelineTitle{
+    font-size: 12.5px;
+  }
+
+  .legalAdvisorCard{
+    padding: 14px;
+    border-radius: 16px;
+  }
+}
+
+/* ======================================================================
+   Toss-like Evidence Composer Refresh (2026-03)
+   - Keeps existing logic, simplifies visual hierarchy for record entry.
+   ====================================================================== */
+
+.recordComposerModal .entryFormToss{
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.recordComposerModal .composerToss{
+  display: grid;
+  gap: 16px;
+}
+
+.recordComposerModal .composerHeroToss{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.recordComposerModal .composerEyebrow{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.06);
+  color: #374151;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recordComposerModal .composerTitleRowToss{
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.recordComposerModal .composerTitleToss{
+  font-size: 24px;
+  line-height: 1.3;
+  letter-spacing: -0.04em;
+  color: #111827;
+}
+
+.recordComposerModal .composerSubToss{
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
+.recordComposerModal .composerStatusRow{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.recordComposerModal .composerStateChip{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recordComposerModal .composerStateChip.done{
+  background: rgba(17, 24, 39, 0.9);
+  border-color: rgba(17, 24, 39, 0.9);
+  color: #fff;
+}
+
+.recordComposerModal .composerProgressText{
+  font-size: 12px;
+  font-weight: 900;
+  color: #6b7280;
+  margin-left: 4px;
+}
+
+.recordComposerModal .composerCtasToss{
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  min-width: 168px;
+}
+
+.recordComposerModal .composerCtasToss .btn{
+  width: 100%;
+}
+
+.recordComposerModal .composerSection,
+.recordComposerModal .composerFold,
+.recordComposerModal .composerSectionRelated{
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.recordComposerModal .composerSectionPrimary{
+  background: linear-gradient(180deg, #ffffff 0%, #fcfcfd 100%);
+}
+
+.recordComposerModal .composerSectionHead{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.recordComposerModal .composerSectionTitle{
+  font-size: 18px;
+  font-weight: 950;
+  color: #111827;
+  letter-spacing: -0.03em;
+}
+
+.recordComposerModal .composerSectionDesc{
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+.recordComposerModal .heroField textarea.composerTaHero{
+  min-height: 148px;
+  padding: 18px 18px;
+  border-radius: 20px;
+  background: #f9fafb;
+  border-color: rgba(17, 24, 39, 0.08);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.recordComposerModal .composerQuickGuide{
+  margin-top: 2px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.recordComposerModal .composerQuickGuideTitle{
+  font-size: 13px;
+  font-weight: 950;
+  color: #111827;
+}
+
+.recordComposerModal .composerQuickGuideBody{
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+.recordComposerModal .composerInlineGrid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.recordComposerModal .composerInlineGridOptional{
+  margin-top: 0;
+}
+
+.recordComposerModal .fieldSpanFull{
+  grid-column: 1 / -1;
+}
+
+.recordComposerModal .metaInputsToss{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.recordComposerModal .composerMetaCard{
+  margin-bottom: 0;
+  padding: 16px;
+  border-radius: 20px;
+  background: #fbfcfd;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.recordComposerModal .composerActorCard{
+  background: #f9fafb;
+}
+
+.recordComposerModal .composerMiniHint,
+.recordComposerModal .composerEmptyHint{
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.recordComposerModal .composerActorChips{
+  margin-top: 10px;
+}
+
+.recordComposerModal .composerActorChips .chip{
+  background: #fff;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.recordComposerModal .composerFold{
+  padding: 0;
+  overflow: hidden;
+}
+
+.recordComposerModal .composerFold > summary{
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 18px 20px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 950;
+  color: #111827;
+}
+
+.recordComposerModal .composerFold > summary::-webkit-details-marker{
+  display: none;
+}
+
+.recordComposerModal .composerFoldHint{
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.recordComposerModal .composerFoldBody{
+  padding: 0 20px 20px;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.recordComposerModal .composerSectionRelated{
+  padding: 0;
+}
+
+.recordComposerModal .composerSectionRelated > summary{
+  padding: 18px 20px;
+}
+
+.recordComposerModal .composerSectionRelated .metaMorePanel{
+  padding: 0 20px 20px;
+}
+
+.recordComposerModal .composerBottomBar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background: rgba(17, 24, 39, 0.04);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.recordComposerModal .secondarySaveCta{
+  min-width: 132px;
+}
+
+.recordComposerModal .composerInlineWarn,
+.recordComposerModal .miniWarn{
+  margin-top: 10px;
+}
+
+.recordComposerModal .savePill{
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+@media (max-width: 900px){
+  .recordComposerModal .composerHeroToss{
+    flex-direction: column;
+    padding: 18px;
+    border-radius: 24px;
+  }
+
+  .recordComposerModal .composerCtasToss{
+    width: 100%;
+    min-width: 0;
+    flex-direction: row;
+  }
+
+  .recordComposerModal .composerInlineGrid,
+  .recordComposerModal .metaInputsToss{
+    grid-template-columns: 1fr;
+  }
+
+  .recordComposerModal .composerBottomBar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .recordComposerModal .secondarySaveCta{
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px){
+  .recordComposerModal .composerSection,
+  .recordComposerModal .composerFold,
+  .recordComposerModal .composerSectionRelated{
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .recordComposerModal .composerSectionRelated,
+  .recordComposerModal .composerFold{
+    padding: 0;
+  }
+
+  .recordComposerModal .composerFold > summary,
+  .recordComposerModal .composerSectionRelated > summary{
+    padding: 16px;
+  }
+
+  .recordComposerModal .composerFoldBody,
+  .recordComposerModal .composerSectionRelated .metaMorePanel{
+    padding: 0 16px 16px;
+  }
+
+  .recordComposerModal .composerTitleToss{
+    font-size: 21px;
+  }
+
+  .recordComposerModal .composerCtasToss{
+    flex-direction: column;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-30 gather refresh v2
+   - cleaner Toss-like evidence composer
+   - compact header, flatter cards, less decorative hero
+   ========================================================================== */
+
+.recordComposerModal{
+  width: min(calc(100vw - 20px), 420px) !important;
+  max-width: 420px !important;
+  max-height: calc(100vh - 20px) !important;
+  border-radius: 28px !important;
+  overflow: hidden;
+}
+
+.recordComposerModal .modalHead{
+  padding: 16px 18px !important;
+  background: rgba(255,255,255,0.96) !important;
+  border-bottom: 1px solid rgba(15,23,42,0.08) !important;
+  backdrop-filter: blur(14px);
+}
+
+.recordComposerModal .modalHead .h2{
+  font-size: 22px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.04em;
+  color: #111827 !important;
+}
+
+.recordComposerModal .modalHead .muted{
+  font-size: 13px !important;
+  color: #6b7280 !important;
+  margin-top: 4px;
+}
+
+.recordComposerModal .modalHead .btn{
+  height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: 14px !important;
+  background: #f3f4f6 !important;
+  border: 1px solid rgba(15,23,42,0.06) !important;
+  color: #374151 !important;
+  font-weight: 800 !important;
+}
+
+.recordComposerModal .recordComposerModalBody{
+  padding: 12px 12px 18px !important;
+  background: #f5f6f8 !important;
+  max-height: calc(100vh - 112px) !important;
+}
+
+.recordComposerModal .entryFormGather{
+  margin-top: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.recordComposerModal .composerGather{
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.recordComposerModal .gatherTopBar,
+.recordComposerModal .gatherSection,
+.recordComposerModal .gatherFold,
+.recordComposerModal .gatherRelatedBox,
+.recordComposerModal .gatherBottomBar{
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,0.06);
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.04);
+}
+
+.recordComposerModal .gatherTopBar{
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.recordComposerModal .gatherBadge{
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recordComposerModal .gatherTitleRow{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.recordComposerModal .gatherTitle{
+  font-size: 28px;
+  line-height: 1.18;
+  letter-spacing: -0.055em;
+  font-weight: 950;
+  color: #111827;
+}
+
+.recordComposerModal .gatherSub{
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+.recordComposerModal .gatherStatusPill{
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.recordComposerModal .gatherStatusPill.ready{
+  background: rgba(37,99,235,0.08);
+  color: #2563eb;
+  border-color: rgba(37,99,235,0.12);
+}
+
+.recordComposerModal .gatherStatusPill.warn{
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: rgba(194,65,12,0.14);
+}
+
+.recordComposerModal .gatherTopActions{
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 8px;
+}
+
+.recordComposerModal .gatherPrimaryCta,
+.recordComposerModal .gatherBottomCta{
+  height: 50px !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+  font-size: 15px !important;
+}
+
+.recordComposerModal .gatherGhostBtn{
+  height: 50px !important;
+  padding: 0 14px !important;
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+  color: #4b5563 !important;
+}
+
+.recordComposerModal .gatherSection{
+  padding: 18px 16px;
+}
+
+.recordComposerModal .gatherSectionHead{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.recordComposerModal .gatherSectionEyebrow{
+  font-size: 12px;
+  font-weight: 900;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.recordComposerModal .gatherSectionTitle{
+  font-size: 21px;
+  line-height: 1.28;
+  letter-spacing: -0.04em;
+  font-weight: 950;
+  color: #111827;
+}
+
+.recordComposerModal .gatherSectionDesc{
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+.recordComposerModal .gatherStepMini{
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recordComposerModal .gatherHeroField{
+  margin-bottom: 12px;
+}
+
+.recordComposerModal .gatherHeroField label,
+.recordComposerModal .gatherMetaCard label,
+.recordComposerModal .gatherFoldBody label,
+.recordComposerModal .gatherRelatedPanel label{
+  margin-left: 0;
+  font-size: 12px;
+  font-weight: 900;
+  color: #4b5563;
+}
+
+.recordComposerModal .gatherHeroTextarea{
+  min-height: 152px !important;
+  padding: 16px 16px !important;
+  border-radius: 20px !important;
+  background: #f9fafb !important;
+  border: 1px solid rgba(15,23,42,0.08) !important;
+  font-size: 16px !important;
+  line-height: 1.65 !important;
+}
+
+.recordComposerModal .gatherHintRow{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.recordComposerModal .gatherHintChip{
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.recordComposerModal .gatherHintChip.done{
+  background: rgba(37,99,235,0.08);
+  color: #2563eb;
+}
+
+.recordComposerModal .gatherHintText{
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.recordComposerModal .gatherInlineGrid,
+.recordComposerModal .gatherOptionalGrid,
+.recordComposerModal .gatherMetaGrid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.recordComposerModal .gatherMetaCard,
+.recordComposerModal .gatherFoldBody .field,
+.recordComposerModal .gatherRelatedPanel .field{
+  padding: 14px;
+  border-radius: 18px;
+  background: #f9fafb;
+  border: 1px solid rgba(15,23,42,0.06);
+  margin-bottom: 0;
+}
+
+.recordComposerModal .gatherMetaCard input,
+.recordComposerModal .gatherMetaCard select,
+.recordComposerModal .gatherMetaCard textarea,
+.recordComposerModal .gatherFoldBody input,
+.recordComposerModal .gatherFoldBody select,
+.recordComposerModal .gatherFoldBody textarea,
+.recordComposerModal .gatherRelatedPanel input,
+.recordComposerModal .gatherRelatedPanel select,
+.recordComposerModal .gatherRelatedPanel textarea{
+  background: #ffffff !important;
+  border: 1px solid rgba(15,23,42,0.08) !important;
+  border-radius: 14px !important;
+}
+
+.recordComposerModal .gatherInlineRow,
+.recordComposerModal .gatherActorRow,
+.recordComposerModal .gatherRelatedRow{
+  align-items: stretch;
+  gap: 8px;
+}
+
+.recordComposerModal .gatherActorRow .btn.small,
+.recordComposerModal .gatherRelatedRow .btn.small,
+.recordComposerModal .gatherNowBtn{
+  height: 44px !important;
+  border-radius: 14px !important;
+  padding: 0 12px !important;
+}
+
+.recordComposerModal .gatherMiniGuide,
+.recordComposerModal .gatherMutedHint,
+.recordComposerModal .gatherBottomHint{
+  color: #6b7280 !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+}
+
+.recordComposerModal .gatherActorChips{
+  margin-top: 8px;
+}
+
+.recordComposerModal .gatherActorChips .chip{
+  background: #ffffff;
+  border-color: rgba(15,23,42,0.08);
+  box-shadow: none;
+}
+
+.recordComposerModal .gatherFold,
+.recordComposerModal .gatherRelatedBox{
+  padding: 0;
+  overflow: hidden;
+}
+
+.recordComposerModal .gatherFold > summary,
+.recordComposerModal .gatherRelatedBox > summary{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 17px 16px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.recordComposerModal .gatherFold > summary::-webkit-details-marker,
+.recordComposerModal .gatherRelatedBox > summary::-webkit-details-marker{
+  display: none;
+}
+
+.recordComposerModal .gatherFoldBody,
+.recordComposerModal .gatherRelatedPanel{
+  padding: 0 16px 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.recordComposerModal .gatherFold .composerFoldHint,
+.recordComposerModal .gatherRelatedBox .metaMoreCount{
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.recordComposerModal .gatherWarn,
+.recordComposerModal .miniWarn.gatherWarn{
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid rgba(194,65,12,0.14);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.recordComposerModal .gatherBottomBar{
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.recordComposerModal .gatherBottomCta{
+  width: 100%;
+}
+
+@media (min-width: 390px){
+  .recordComposerModal .gatherInlineGrid,
+  .recordComposerModal .gatherOptionalGrid,
+  .recordComposerModal .gatherMetaGrid{
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  }
+
+  .recordComposerModal .gatherMetaCard.gatherActorCard,
+  .recordComposerModal .fieldSpanFull{
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 389px){
+  .recordComposerModal{
+    width: calc(100vw - 14px) !important;
+    max-height: calc(100vh - 14px) !important;
+  }
+
+  .recordComposerModal .modalHead{
+    padding: 14px 14px !important;
+  }
+
+  .recordComposerModal .recordComposerModalBody{
+    padding: 10px 10px 14px !important;
+  }
+
+  .recordComposerModal .gatherTopBar,
+  .recordComposerModal .gatherSection,
+  .recordComposerModal .gatherFold > summary,
+  .recordComposerModal .gatherRelatedBox > summary,
+  .recordComposerModal .gatherFoldBody,
+  .recordComposerModal .gatherRelatedPanel,
+  .recordComposerModal .gatherBottomBar{
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .recordComposerModal .gatherTitle{
+    font-size: 24px;
+  }
+
+  .recordComposerModal .gatherTitleRow{
+    flex-direction: column;
+  }
+
+  .recordComposerModal .gatherTopActions{
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ===================== Record composer cleanup v3 ===================== */
+.recordComposerModal{
+  max-width: 760px !important;
+}
+
+.recordComposerModal .modalHead{
+  background: #ffffff !important;
+}
+
+.recordComposerModal .recordComposerModalBody{
+  padding: 12px 12px 18px !important;
+  background: #f3f4f6 !important;
+}
+
+.recordComposerModal .recordFormSimple{
+  display: grid;
+  gap: 12px;
+}
+
+.recordComposerModal .recordFormStatusBar,
+.recordComposerModal .recordFormCard,
+.recordComposerModal .recordRelatedDetails,
+.recordComposerModal .recordFormFooter{
+  background: #ffffff;
+  border: 1px solid rgba(15,23,42,0.08);
+  border-radius: 18px;
+  box-shadow: none;
+}
+
+.recordComposerModal .recordFormStatusBar{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+}
+
+.recordComposerModal .recordFormKicker{
+  font-size: 12px;
+  font-weight: 800;
+  color: #6b7280;
+}
+
+.recordComposerModal .recordFormTitle{
+  margin-top: 4px;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+  font-weight: 900;
+  color: #111827;
+}
+
+.recordComposerModal .recordFormSub{
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.recordComposerModal .recordFormTopActions{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.recordComposerModal .recordFormStatusPill{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+
+.recordComposerModal .recordFormStatusPill.ready{
+  background: rgba(37,99,235,0.08);
+  color: #2563eb;
+  border-color: rgba(37,99,235,0.14);
+}
+
+.recordComposerModal .recordFormStatusPill.warn{
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: rgba(194,65,12,0.14);
+}
+
+.recordComposerModal .recordFormGhostBtn{
+  height: 32px !important;
+  border-radius: 999px !important;
+  padding: 0 12px !important;
+}
+
+.recordComposerModal .recordFormCard{
+  padding: 16px;
+}
+
+.recordComposerModal .recordFormCardHead{
+  margin-bottom: 12px;
+}
+
+.recordComposerModal .recordFormCardTitle{
+  font-size: 15px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.recordComposerModal .recordFormCardDesc{
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.recordComposerModal .recordFormGrid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.recordComposerModal .recordFormCard .field,
+.recordComposerModal .recordRelatedPanel .field{
+  margin-bottom: 0;
+}
+
+.recordComposerModal .recordFormCard label,
+.recordComposerModal .recordRelatedPanel label{
+  margin-left: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #4b5563;
+}
+
+.recordComposerModal .recordFormCard input,
+.recordComposerModal .recordFormCard select,
+.recordComposerModal .recordFormCard textarea,
+.recordComposerModal .recordRelatedPanel input,
+.recordComposerModal .recordRelatedPanel select,
+.recordComposerModal .recordRelatedPanel textarea{
+  background: #f9fafb !important;
+  border: 1px solid rgba(15,23,42,0.08) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+.recordComposerModal .simpleComposerTextarea{
+  min-height: 120px !important;
+}
+
+.recordComposerModal .recordFormFieldCard,
+.recordComposerModal .recordFormActorCard{
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.recordComposerModal .simpleWarn,
+.recordComposerModal .miniWarn.simpleWarn{
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid rgba(194,65,12,0.14);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.recordComposerModal .recordRelatedDetails{
+  overflow: hidden;
+}
+
+.recordComposerModal .recordRelatedDetails > summary{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  list-style: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.recordComposerModal .recordRelatedDetails > summary::-webkit-details-marker{
+  display: none;
+}
+
+.recordComposerModal .recordRelatedPanel{
+  padding: 0 16px 16px;
+}
+
+.recordComposerModal .recordFormFooter{
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+
+.recordComposerModal .recordFormFooterText{
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.recordComposerModal .recordFormSaveBtn{
+  width: 100%;
+  height: 48px !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+
+.recordComposerModal .gatherActorRow,
+.recordComposerModal .gatherRelatedRow,
+.recordComposerModal .gatherInlineRow{
+  gap: 8px;
+  align-items: stretch;
+}
+
+.recordComposerModal .gatherActorChips{
+  margin-top: 8px;
+}
+
+.recordComposerModal .gatherMutedHint{
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280 !important;
+}
+
+.recordComposerModal .gatherNowBtn,
+.recordComposerModal .gatherActorRow .btn.small,
+.recordComposerModal .gatherRelatedRow .btn.small{
+  height: 44px !important;
+  border-radius: 12px !important;
+}
+
+@media (min-width: 560px){
+  .recordComposerModal .recordFormGrid{
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+  }
+
+  .recordComposerModal .recordFormActorCard,
+  .recordComposerModal .simpleComposerTextarea,
+  .recordComposerModal #recordSummaryOverview,
+  .recordComposerModal .recordFormCard .field:first-of-type,
+  .recordComposerModal .recordFormCard .field:last-of-type{
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 520px){
+  .recordComposerModal .recordFormStatusBar{
+    flex-direction: column;
+  }
+
+  .recordComposerModal .recordFormTopActions{
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+
+/* ========================================================================== 
+   2026-03-30 home feed compact + update notes modal
+   ========================================================================== */
+
+.homeSectionStack{
+  width:min(100%, 520px);
+  margin:0 auto;
+  display:grid;
+  gap:12px;
+}
+
+.updatesHeroCard{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:15px 16px;
+  border-radius:22px;
+  border:1px solid rgba(17,24,39,0.08);
+  background:linear-gradient(135deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,1) 100%);
+  box-shadow:0 12px 24px rgba(15,23,42,0.05);
+  text-align:left;
+}
+
+.updatesHeroCard:hover{
+  transform:translateY(-1px);
+  box-shadow:0 16px 30px rgba(15,23,42,0.08);
+}
+
+.updatesHeroCopy{ min-width:0; }
+
+.updatesHeroEyebrow{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:0.04em;
+  color:#6b7280;
+  margin-bottom:4px;
+}
+
+.updatesHeroTitle{
+  font-size:15px;
+  font-weight:900;
+  color:#111827;
+  line-height:1.35;
+}
+
+.updatesHeroMeta{
+  margin-top:4px;
+  font-size:12px;
+  color:#6b7280;
+  line-height:1.45;
+}
+
+.updatesHeroArrow{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:58px;
+  height:34px;
+  padding:0 12px;
+  border-radius:999px;
+  background:#111827;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+}
+
+.homeFeedCardCompact{
+  max-width:420px;
+  margin:0 auto;
+  border-radius:22px;
+  box-shadow:0 14px 28px rgba(15,23,42,0.06), 0 8px 18px rgba(15,23,42,0.04);
+}
+
+.homePhotoFrameCompact{
+  padding:0 12px 12px;
+}
+
+.homeFeedImageCompact{
+  display:block;
+  width:100%;
+  aspect-ratio:4 / 5;
+  object-fit:cover;
+  border-radius:18px;
+}
+
+.homeFeedBodyCompact{
+  padding:0 12px 14px;
+}
+
+.homeFeedBodyCompact .homeFeedCaption{
+  font-size:11.5px;
+  margin-top:4px;
+}
+
+.homeGhostBtn[data-action="open-updates-note"]{
+  width:auto;
+  min-width:48px;
+  padding:0 10px;
+  font-size:12px;
+  font-weight:800;
+  color:#374151;
+}
+
+.updatesNoteModal{
+  max-width:460px;
+}
+
+.updatesNoteModalBody{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+}
+
+.updatesNoteItem{
+  display:grid;
+  grid-template-columns:36px minmax(0, 1fr);
+  gap:12px;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid rgba(17,24,39,0.08);
+  background:#fafbfc;
+}
+
+.updatesNoteIndex{
+  width:36px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  background:#111827;
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+}
+
+.updatesNoteTitle{
+  font-size:14px;
+  font-weight:900;
+  color:#111827;
+  line-height:1.35;
+}
+
+.updatesNoteDesc{
+  margin-top:4px;
+  font-size:12.5px;
+  color:#6b7280;
+  line-height:1.55;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeSectionStack{
+  width:min(100%, 500px) !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedCardCompact{
+  max-width:400px !important;
+  border-radius:20px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell .homeFeedImageCompact{
+  border-radius:16px !important;
+}
+
+@media (max-width: 720px){
+  .homeSectionStack{
+    width:100%;
+  }
+
+  .updatesHeroCard{
+    padding:14px;
+    border-radius:20px;
+  }
+
+  .updatesHeroArrow{
+    min-width:52px;
+    height:32px;
+  }
+
+  .homeFeedCardCompact{
+    max-width:100%;
+  }
+
+  .updatesNoteItem{
+    grid-template-columns:32px minmax(0, 1fr);
+    gap:10px;
+    padding:11px;
+  }
+
+  .updatesNoteIndex{
+    width:32px;
+    height:32px;
+    border-radius:10px;
+  }
+}

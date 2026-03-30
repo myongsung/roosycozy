@@ -3,7 +3,7 @@ import { save as saveDialog } from '@tauri-apps/plugin-dialog';
 import { uid, nowISO, toLocalInputValue, fromLocalInputValue, safeParseJSON, defaultState, normalizeState, loadState, saveState, wipeAll, STATUSES, ensureRecordV8, sealNewRecord, amendSignedRecord, verifyRecordIntegrity, buildSignedBackupEnvelope, verifyBackupEnvelope, reverifyStateRecords, refreshDeviceSignerInfo } from '../utils';
 import type { ActorRef, PlaceType, StoreType, Sensitivity, StepItem } from '../engine';
 import { OTHER, casesContainingRecord, addActorToList, buildRecordFromDraft, createCaseWithAdvisors, regenerateCaseAdvisors, buildCaseTimeline, getCaseUpdateCandidates, addRecordsToCase, recordsForCase, classifyRecordsRisk } from '../engine';
-import { S, setState, ui, toast, runToastAction, log, openConfirm, closeConfirm, openRecordModal, closeRecordModal,  openCaseCreateModal, closeCaseCreateModal, openTimelineModal, closeTimelineModal, openPaperModal, closePaperModal, openPaperPickModal, closePaperPickModal, openCaseUpdateModal, closeCaseUpdateModal, draftRecord, draftRecordEdit, draftCase, draftStep, actorTypeTextFromInternal, actorTypeInternalFromText, getSelectedCase, logs, actorShort, LVS, PLACE_TYPES, STORE_TYPES, UI_OTHER_ACTOR_LABEL, loadRecordEditDraft, resetRecordEditDraft } from './state';
+import { S, setState, ui, toast, runToastAction, log, openConfirm, closeConfirm, openRecordModal, closeRecordModal,  openCaseCreateModal, closeCaseCreateModal, openTimelineModal, closeTimelineModal, openPaperModal, closePaperModal, openPaperPickModal, closePaperPickModal, openCaseUpdateModal, closeCaseUpdateModal, draftRecord, draftRecordEdit, draftCase, draftStep, actorTypeTextFromInternal, actorTypeInternalFromText, getSelectedCase, logs, actorShort, LVS, PLACE_TYPES, STORE_TYPES, UI_OTHER_ACTOR_LABEL, UI_CLASS_ACTOR_LABEL, normalizeActorTypeTextUI, loadRecordEditDraft, resetRecordEditDraft, CLASS_ROSTER_SIZE, getClassRoster, hasScreenPin, readScreenPin, saveScreenPin, clearScreenPin, normalizeScreenPin, isValidScreenPin } from './state';
 import { ensurePaperStyles, buildPaperPayload, computeCasePaperHash } from './paper';
 import { render as renderView } from './views';
 
@@ -15,6 +15,22 @@ const setText = (id: string, text: string) => { const el = document.getElementBy
 
 const SIGNATURE_MODAL_ID = 'signatureModal';
 const SIGN_SUCCESS_MODAL_ID = 'signSuccessModal';
+const SCREEN_PIN_MODAL_ID = 'screenPinModal';
+
+const resetScreenPinModalDraft = () => {
+  ui.pinEntryDraft = '';
+  ui.pinConfirmDraft = '';
+};
+const resetScreenPinSettingsDraft = () => {
+  ui.pinSettingsDraft = '';
+  ui.pinSettingsConfirmDraft = '';
+};
+const focusScreenPinInput = () => {
+  window.setTimeout(() => {
+    (document.getElementById('screenPinInput') as HTMLInputElement | null)?.focus();
+  }, 0);
+};
+
 
 const closeSignatureModal = () => {
   ui.signatureModalMode = null;
@@ -43,8 +59,183 @@ const syncDialogs = () => {
   if (ui.paperCaseId || ui.paperHash) openPaperModal();
   if (ui.updateCaseId) openCaseUpdateModal();
   if (ui.settingsOpen) openDlg('settingsModal');
+  if (ui.updatesNoteOpen) openDlg('updateNotesModal');
+  if (ui.classRosterOpen) openDlg('classRosterModal');
   if (ui.signatureModalMode) openDlg(SIGNATURE_MODAL_ID);
+  if (ui.pinModalOpen) openDlg(SCREEN_PIN_MODAL_ID);
 };
+
+
+
+const ensureContentProofDraft = () => {
+  const draft = (ui as any).contentProofDraft || ((ui as any).contentProofDraft = {
+    senderName: '',
+    senderAddress: '',
+    recipientName: '',
+    recipientAddress: '',
+  });
+  draft.senderName = String(draft.senderName || '');
+  draft.senderAddress = String(draft.senderAddress || '');
+  draft.recipientName = String(draft.recipientName || '');
+  draft.recipientAddress = String(draft.recipientAddress || '');
+  return draft;
+};
+
+
+const autoResizeContentProofArea = (el: HTMLTextAreaElement | null) => {
+  if (!el) return;
+  el.style.height = 'auto';
+  const next = Math.max(88, Math.min(el.scrollHeight || 0, 220));
+  el.style.height = `${next}px`;
+};
+
+const updateContentProofUI = () => {
+  const draft = ensureContentProofDraft();
+  const fieldMap: Record<string, string> = {
+    senderName: String(draft.senderName || '').trim(),
+    senderAddress: String(draft.senderAddress || '').trim(),
+    recipientName: String(draft.recipientName || '').trim(),
+    recipientAddress: String(draft.recipientAddress || '').trim(),
+  };
+
+  Object.entries(fieldMap).forEach(([field, value]) => {
+    document.querySelectorAll<HTMLElement>(`[data-proof-bind="${field}"]`).forEach((node) => {
+      const fallback = String(node.dataset.proofEmpty || '미입력');
+      node.textContent = value || fallback;
+      node.classList.toggle('isEmpty', !value);
+    });
+
+    const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[data-action="draft-content-proof"][data-field="${field}"]`);
+    if (input && document.activeElement !== input && input.value !== String(draft[field as keyof typeof fieldMap] || '')) {
+      input.value = String(draft[field as keyof typeof fieldMap] || '');
+    }
+    if (input instanceof HTMLTextAreaElement) autoResizeContentProofArea(input);
+  });
+
+  const senderReady = !!fieldMap.senderName && !!fieldMap.senderAddress;
+  const recipientReady = !!fieldMap.recipientName && !!fieldMap.recipientAddress;
+  const filledCount = Object.values(fieldMap).filter(Boolean).length;
+  const allReady = senderReady && recipientReady;
+
+  document.querySelectorAll<HTMLElement>('[data-proof-party="sender"]').forEach((node) => node.classList.toggle('ready', senderReady));
+  document.querySelectorAll<HTMLElement>('[data-proof-party="recipient"]').forEach((node) => node.classList.toggle('ready', recipientReady));
+
+  const status = document.getElementById('contentProofStatus');
+  if (status) {
+    status.textContent = allReady ? '발신인·수신인 정보 입력 완료' : `송달 정보 ${filledCount}/4 입력`;
+    status.classList.toggle('ready', allReady);
+  }
+
+  const printBtn = document.querySelector<HTMLButtonElement>('#paperModal [data-action="print-paper"]');
+  if (printBtn) {
+    printBtn.disabled = !allReady;
+    printBtn.setAttribute('aria-disabled', allReady ? 'false' : 'true');
+    if (!allReady) printBtn.setAttribute('title', '발신인/수신인 이름과 주소를 모두 입력하면 PDF를 저장할 수 있어요');
+    else printBtn.removeAttribute('title');
+  }
+};
+
+const ensureClassRosterDraft = () => {
+  const raw = Array.isArray(ui.classRosterDraft) ? ui.classRosterDraft : [];
+  ui.classRosterDraft = Array.from({ length: CLASS_ROSTER_SIZE }, (_, i) => String(raw[i] || ''));
+  return ui.classRosterDraft;
+};
+
+const updateClassRosterCountUI = () => {
+  const countEl = document.getElementById('classRosterFilledCount');
+  if (!countEl) return;
+  const filled = ensureClassRosterDraft().filter((name) => String(name || '').trim()).length;
+  countEl.textContent = String(filled);
+};
+
+const fillClassRosterInputsFromDraft = () => {
+  ensureClassRosterDraft().forEach((value, index) => {
+    const input = document.querySelector(`[data-action="draft-class-roster"][data-index="${index}"]`) as HTMLInputElement | null;
+    if (input) input.value = value;
+  });
+  updateClassRosterCountUI();
+};
+
+const applyClassRosterPaste = (startIndex: number, rawText: string) => {
+  const tokens = String(rawText || '')
+    .replace(/\r/g, '\n')
+    .split(/[\n\t]+/)
+    .map((x) => String(x || '').trim())
+    .filter(Boolean);
+  if (!tokens.length) return 0;
+  const draft = ensureClassRosterDraft();
+  let applied = 0;
+  for (let i = 0; i < tokens.length && startIndex + i < CLASS_ROSTER_SIZE; i += 1) {
+    draft[startIndex + i] = tokens[i];
+    applied += 1;
+  }
+  fillClassRosterInputsFromDraft();
+  return applied;
+};
+
+const SUMMARY_PART_LABELS = [
+  ['overview', '사안개요'],
+  ['background', '사안경위'],
+  ['issues', '쟁점별정리'],
+  ['evidenceList', '증거 목록'],
+  ['teacherActions', '교사의 조치 기록'],
+  ['other', '기타 내용'],
+] as const;
+
+type DraftRecordLike = typeof draftRecord;
+
+type DraftActorTypeText = string;
+const preserveActorTypeText = (selectedText: DraftActorTypeText, internalType: ActorRef['type']) => {
+  const normalized = normalizeActorTypeTextUI(String(selectedText || '').trim());
+  if (normalized === UI_CLASS_ACTOR_LABEL) return UI_CLASS_ACTOR_LABEL;
+  return normalized || actorTypeTextFromInternal(internalType as any);
+};
+
+const didActorTypePickerChange = (prevText: string, nextText: string) =>
+  normalizeActorTypeTextUI(String(prevText || '').trim()) !== normalizeActorTypeTextUI(String(nextText || '').trim());
+
+function getDraftSummaryParts(draft: any) {
+  return {
+    overview: String(draft.summaryOverview || '').trim(),
+    background: String(draft.summaryBackground || '').trim(),
+    issues: String(draft.summaryIssues || '').trim(),
+    evidenceList: String(draft.summaryEvidenceList || '').trim(),
+    teacherActions: String(draft.summaryTeacherActions || '').trim(),
+    other: String(draft.summaryOther || '').trim(),
+  };
+}
+
+function buildSummaryFromDraftParts(draft: any) {
+  const parts = getDraftSummaryParts(draft);
+  const joined = SUMMARY_PART_LABELS
+    .map(([key, label]) => {
+      const value = String((parts as any)[key] || '').trim();
+      return value ? `[${label}]\n${value}` : '';
+    })
+    .filter(Boolean)
+    .join('\n\n');
+  return { parts, text: joined };
+}
+
+function getPendingDraftActor(draft: any): ActorRef | null {
+  const typeText = String(draft.actorTypeText || '').trim();
+  const name = String(draft.actorNameOther || '').trim();
+  if (!typeText) return null;
+  if (typeText === UI_OTHER_ACTOR_LABEL || typeText === '없음') return null;
+  if (!name) return null;
+  return { type: actorTypeInternalFromText(typeText) as any, name };
+}
+
+function getDraftActorsForSave(draft: any): ActorRef[] {
+  const current = Array.isArray(draft.actors) ? draft.actors : [];
+  let out = current
+    .map((a: any) => ({ type: (a?.type ?? '외부인') as any, name: String(a?.name ?? '').trim() }))
+    .filter((a: any) => a.name)
+    .reduce((acc: ActorRef[], a: ActorRef) => addActorToList(acc, a), [] as ActorRef[]);
+  const pending = getPendingDraftActor(draft);
+  if (pending) out = addActorToList(out, pending);
+  return out;
+}
 
 // 메모 입력폼(컴포저)에서 저장 버튼/필수 경고를 전체 리렌더 없이 즉시 반영
 function updateRecordComposerUI() {
@@ -54,18 +245,12 @@ function updateRecordComposerUI() {
   const wTs = document.getElementById('recordWarnTs') as HTMLDivElement | null;
   const wAct = document.getElementById('recordWarnActor') as HTMLDivElement | null;
 
-  // 현재 화면에 메모 입력폼이 없으면 스킵
   if (!btn && !pill && !wSum && !wTs && !wAct) return;
 
-  const summaryTxt = String(draftRecord.summary || '').trim();
-  const okSummary = summaryTxt.length >= 4;
-
+  const summaryPack = buildSummaryFromDraftParts(draftRecord as any);
+  const okSummary = summaryPack.text.length >= 4;
   const okTs = String(draftRecord.ts || '').trim().length >= 10;
-
-  const actorTypeText = String((draftRecord as any).actorTypeText || '').trim();
-  const actorName = String(draftRecord.actorNameOther || '').trim();
-  const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
-  const okActor = allowEmptyActorName ? true : actorName.length > 0;
+  const okActor = getDraftActorsForSave(draftRecord as any).length > 0;
 
   const reqMissing: string[] = [];
   if (!okSummary) reqMissing.push('내용');
@@ -91,11 +276,10 @@ function updateRecordComposerUI() {
   if (wTs) (wTs as any).hidden = okTs;
   if (wAct) (wAct as any).hidden = okActor;
 
-  // 입력 강조(빨간 테두리 등)
-  const elSum = document.getElementById('recordSummary') as HTMLTextAreaElement | null;
   const elTs = document.getElementById('recordTs') as HTMLInputElement | null;
   const elActorRow = document.getElementById('recordActorRow') as HTMLDivElement | null;
-  if (elSum) elSum.classList.toggle('reqWarn', !okSummary);
+  const elSummaryWrap = document.getElementById('recordSummaryParts') as HTMLDivElement | null;
+  if (elSummaryWrap) elSummaryWrap.classList.toggle('reqWarn', !okSummary);
   if (elTs) elTs.classList.toggle('reqWarn', !okTs);
   if (elActorRow) elActorRow.classList.toggle('reqWarn', !okActor);
 }
@@ -109,13 +293,10 @@ function updateRecordEditUI() {
   const wAct = document.getElementById('recordEditWarnActor') as HTMLDivElement | null;
   if (!btn && !pill && !wSum && !wTs && !wAct) return;
 
-  const summaryTxt = String(draftRecordEdit.summary || '').trim();
-  const okSummary = summaryTxt.length >= 4;
+  const summaryPack = buildSummaryFromDraftParts(draftRecordEdit as any);
+  const okSummary = summaryPack.text.length >= 4;
   const okTs = String(draftRecordEdit.ts || '').trim().length >= 10;
-  const actorTypeText = String((draftRecordEdit as any).actorTypeText || '').trim();
-  const actorName = String(draftRecordEdit.actorNameOther || '').trim();
-  const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
-  const okActor = allowEmptyActorName ? true : actorName.length > 0;
+  const okActor = getDraftActorsForSave(draftRecordEdit as any).length > 0;
 
   const reqMissing: string[] = [];
   if (!okSummary) reqMissing.push('내용');
@@ -139,10 +320,10 @@ function updateRecordEditUI() {
   if (wTs) (wTs as any).hidden = okTs;
   if (wAct) (wAct as any).hidden = okActor;
 
-  const elSum = document.getElementById('recordEditSummary') as HTMLTextAreaElement | null;
   const elTs = document.getElementById('recordEditTs') as HTMLInputElement | null;
   const elActorRow = document.getElementById('recordEditActorRow') as HTMLDivElement | null;
-  if (elSum) elSum.classList.toggle('reqWarn', !okSummary);
+  const elSummaryWrap = document.getElementById('recordEditSummaryParts') as HTMLDivElement | null;
+  if (elSummaryWrap) elSummaryWrap.classList.toggle('reqWarn', !okSummary);
   if (elTs) elTs.classList.toggle('reqWarn', !okTs);
   if (elActorRow) elActorRow.classList.toggle('reqWarn', !okActor);
 }
@@ -155,13 +336,58 @@ function captureTransientUI() {
   if (detEdit) ui.recEditRelatedOpen = !!detEdit.open;
 }
 
+type RenderScrollState = {
+  winX: number;
+  winY: number;
+  containers: { selector: string; top: number; left: number }[];
+};
+
+function captureRenderScrollState(): RenderScrollState {
+  const selectors = [
+    '#recordComposerModal',
+    '#recordComposerModal .recordComposerModalBody',
+    '#recordModal',
+    '#recordModal .modalBody',
+    '#caseCreateModal',
+    '#caseCreateModal .caseCommandPanelScroll',
+    '#caseUpdateModal',
+    '#timelineDetailModal',
+  ];
+  const containers = selectors
+    .map((selector) => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (!el) return null;
+      return { selector, top: el.scrollTop, left: el.scrollLeft };
+    })
+    .filter(Boolean) as { selector: string; top: number; left: number }[];
+  return {
+    winX: window.scrollX || 0,
+    winY: window.scrollY || 0,
+    containers,
+  };
+}
+
+function restoreRenderScrollState(state: RenderScrollState | null) {
+  if (!state) return;
+  window.scrollTo(state.winX, state.winY);
+  for (const item of state.containers) {
+    const el = document.querySelector(item.selector) as HTMLElement | null;
+    if (!el) continue;
+    el.scrollTop = item.top;
+    el.scrollLeft = item.left;
+  }
+}
+
 const render = () => {
   captureTransientUI();
+  const scrollState = captureRenderScrollState();
   _isRerendering = true;
   renderView();
   syncDialogs();
+  restoreRenderScrollState(scrollState);
   updateRecordComposerUI();
   updateRecordEditUI();
+  updateContentProofUI();
   window.setTimeout(() => { _isRerendering = false; }, 0);
 };
 
@@ -276,11 +502,12 @@ async function refreshRiskPredictionsOnState(force = true) {
 
 /* ---------- defaults (draft) ---------- */
 const DEFAULT_RECORD = () => ({
-  intake: '상담', actorTypeText: '학생', actorType: '학생', actorNameChoice: OTHER, actorNameOther: '',
+  intake: '상담', actorTypeText: '학생', actorType: '학생', actorNameChoice: OTHER, actorNameOther: '', actors: [],
   relTypeText: '학부모', relType: '학부모', relNameChoice: OTHER, relNameOther: '', related: [],
   placeText: '교실', place: '교실', placeOther: '',
   storeTypeText: '전화', storeType: '전화', storeOther: '',
   lvText: 'LV2', lv: 'LV2', ts: toLocalInputValue(nowISO()), summary: '',
+  summaryOverview: '', summaryBackground: '', summaryIssues: '', summaryEvidenceList: '', summaryTeacherActions: '', summaryOther: '',
   signerLabel: '기기 봉인서명', sealReason: ''
 });
 const DEFAULT_CASE = () => ({
@@ -291,20 +518,16 @@ const DEFAULT_CASE = () => ({
 });
 
 function prepareRecordDraftForSeal() {
-  const actorTypeText = String((draftRecord as any).actorTypeText || '').trim();
   const placeText = String((draftRecord as any).placeText || '').trim();
   const storeText = String((draftRecord as any).storeTypeText || '').trim();
   const lvText = String((draftRecord as any).lvText || '').trim();
-
   const tsTxt = String(draftRecord.ts || '').trim();
-  const summaryTxt = String(draftRecord.summary || '').trim();
-  const actorNameTxt = String(draftRecord.actorNameOther || '').trim();
-  const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
-  const okActor = allowEmptyActorName ? true : actorNameTxt.length > 0;
+  const summaryPack = buildSummaryFromDraftParts(draftRecord as any);
+  const actorsClean = getDraftActorsForSave(draftRecord as any);
 
   if (tsTxt.length < 10) return { error: '시간을 입력하세요' };
-  if (!actorTypeText || !okActor) return { error: '주체 정보를 입력하세요' };
-  if (summaryTxt.length < 4) return { error: '내용을 4글자 이상 입력하세요' };
+  if (!actorsClean.length) return { error: '주체를 1명 이상 추가하세요' };
+  if (summaryPack.text.length < 4) return { error: '내용을 4글자 이상 입력하세요' };
   if (!placeText || !storeText || !lvText) return { error: '필수 정보를 입력하세요' };
 
   const placeIsKnown = (PLACE_TYPES as any).includes(placeText as any);
@@ -319,34 +542,30 @@ function prepareRecordDraftForSeal() {
   const relatedClean = (draftRecord.related || []).filter((a) => String((a as any)?.name || '').trim().length > 0);
 
   return {
-    actorTypeText,
-    actorNameTxt,
-    allowEmptyActorName,
+    actorsClean,
     place,
     placeOther,
     storeType,
     storeOther,
     lvText,
     relatedClean,
-    summary: summaryTxt,
+    summary: summaryPack.text,
+    summaryParts: summaryPack.parts,
     tsISO: fromLocalInputValue(draftRecord.ts),
   };
 }
 
 function prepareRecordEditForSeal() {
-  const actorTypeText = String((draftRecordEdit as any).actorTypeText || '').trim();
   const placeText = String((draftRecordEdit as any).placeText || '').trim();
   const storeText = String((draftRecordEdit as any).storeTypeText || '').trim();
   const lvText = String((draftRecordEdit as any).lvText || '').trim();
   const tsTxt = String(draftRecordEdit.ts || '').trim();
-  const summaryTxt = String(draftRecordEdit.summary || '').trim();
-  const actorNameTxt = String(draftRecordEdit.actorNameOther || '').trim();
-  const allowEmptyActorName = actorTypeText === UI_OTHER_ACTOR_LABEL || actorTypeText === '없음';
-  const okActor = allowEmptyActorName ? true : actorNameTxt.length > 0;
+  const summaryPack = buildSummaryFromDraftParts(draftRecordEdit as any);
+  const actorsClean = getDraftActorsForSave(draftRecordEdit as any);
 
   if (tsTxt.length < 10) return { error: '사건시각을 입력하세요' };
-  if (!actorTypeText || !okActor) return { error: '주체 정보를 입력하세요' };
-  if (summaryTxt.length < 4) return { error: '내용을 4글자 이상 입력하세요' };
+  if (!actorsClean.length) return { error: '주체를 1명 이상 추가하세요' };
+  if (summaryPack.text.length < 4) return { error: '내용을 4글자 이상 입력하세요' };
   if (!placeText || !storeText || !lvText) return { error: '필수 정보를 입력하세요' };
 
   const placeIsKnown = (PLACE_TYPES as any).includes(placeText as any);
@@ -361,16 +580,15 @@ function prepareRecordEditForSeal() {
   const relatedClean = (draftRecordEdit.related || []).filter((a) => String((a as any)?.name || '').trim().length > 0);
 
   return {
-    actorTypeText,
-    actorNameTxt,
-    allowEmptyActorName,
+    actorsClean,
     place,
     placeOther,
     storeType,
     storeOther,
     lvText,
     relatedClean,
-    summary: summaryTxt,
+    summary: summaryPack.text,
+    summaryParts: summaryPack.parts,
     tsISO: fromLocalInputValue(draftRecordEdit.ts),
   };
 }
@@ -389,9 +607,16 @@ function bindEvents() {
     if (prep.error) return toast(prep.error);
 
     const { record, error } = buildRecordFromDraft({
-      tsISO: prep.tsISO, storeType: prep.storeType, storeOther: prep.storeOther, lv: prep.lvText as any,
-      actorType: draftRecord.actorType, actorNameChoice: OTHER, actorNameOther: prep.actorNameTxt || (prep.allowEmptyActorName ? (prep.actorTypeText === '없음' ? '없음' : '기타') : ''),
-      related: prep.relatedClean, place: prep.place, placeOther: prep.placeOther, summary: prep.summary,
+      tsISO: prep.tsISO,
+      storeType: prep.storeType,
+      storeOther: prep.storeOther,
+      lv: prep.lvText as any,
+      actors: prep.actorsClean,
+      related: prep.relatedClean,
+      place: prep.place,
+      placeOther: prep.placeOther,
+      summary: prep.summary,
+      summaryParts: prep.summaryParts,
     }, () => uid('REC'));
     if (error) return toast(error);
 
@@ -408,6 +633,13 @@ function bindEvents() {
     await saveState(S);
 
     draftRecord.summary = '';
+    draftRecord.summaryOverview = '';
+    draftRecord.summaryBackground = '';
+    draftRecord.summaryIssues = '';
+    draftRecord.summaryEvidenceList = '';
+    draftRecord.summaryTeacherActions = '';
+    draftRecord.summaryOther = '';
+    draftRecord.actors = [];
     draftRecord.actorNameChoice = OTHER;
     draftRecord.actorNameOther = '';
     draftRecord.relNameChoice = OTHER;
@@ -446,7 +678,8 @@ function bindEvents() {
       ...current,
       id: current.id,
       ts: prep.tsISO,
-      actor: { type: draftRecordEdit.actorType, name: prep.actorNameTxt || (prep.allowEmptyActorName ? (prep.actorTypeText === '없음' ? '없음' : '기타') : '') },
+      actor: prep.actorsClean[0],
+      actors: prep.actorsClean,
       related: prep.relatedClean,
       place: prep.place,
       placeOther: prep.placeOther,
@@ -454,6 +687,7 @@ function bindEvents() {
       storeOther: prep.storeOther,
       lv: prep.lvText as any,
       summary: prep.summary,
+      summaryParts: prep.summaryParts,
     } as any;
 
     const amended = await amendSignedRecord(current, nextRecord, {
@@ -487,7 +721,7 @@ function bindEvents() {
     'confirm-yes': () => closeConfirm(true), 'confirm-no': () => closeConfirm(false),
 
     'close-record': () => (closeRecordModal(), render()),
-    'open-record-composer': () => { ui.recordComposerOpen = true; render(); window.setTimeout(() => { (document.getElementById('recordSummary') as HTMLTextAreaElement | null)?.focus(); }, 0); log('record composer modal open'); },
+    'open-record-composer': () => { ui.recordComposerOpen = true; render(); window.setTimeout(() => { (document.getElementById('recordSummaryOverview') as HTMLTextAreaElement | null)?.focus(); }, 0); log('record composer modal open'); },
     'close-record-composer': () => { ui.recordComposerOpen = false; closeDlg('recordComposerModal'); render(); log('record composer modal close'); },
     'clear-record-filters': () => (ui.recFilterActor = ui.recFilterPlace = ui.recFilterKeyword = '', ui.recFilterActorDraft = ui.recFilterPlaceDraft = ui.recFilterKeywordDraft = '', render(), log('record filters cleared')),
     'apply-record-filters': () => (ui.recFilterActor = ui.recFilterActorDraft, ui.recFilterPlace = ui.recFilterPlaceDraft, ui.recFilterKeyword = ui.recFilterKeywordDraft, render(), log('record filters applied')),
@@ -496,7 +730,8 @@ function bindEvents() {
     'close-timeline-detail': () => (closeTimelineModal(), render()),
 
     tab: async (btn) => {
-      const nextTab = (btn.dataset.tab === 'cases' ? 'cases' : btn.dataset.tab === 'home' ? 'home' : 'records') as any;
+      const rawTab = String(btn.dataset.tab || '').trim();
+      const nextTab = (rawTab === 'cases' ? 'cases' : rawTab === 'legal' ? 'legal' : rawTab === 'home' ? 'home' : 'records') as any;
       S.tab = nextTab;
       if (nextTab === 'records') ui.evidenceTab = ui.evidenceTab || 'write';
       if (nextTab === 'cases') ui.caseTab = ui.caseTab || 'create';
@@ -518,15 +753,118 @@ function bindEvents() {
       log('record modal tab ->', next);
     },
     'switch-case-tab': (btn) => {
-      const next = btn.dataset.caseTab === 'list' ? 'list' : btn.dataset.caseTab === 'print' ? 'print' : 'create';
+      const next = btn.dataset.caseTab === 'list' ? 'list' : 'create';
       ui.caseTab = next as any;
       S.tab = 'cases' as any;
       render();
       log('case tab ->', next);
     },
+    'switch-legal-tab': (btn) => {
+      const next = btn.dataset.legalTab === 'advisor' ? 'advisor' : 'contentProof';
+      (ui as any).legalTab = next;
+      S.tab = 'legal' as any;
+      render();
+      log('legal tab ->', next);
+    },
 
     'open-settings': () => (ui.settingsOpen = true, render(), log('settings modal open')),
-    'close-settings': () => (ui.settingsOpen = false, closeDlg('settingsModal'), log('settings modal close')),
+    'close-settings': () => (ui.settingsOpen = false, resetScreenPinSettingsDraft(), closeDlg('settingsModal'), log('settings modal close')),
+    'open-updates-note': () => (ui.updatesNoteOpen = true, render(), log('updates note modal open')),
+    'close-updates-note': () => (ui.updatesNoteOpen = false, closeDlg('updateNotesModal'), render(), log('updates note modal close')),
+    'open-screen-lock': () => {
+      resetScreenPinModalDraft();
+      if (!hasScreenPin()) {
+        ui.pinLocked = false;
+        ui.pinModalOpen = true;
+        render();
+        focusScreenPinInput();
+        toast('먼저 PIN을 설정해주세요');
+        log('screen pin modal open (setup)');
+        return;
+      }
+      ui.pinLocked = true;
+      ui.pinModalOpen = true;
+      render();
+      focusScreenPinInput();
+      toast('잠금 화면이 켜졌어요');
+      log('screen locked');
+    },
+    'close-screen-pin': () => {
+      if (ui.pinLocked) return;
+      ui.pinModalOpen = false;
+      resetScreenPinModalDraft();
+      closeDlg(SCREEN_PIN_MODAL_ID);
+      render();
+      log('screen pin modal close');
+    },
+    'submit-screen-pin': () => {
+      const savedPin = readScreenPin();
+      const entered = normalizeScreenPin(String(ui.pinEntryDraft || ''));
+      const confirmPin = normalizeScreenPin(String(ui.pinConfirmDraft || ''));
+      if (!savedPin) {
+        if (!isValidScreenPin(entered)) return toast('PIN은 숫자 4자리여야 해요');
+        if (entered !== confirmPin) return toast('PIN이 서로 달라요');
+        if (!saveScreenPin(entered)) return toast('PIN 저장에 실패했어요');
+        ui.pinLocked = false;
+        ui.pinModalOpen = false;
+        resetScreenPinModalDraft();
+        render();
+        toast('PIN 설정 완료');
+        log('screen pin set');
+        return;
+      }
+      if (entered !== savedPin) {
+        ui.pinEntryDraft = '';
+        render();
+        focusScreenPinInput();
+        toast('PIN이 일치하지 않아요');
+        log('screen unlock failed');
+        return;
+      }
+      ui.pinLocked = false;
+      ui.pinModalOpen = false;
+      resetScreenPinModalDraft();
+      closeDlg(SCREEN_PIN_MODAL_ID);
+      render();
+      toast('잠금이 해제되었어요');
+      log('screen unlocked');
+    },
+    'save-screen-pin': async () => {
+      const nextPin = normalizeScreenPin(String(ui.pinSettingsDraft || ''));
+      const confirmPin = normalizeScreenPin(String(ui.pinSettingsConfirmDraft || ''));
+      const hadPin = hasScreenPin();
+      if (!isValidScreenPin(nextPin)) return toast('PIN은 숫자 4자리여야 해요');
+      if (nextPin !== confirmPin) return toast('PIN이 서로 달라요');
+      if (!saveScreenPin(nextPin)) return toast('PIN 저장에 실패했어요');
+      resetScreenPinSettingsDraft();
+      render();
+      toast(hadPin ? 'PIN 변경 완료' : 'PIN 설정 완료');
+      log(hadPin ? 'screen pin changed' : 'screen pin created');
+    },
+    'clear-screen-pin': async () => {
+      if (!hasScreenPin()) return toast('설정된 PIN이 없어요');
+      if (!(await openConfirm('설정된 PIN을 삭제할까요?'))) return;
+      clearScreenPin();
+      ui.pinLocked = false;
+      ui.pinModalOpen = false;
+      resetScreenPinModalDraft();
+      resetScreenPinSettingsDraft();
+      closeDlg(SCREEN_PIN_MODAL_ID);
+      render();
+      toast('PIN 삭제 완료');
+      log('screen pin cleared');
+    },
+    'open-class-roster': () => { ui.classRosterDraft = getClassRoster().slice(); ui.classRosterOpen = true; render(); log('class roster modal open'); },
+    'close-class-roster': () => { ui.classRosterOpen = false; ui.classRosterDraft = getClassRoster().slice(); closeDlg('classRosterModal'); render(); log('class roster modal close'); },
+    'save-class-roster': async () => {
+      const draft = ensureClassRosterDraft().map((name) => String(name || '').trim());
+      S.classRoster = Array.from({ length: CLASS_ROSTER_SIZE }, (_, i) => draft[i] || '');
+      ui.classRosterDraft = S.classRoster.slice();
+      ui.classRosterOpen = false;
+      await SR();
+      toast(`학생 명부 저장 완료 ✅ ${draft.filter(Boolean).length}명 등록`);
+      log('class roster saved', draft.filter(Boolean).length);
+    },
 
     'open-case-create': () => (S.tab = 'cases' as any, ui.caseTab = 'create', ui.caseCreateOpen = false, render(), void saveState(S), log('case create section open')),
     'close-case-create': () => (closeCaseCreateModal(), render(), log('case create modal close')),
@@ -653,10 +991,45 @@ function bindEvents() {
       render(); toast(`채널: ${kind}`); log('record intake changed', kind);
     },
 
-    'add-related': () => {
-      const typeText = String((draftRecord as any).relTypeText || '').trim();
+    'add-record-actor': () => {
+      const typeText = normalizeActorTypeTextUI(String((draftRecord as any).actorTypeText || '').trim());
       const type = actorTypeInternalFromText(typeText);
-      draftRecord.relType = type; (draftRecord as any).relTypeText = actorTypeTextFromInternal(type);
+      draftRecord.actorType = type;
+      (draftRecord as any).actorTypeText = preserveActorTypeText(typeText, type);
+      const name = String(draftRecord.actorNameOther || '').trim();
+      if (!typeText || !name) return toast('주체 정보를 입력하세요');
+      draftRecord.actorNameChoice = OTHER;
+      draftRecord.actors = addActorToList((draftRecord as any).actors || [], { type, name });
+      draftRecord.actorNameOther = '';
+      render();
+      toast('주체 추가');
+    },
+    'add-record-actor-edit': () => {
+      const typeText = normalizeActorTypeTextUI(String((draftRecordEdit as any).actorTypeText || '').trim());
+      const type = actorTypeInternalFromText(typeText);
+      draftRecordEdit.actorType = type;
+      (draftRecordEdit as any).actorTypeText = preserveActorTypeText(typeText, type);
+      const name = String(draftRecordEdit.actorNameOther || '').trim();
+      if (!typeText || !name) return toast('주체 정보를 입력하세요');
+      draftRecordEdit.actorNameChoice = OTHER;
+      draftRecordEdit.actors = addActorToList((draftRecordEdit as any).actors || [], { type, name });
+      draftRecordEdit.actorNameOther = '';
+      render();
+      toast('주체 추가');
+    },
+    'remove-record-actor': (btn) => {
+      const idx = Number(btn.dataset.idx ?? '-1');
+      if (!Number.isNaN(idx) && idx >= 0) ((draftRecord as any).actors = ((draftRecord as any).actors || []).filter((_: any, i: number) => i !== idx), render());
+    },
+    'remove-record-actor-edit': (btn) => {
+      const idx = Number(btn.dataset.idx ?? '-1');
+      if (!Number.isNaN(idx) && idx >= 0) ((draftRecordEdit as any).actors = ((draftRecordEdit as any).actors || []).filter((_: any, i: number) => i !== idx), render());
+    },
+
+    'add-related': () => {
+      const typeText = normalizeActorTypeTextUI(String((draftRecord as any).relTypeText || '').trim());
+      const type = actorTypeInternalFromText(typeText);
+      draftRecord.relType = type; (draftRecord as any).relTypeText = preserveActorTypeText(typeText, type);
       const name = String(draftRecord.relNameOther || '').trim();
       if (!typeText || !name) return;
       draftRecord.relNameChoice = OTHER;
@@ -666,9 +1039,9 @@ function bindEvents() {
       render(); toast('관련자 추가'); log('related added', name);
     },
     'add-related-edit': () => {
-      const typeText = String((draftRecordEdit as any).relTypeText || '').trim();
+      const typeText = normalizeActorTypeTextUI(String((draftRecordEdit as any).relTypeText || '').trim());
       const type = actorTypeInternalFromText(typeText);
-      draftRecordEdit.relType = type; (draftRecordEdit as any).relTypeText = actorTypeTextFromInternal(type);
+      draftRecordEdit.relType = type; (draftRecordEdit as any).relTypeText = preserveActorTypeText(typeText, type);
       const name = String(draftRecordEdit.relNameOther || '').trim();
       if (!typeText || !name) return;
       draftRecordEdit.relNameChoice = OTHER;
@@ -761,9 +1134,9 @@ function bindEvents() {
     },
 
     'add-case-actor': () => {
-      const typeText = String((draftCase as any).addTypeText || '').trim();
+      const typeText = normalizeActorTypeTextUI(String((draftCase as any).addTypeText || '').trim());
       const type = actorTypeInternalFromText(typeText);
-      (draftCase as any).addType = type; (draftCase as any).addTypeText = actorTypeTextFromInternal(type);
+      (draftCase as any).addType = type; (draftCase as any).addTypeText = preserveActorTypeText(typeText, type);
       const name = String(draftCase.addNameOther || '').trim();
       if (!typeText || !name) return toast('Actor 정보를 입력하세요');
       draftCase.addNameChoice = OTHER;
@@ -815,25 +1188,29 @@ function bindEvents() {
     'select-case': async (btn) => { const id = btn.dataset.id; if (!id || !S.cases[id]) return; S.selectedCaseId = id; S.tab = 'cases'; ui.caseTab = 'list'; await SR(); log('case selected', id); },
     'clear-case': async () => { S.selectedCaseId = null; ui.qTimeline = ''; ui.caseTab = 'list'; await SR(); log('case cleared'); },
 
-    'open-paper-picker': () => { if (!Object.keys(S.cases || {}).length) return toast('먼저 사건을 만들어주세요'); S.tab = 'cases' as any; ui.caseTab = 'print'; ui.paperPickOpen = false; ui.paperPickQuery = ''; render(); void saveState(S); log('paper section open'); },
+    'open-paper-picker': () => { if (!Object.keys(S.cases || {}).length) return toast('먼저 사건을 만들어주세요'); S.tab = 'legal' as any; ui.paperPickOpen = false; ui.paperPickQuery = ''; render(); void saveState(S); log('content proof section open'); },
     'close-paper-picker': () => (closePaperPickModal(), render(), log('paper picker close')),
-    'pick-paper-case': async (btn) => { const id = String(btn.dataset.id || '').trim(); const c = id ? (S.cases[id] ?? null) : null; if (!c) return; ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c); closePaperPickModal(); render(); openPaperModal(); log('paper open (picker)', c.id); },
+    'pick-paper-case': async (btn) => { const id = String(btn.dataset.id || '').trim(); const c = id ? (S.cases[id] ?? null) : null; if (!c) return; ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c); ensureContentProofDraft(); closePaperPickModal(); render(); openPaperModal(); log('content proof open (picker)', c.id); },
     'paper-open-case-create': () => { closePaperPickModal(); S.tab = 'cases' as any; ui.caseTab = 'create'; ui.caseCreateOpen = false; render(); void saveState(S); log('case create section open (from paper picker)'); },
 
-    'open-paper': async () => { const c = mustCase(); if (!c) return; ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c); render(); openPaperModal(); log('paper open', c.id); },
+    'open-paper': async () => { const c = mustCase(); if (!c) return; ui.paperCaseId = c.id; ui.paperHash = await computeCasePaperHash(c); ensureContentProofDraft(); render(); openPaperModal(); log('content proof open', c.id); },
     'close-paper': () => (closePaperModal(), render()),
     'print-paper': async () => {
       const c = ui.paperCaseId ? S.cases[ui.paperCaseId] ?? null : null; if (!c) return;
       try {
-        const suggested = `${c.title}__사건보고서.pdf`.replace(/\s+/g, ' ').trim();
+        const proof = ensureContentProofDraft();
+        if (!String(proof.senderName || '').trim() || !String(proof.senderAddress || '').trim() || !String(proof.recipientName || '').trim() || !String(proof.recipientAddress || '').trim()) {
+          return toast('발신인/수신인 이름과 주소를 모두 입력해주세요');
+        }
+        const suggested = `${c.title}__내용증명.pdf`.replace(/\s+/g, ' ').trim();
         const path = await saveDialog({ defaultPath: suggested, filters: [{ name: 'PDF', extensions: ['pdf'] }] });
         if (!path) return toast('저장 취소됨');
         const generatedAt = nowISO();
         const recs = recordsForCase(S.records, c);
         const { events } = buildCaseTimeline(c, S.records, '');
-        const payload = buildPaperPayload(c, recs, events, generatedAt, ui.paperHash);
+        const payload = buildPaperPayload(c, recs, events, generatedAt, ui.paperHash, proof);
         const savedPath = await invoke<string>('export_case_pdf', { args: { paper: payload, fileName: path } });
-        toast('PDF 저장 완료'); log('paper pdf exported', savedPath);
+        toast('내용증명 PDF 저장 완료'); log('content proof pdf exported', savedPath);
       } catch (e: any) { console.error(e); toast(`PDF 저장 실패: ${String(e?.message || e)}`); }
     },
 
@@ -966,23 +1343,25 @@ function bindEvents() {
   /* ---------- input/change routing ---------- */
   const rec: Record<string, (v: string) => void> = {
     actorTypeText: (v) => {
-      const t = actorTypeInternalFromText(v);
+      const prevText = String((draftRecord as any).actorTypeText || '');
+      const uiText = normalizeActorTypeTextUI(v);
+      const t = actorTypeInternalFromText(uiText);
       draftRecord.actorType = t;
-      (draftRecord as any).actorTypeText = actorTypeTextFromInternal(t);
-      // 타입 변경 시 이전 이름이 남아 다른 분류로 저장되는 걸 방지
-      draftRecord.actorNameChoice = OTHER;
-      draftRecord.actorNameOther = '';
+      (draftRecord as any).actorTypeText = preserveActorTypeText(uiText, t);
+      if (didActorTypePickerChange(prevText, uiText)) {
+        draftRecord.actorNameChoice = OTHER;
+        draftRecord.actorNameOther = '';
+      }
       render();
     },
     actorNameOther: (v) => (draftRecord.actorNameChoice = OTHER, draftRecord.actorNameOther = v),
     relTypeText: (v) => {
-      const t = actorTypeInternalFromText(v);
-      const prev = draftRecord.relType;
+      const prevText = String((draftRecord as any).relTypeText || '');
+      const uiText = normalizeActorTypeTextUI(v);
+      const t = actorTypeInternalFromText(uiText);
       draftRecord.relType = t;
-      (draftRecord as any).relTypeText = actorTypeTextFromInternal(t);
-      // 타입 전환 시 이전 선택값(예: 학생1)이 남아 다른 분류로 잘못 들어가는 걸 방지
-      if (t !== prev) { draftRecord.relNameChoice = OTHER; draftRecord.relNameOther = ''; }
-      // 관련자 추가 패널이 리렌더 때문에 접히지 않도록 유지
+      (draftRecord as any).relTypeText = preserveActorTypeText(uiText, t);
+      if (didActorTypePickerChange(prevText, uiText)) { draftRecord.relNameChoice = OTHER; draftRecord.relNameOther = ''; }
       ui.recRelatedOpen = true;
       render();
     },
@@ -994,26 +1373,37 @@ function bindEvents() {
     lvText: (v) => ((draftRecord as any).lvText = v, (LVS as any).includes(v as any) && (draftRecord.lv = v as Sensitivity)),
     ts: (v) => (draftRecord.ts = v),
     summary: (v) => (draftRecord.summary = v),
+    summaryOverview: (v) => ((draftRecord as any).summaryOverview = v),
+    summaryBackground: (v) => ((draftRecord as any).summaryBackground = v),
+    summaryIssues: (v) => ((draftRecord as any).summaryIssues = v),
+    summaryEvidenceList: (v) => ((draftRecord as any).summaryEvidenceList = v),
+    summaryTeacherActions: (v) => ((draftRecord as any).summaryTeacherActions = v),
+    summaryOther: (v) => ((draftRecord as any).summaryOther = v),
     signerLabel: (v) => ((draftRecord as any).signerLabel = v),
     sealReason: (v) => ((draftRecord as any).sealReason = v),
   };
 
   const recEdit: Record<string, (v: string) => void> = {
     actorTypeText: (v) => {
-      const t = actorTypeInternalFromText(v);
+      const prevText = String((draftRecordEdit as any).actorTypeText || '');
+      const uiText = normalizeActorTypeTextUI(v);
+      const t = actorTypeInternalFromText(uiText);
       draftRecordEdit.actorType = t;
-      (draftRecordEdit as any).actorTypeText = actorTypeTextFromInternal(t);
-      draftRecordEdit.actorNameChoice = OTHER;
-      draftRecordEdit.actorNameOther = '';
+      (draftRecordEdit as any).actorTypeText = preserveActorTypeText(uiText, t);
+      if (didActorTypePickerChange(prevText, uiText)) {
+        draftRecordEdit.actorNameChoice = OTHER;
+        draftRecordEdit.actorNameOther = '';
+      }
       render();
     },
     actorNameOther: (v) => (draftRecordEdit.actorNameChoice = OTHER, draftRecordEdit.actorNameOther = v),
     relTypeText: (v) => {
-      const t = actorTypeInternalFromText(v);
-      const prev = draftRecordEdit.relType;
+      const prevText = String((draftRecordEdit as any).relTypeText || '');
+      const uiText = normalizeActorTypeTextUI(v);
+      const t = actorTypeInternalFromText(uiText);
       draftRecordEdit.relType = t;
-      (draftRecordEdit as any).relTypeText = actorTypeTextFromInternal(t);
-      if (t !== prev) { draftRecordEdit.relNameChoice = OTHER; draftRecordEdit.relNameOther = ''; }
+      (draftRecordEdit as any).relTypeText = preserveActorTypeText(uiText, t);
+      if (didActorTypePickerChange(prevText, uiText)) { draftRecordEdit.relNameChoice = OTHER; draftRecordEdit.relNameOther = ''; }
       ui.recEditRelatedOpen = true;
       render();
     },
@@ -1025,6 +1415,12 @@ function bindEvents() {
     lvText: (v) => ((draftRecordEdit as any).lvText = v, (LVS as any).includes(v as any) && (draftRecordEdit.lv = v as Sensitivity)),
     ts: (v) => (draftRecordEdit.ts = v),
     summary: (v) => (draftRecordEdit.summary = v),
+    summaryOverview: (v) => ((draftRecordEdit as any).summaryOverview = v),
+    summaryBackground: (v) => ((draftRecordEdit as any).summaryBackground = v),
+    summaryIssues: (v) => ((draftRecordEdit as any).summaryIssues = v),
+    summaryEvidenceList: (v) => ((draftRecordEdit as any).summaryEvidenceList = v),
+    summaryTeacherActions: (v) => ((draftRecordEdit as any).summaryTeacherActions = v),
+    summaryOther: (v) => ((draftRecordEdit as any).summaryOther = v),
     signerLabel: (v) => ((draftRecordEdit as any).signerLabel = v),
     sealReason: (v) => ((draftRecordEdit as any).sealReason = v),
   };
@@ -1034,7 +1430,18 @@ function bindEvents() {
     maxResults: (v) => (draftCase.maxResults = Math.max(1, Math.min(400, Number(v) || 80))),
     sensFilterText: (v) => { (draftCase as any).sensFilterText = v; const vv = String(v || '').trim(); if (vv === 'any' || vv === '전체') draftCase.sensFilter = 'any'; else if ((LVS as any).includes(vv as any)) draftCase.sensFilter = vv as any; },
     statusText: (v) => { (draftCase as any).statusText = v; const vv = String(v || '').trim(); (STATUSES as any).includes(vv as any) && (draftCase.status = vv as any); },
-    addTypeText: (v) => { const t = actorTypeInternalFromText(v); draftCase.addType = t; (draftCase as any).addTypeText = actorTypeTextFromInternal(t); render(); },
+    addTypeText: (v) => {
+      const prevText = String((draftCase as any).addTypeText || '');
+      const uiText = normalizeActorTypeTextUI(v);
+      const t = actorTypeInternalFromText(uiText);
+      draftCase.addType = t;
+      (draftCase as any).addTypeText = preserveActorTypeText(uiText, t);
+      if (didActorTypePickerChange(prevText, uiText)) {
+        draftCase.addNameChoice = OTHER;
+        draftCase.addNameOther = '';
+      }
+      render();
+    },
     addNameOther: (v) => (draftCase.addNameChoice = OTHER, draftCase.addNameOther = v),
     onlyMainActor: (v) => ((draftCase as any).onlyMainActor = (v === 'true')),
   };
@@ -1044,6 +1451,18 @@ function bindEvents() {
   const handle = (el: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => {
     const action = el.dataset.action, field = el.dataset.field; if (!action || !field) return;
     const v = (el instanceof HTMLInputElement && el.type === 'checkbox') ? (el.checked ? 'true' : 'false') : el.value;
+    if (action === 'draft-screen-pin') {
+      const next = normalizeScreenPin(v);
+      if (field === 'pin') ui.pinEntryDraft = next;
+      else if (field === 'confirm') ui.pinConfirmDraft = next;
+      return;
+    }
+    if (action === 'draft-pin-settings') {
+      const next = normalizeScreenPin(v);
+      if (field === 'pin') ui.pinSettingsDraft = next;
+      else if (field === 'confirm') ui.pinSettingsConfirmDraft = next;
+      return;
+    }
     if (action === 'draft-record-filters') {
       if (field === 'actor') ui.recFilterActorDraft = v;
       else if (field === 'place') ui.recFilterPlaceDraft = v;
@@ -1068,6 +1487,15 @@ function bindEvents() {
     }
     if (action === 'search-timeline') return void (ui.qTimeline = v, render());
     if (action === 'search-paper-cases') return void (ui.paperPickQuery = v, render());
+    if (action === 'draft-content-proof') {
+      const draft = ensureContentProofDraft();
+      if (field === 'senderName') draft.senderName = v;
+      else if (field === 'senderAddress') draft.senderAddress = v;
+      else if (field === 'recipientName') draft.recipientName = v;
+      else if (field === 'recipientAddress') draft.recipientAddress = v;
+      updateContentProofUI();
+      return;
+    }
     if (action === 'search-update-candidates') return void (ui.qUpdate = v, render()); 
     const table = action === 'draft-record' ? rec : action === 'draft-record-edit' ? recEdit : action === 'draft-case' ? cas : action === 'draft-step' ? step : null;
     table?.[field]?.(v);
@@ -1075,9 +1503,39 @@ function bindEvents() {
     if (action === 'draft-record-edit') updateRecordEditUI();
   };
 
-  const watch = '[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="search-timeline"],[data-action="search-paper-cases"],[data-action="search-update-candidates"]';
+  const watch = '[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="search-timeline"],[data-action="search-paper-cases"],[data-action="search-update-candidates"],[data-action="draft-screen-pin"],[data-action="draft-pin-settings"],[data-action="draft-content-proof"]';
   document.addEventListener('input', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(watch); el && handle(el); });
-  document.addEventListener('change', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"]'); el && handle(el); });
+  document.addEventListener('change', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="draft-screen-pin"],[data-action="draft-pin-settings"],[data-action="draft-content-proof"]'); el && handle(el); });
+
+  document.addEventListener('input', (e) => {
+    const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement>('[data-action="draft-class-roster"]');
+    if (!el) return;
+    const index = Number(el.dataset.index ?? '-1');
+    if (Number.isNaN(index) || index < 0 || index >= CLASS_ROSTER_SIZE) return;
+    const draft = ensureClassRosterDraft();
+    draft[index] = String(el.value || '');
+    updateClassRosterCountUI();
+  });
+
+  document.addEventListener('paste', (e) => {
+    const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement>('[data-action="draft-class-roster"]');
+    if (!el) return;
+    const raw = e.clipboardData?.getData('text/plain') || '';
+    const pieces = String(raw || '').replace(/\r/g, '\n').split(/[\n\t]+/).map((x) => String(x || '').trim()).filter(Boolean);
+    if (pieces.length <= 1) return;
+    const index = Number(el.dataset.index ?? '-1');
+    if (Number.isNaN(index) || index < 0 || index >= CLASS_ROSTER_SIZE) return;
+    e.preventDefault();
+    const applied = applyClassRosterPaste(index, raw);
+    if (applied > 0) toast(`학생 ${applied}명 붙여넣기 완료`);
+  });
+
+  document.addEventListener('cancel', (e) => {
+    const t = e.target as HTMLElement | null; if (!t) return;
+    if ((t as any).id === SCREEN_PIN_MODAL_ID && ui.pinLocked) {
+      e.preventDefault();
+    }
+  }, true);
 
   document.addEventListener('close', (e) => {
     const t = e.target as HTMLElement | null; if (!t) return;
@@ -1087,8 +1545,19 @@ function bindEvents() {
     if ((t as any).id === 'paperPickModal') ui.paperPickOpen = false;
     if ((t as any).id === 'paperModal') (ui.paperCaseId = null, ui.paperHash = null);
     if ((t as any).id === 'caseUpdateModal') (ui.updateCaseId = null, ui.updatePickIds = [], ui.updFilterActor = ui.updFilterPlace = ui.updFilterKeyword = '', ui.updFilterActorDraft = ui.updFilterPlaceDraft = ui.updFilterKeywordDraft = '', ui.updateCandidatesForCaseId = null, ui.updateCandidates = null, ui.updateCandidatesLoading = false);
-    if ((t as any).id === 'settingsModal') ui.settingsOpen = false;
+    if ((t as any).id === 'settingsModal') { ui.settingsOpen = false; resetScreenPinSettingsDraft(); }
+    if ((t as any).id === 'updateNotesModal') ui.updatesNoteOpen = false;
+    if ((t as any).id === 'classRosterModal') { ui.classRosterOpen = false; ui.classRosterDraft = getClassRoster().slice(); }
     if ((t as any).id === SIGNATURE_MODAL_ID) ui.signatureModalMode = null;
+    if ((t as any).id === SCREEN_PIN_MODAL_ID) {
+      if (ui.pinLocked) {
+        ui.pinModalOpen = true;
+        window.setTimeout(() => openDlg(SCREEN_PIN_MODAL_ID), 0);
+        return;
+      }
+      ui.pinModalOpen = false;
+      resetScreenPinModalDraft();
+    }
   }, true);
 
   window.addEventListener('keydown', (e) => {
@@ -1118,8 +1587,8 @@ function bindEvents() {
 
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
       const ae = document.activeElement as HTMLElement | null; if (!ae) return;
-      if (ae.closest('[data-action="draft-record"][data-field="summary"]')) return void (e.preventDefault(), (document.querySelector('[data-action="save-record"]') as HTMLButtonElement | null)?.click());
-      if (ae.closest('[data-action="draft-record-edit"][data-field="summary"]')) return void (e.preventDefault(), (document.querySelector('[data-action="save-record-amend"]') as HTMLButtonElement | null)?.click());
+      if (ae.closest('[data-action="draft-record"][data-field^="summary"]')) return void (e.preventDefault(), (document.querySelector('[data-action="save-record"]') as HTMLButtonElement | null)?.click());
+      if (ae.closest('[data-action="draft-record-edit"][data-field^="summary"]')) return void (e.preventDefault(), (document.querySelector('[data-action="save-record-amend"]') as HTMLButtonElement | null)?.click());
       if (ae.closest('[data-action="draft-step"][data-field="note"]')) return void (e.preventDefault(), (document.querySelector('[data-action="add-step"]') as HTMLButtonElement | null)?.click());
     }
 
@@ -1129,8 +1598,12 @@ function bindEvents() {
       const ss = dlg(SIGN_SUCCESS_MODAL_ID); if (ss?.open) return void (e.preventDefault(), closeDlg(SIGN_SUCCESS_MODAL_ID));
       const sm = dlg('savedModal'); if (sm?.open) return void (e.preventDefault(), closeDlg('savedModal'));
       const cm = dlg('caseCreatedModal'); if (cm?.open) return void (e.preventDefault(), closeDlg('caseCreatedModal'));
+      const pin = dlg(SCREEN_PIN_MODAL_ID); if (pin?.open && ui.pinLocked) return void (e.preventDefault());
+      if (pin?.open) return void (e.preventDefault(), ui.pinModalOpen = false, resetScreenPinModalDraft(), closeDlg(SCREEN_PIN_MODAL_ID), render());
       closeDlg('restoreModal'); closeDlg('logsModal');
       const st = dlg('settingsModal'); if (st?.open) return void (e.preventDefault(), ui.settingsOpen = false, closeDlg('settingsModal'));
+      const un = dlg('updateNotesModal'); if (un?.open) return void (e.preventDefault(), ui.updatesNoteOpen = false, closeDlg('updateNotesModal'), render());
+      const roster = dlg('classRosterModal'); if (roster?.open) return void (e.preventDefault(), ui.classRosterOpen = false, ui.classRosterDraft = getClassRoster().slice(), closeDlg('classRosterModal'), render());
       const composer = dlg('recordComposerModal'); if (composer?.open) return void (e.preventDefault(), ui.recordComposerOpen = false, closeDlg('recordComposerModal'), render());
       const rec = dlg('recordModal'); if (rec?.open) return void (e.preventDefault(), closeRecordModal(), render());
       const tl = dlg('timelineDetailModal'); if (tl?.open) return void (e.preventDefault(), closeTimelineModal(), render());
@@ -1140,6 +1613,11 @@ function bindEvents() {
 }
 
 function syncDraftDefaults() {
+  ui.classRosterDraft = getClassRoster().slice();
+  ui.pinLocked = false;
+  ui.pinModalOpen = false;
+  resetScreenPinModalDraft();
+  resetScreenPinSettingsDraft();
   draftRecord.actorNameChoice = OTHER; draftRecord.relNameChoice = OTHER; draftCase.addNameChoice = OTHER; draftRecordEdit.actorNameChoice = OTHER; draftRecordEdit.relNameChoice = OTHER;
   (draftRecord as any).placeText ||= draftRecord.place; (draftRecord as any).storeTypeText ||= draftRecord.storeType; (draftRecord as any).lvText ||= draftRecord.lv;
   (draftRecord as any).actorTypeText ||= actorTypeTextFromInternal(draftRecord.actorType); (draftRecord as any).relTypeText ||= actorTypeTextFromInternal(draftRecord.relType);
@@ -1154,7 +1632,7 @@ export function initApp() {
   bindEvents(); ensurePaperStyles(); syncDraftDefaults();
 
   const focusRecordComposer = () => window.setTimeout(() => {
-    (document.getElementById('recordSummary') as HTMLTextAreaElement | null)?.focus();
+    (document.getElementById('recordSummaryOverview') as HTMLTextAreaElement | null)?.focus();
   }, 0);
 
   // ✅ 앱 실행 시 첫 화면: 홈
