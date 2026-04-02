@@ -1,6 +1,6 @@
 import { nowISO, fmt, esc, trunc, ensureRecordV8, shortHash, getRecordRevisions, verifyRecordIntegrity } from '../utils';
 import type { CaseItem, RecordItem, StepItem, ActorRef } from '../engine';
-import { recordsForCase } from '../engine';
+import { actorEq, recordsForCase } from '../engine';
 import { S, ui, actorLabel, actorShort, placeLabel, storeLabel, lvLabel } from './state';
 
 function recordMainActors(r: any): ActorRef[] {

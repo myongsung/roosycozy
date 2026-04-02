@@ -93,7 +93,7 @@ function renderRiskSummary(risk: any) {
   if (!rr) return `<div class="muted">아직 분석되지 않았어요.</div>`;
   const confidencePct = Math.round(rr.confidence * 100);
   const reasonTags = rr.reasons.length
-    ? `<div class="tags mini" style="margin-top:8px">${rr.reasons.map((x) => `<span class="tag aiReason">${esc(String(x))}</span>`).join('')}</div>`
+    ? `<div class="tags mini" style="margin-top:8px">${rr.reasons.map((x: any) => `<span class="tag aiReason">${esc(String(x))}</span>`).join('')}</div>`
     : '';
   return `
     <div class="riskBlock">
@@ -272,8 +272,10 @@ function renderTeacherAccountModal() {
             <div class="teacherAccountStepNo">2</div>
             <div class="teacherAccountStepBody">
               <div class="teacherAccountStepTitle">사용후기 작성</div>
-              <div class="teacherAccountStepDesc">인디스쿨 커뮤니티 - 함께해요 - 도구 게시판에 사용후기 글을 작성해주세요.</div>
-            </div>
+            <div class="teacherAccountStepDesc">
+              인디스쿨 커뮤니티 - 함께해요 - 도구 게시판에 사용후기 글을 작성해주세요. </br>
+              후기 본문에 프로그램 링크 <b>www.roosycozy.com</b> 도 함께 꼭! 적어주세요.
+            </div>            </div>
           </li>
           <li class="teacherAccountStep">
             <div class="teacherAccountStepNo">3</div>

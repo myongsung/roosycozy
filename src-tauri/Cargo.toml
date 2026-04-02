@@ -1,6 +1,6 @@
 [package]
 name = "roosycozy"
-version = "1.0.46"
+version = "1.0.47"
 description = "roosycozy - 한 줄 기록 → 케이스 타임라인"
 authors = ["you"]
 edition = "2021"
