@@ -36,7 +36,6 @@ pub fn engine_classify_risk(records: Vec<RecordItem>) -> Result<Vec<RiskPredicti
   Ok(engine::classify_records_risk(&records))
 }
 
-
 fn bytes_to_hex(bytes: &[u8]) -> String {
   bytes.iter().map(|b| format!("{:02x}", b)).collect::<String>()
 }

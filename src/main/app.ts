@@ -18,6 +18,7 @@ const SIGNATURE_MODAL_ID = 'signatureModal';
 const SIGN_SUCCESS_MODAL_ID = 'signSuccessModal';
 const SCREEN_PIN_MODAL_ID = 'screenPinModal';
 const TEACHER_ACCOUNT_MODAL_ID = 'teacherAccountModal';
+const LEGAL_ADVISOR_URL = 'https://www.roosycozychat.com';
 
 const resetScreenPinModalDraft = () => {
   ui.pinEntryDraft = '';
@@ -962,6 +963,12 @@ function bindEvents() {
     'close-logs': () => closeDlg('logsModal'),
     'copy-logs': async () => (await navigator.clipboard.writeText(logs.join('\n')), toast('로그 복사')),
     'clear-logs': () => (logs.splice(0, logs.length), setText('logBox', ''), toast('로그 비우기')),
+    'copy-legal-advisor-url': async (btn) => {
+      const url = String(btn.dataset.url || LEGAL_ADVISOR_URL).trim();
+      if (!url) return toast('복사할 링크가 없어요');
+      await navigator.clipboard.writeText(url);
+      toast('법률자문 링크 복사');
+    },
     wipe: async () => {
       if (!(await openConfirm('모든 데이터를 삭제할까요?'))) return;
       const prev = JSON.parse(JSON.stringify(S));
@@ -1491,7 +1498,6 @@ function bindEvents() {
       return;
     }
     if (action === 'search-timeline') return void (ui.qTimeline = v, render());
-    if (action === 'search-paper-cases') return void (ui.paperPickQuery = v, render());
     if (action === 'draft-content-proof') {
       const draft = ensureContentProofDraft();
       if (field === 'senderName') draft.senderName = v;
@@ -1508,7 +1514,7 @@ function bindEvents() {
     if (action === 'draft-record-edit') updateRecordEditUI();
   };
 
-  const watch = '[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="search-timeline"],[data-action="search-paper-cases"],[data-action="search-update-candidates"],[data-action="draft-screen-pin"],[data-action="draft-pin-settings"],[data-action="draft-content-proof"]';
+  const watch = '[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="search-timeline"],[data-action="search-update-candidates"],[data-action="draft-screen-pin"],[data-action="draft-pin-settings"],[data-action="draft-content-proof"]';
   document.addEventListener('input', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(watch); el && handle(el); });
   document.addEventListener('change', (e) => { const el = (e.target as HTMLElement | null)?.closest<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('[data-action="draft-record"],[data-action="draft-record-edit"],[data-action="draft-case"],[data-action="draft-step"],[data-action="draft-record-filters"],[data-action="draft-update-filters"],[data-action="toggle-update-pick"],[data-action="draft-screen-pin"],[data-action="draft-pin-settings"],[data-action="draft-content-proof"]'); el && handle(el); });
 

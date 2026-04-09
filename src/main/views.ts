@@ -18,6 +18,7 @@ import { renderCasePaperModal } from './paper';
 
 const feedImageUrl = new URL('./feed.png', import.meta.url).href;
 const lawyerProfileImageUrl = new URL('./lawyer-profile.png', import.meta.url).href;
+const LEGAL_ADVISOR_URL = 'https://www.roosycozychat.com';
 const ENABLE_BACKUP_RESTORE = true; // backup/restore (JSON copy/paste) UI disabled
 const HIDE_CASE_ACTIONS_AND_GUIDES = true; // 사건조회하기에서 내조치로그/대응가이드 임시 비노출
 
@@ -333,7 +334,6 @@ function renderHomeMain() {
   `;
 }
 
-
 function getLegalHubTab() {
   return (ui as any).legalTab === 'advisor' ? 'advisor' : 'contentProof';
 }
@@ -389,11 +389,32 @@ function renderLegalAdvisorPanel() {
               <h2 class="legalAdvisorTitle">전서현 변호사</h2>
               <span class="legalAdvisorMiniBadge">학교폭력 · 형사 · 인권</span>
             </div>
-            <div class="legalAdvisorLaunchRow" aria-label="오픈 안내">
-              <span class="legalAdvisorOpenBadge">🌸 4월초 오픈예정</span>
-              <span class="legalAdvisorOpenHint">원스톱 법률자문 연결 기능을 곧 이용하실 수 있어요.</span>
+            <div class="legalAdvisorLaunchRow" aria-label="법률자문 링크 안내">
+              <span class="legalAdvisorOpenBadge">브라우저 자동 연결은 제공하지 않아요.</span>
             </div>
+            <div class="legalAdvisorLinkRow" aria-label="법률자문 링크 복사">
+              <input
+                class="legalAdvisorUrlInput"
+                type="text"
+                value="${LEGAL_ADVISOR_URL}"
+                readonly
+                aria-label="법률자문 링크 주소"
+              />
+              <button
+                class="btn ghost legalAdvisorCopyBtn"
+                type="button"
+                data-action="copy-legal-advisor-url"
+                data-url="${LEGAL_ADVISOR_URL}"
+                aria-label="법률자문 링크 복사"
+              >링크 복사</button>
+            </div>
+            <div class="legalAdvisorOpenHint">위 주소를 복사해서 브라우저 주소창에 붙여넣어 접속해 주세요.</div>
             <div class="legalAdvisorRole">학교 현장 분쟁 대응 자문</div>
+            <div class="legalAdvisorNoticeList" aria-label="법률자문 이용 안내">
+              <div class="legalAdvisorNoticeItem">모든 대화기록과 정보는 암호화되어 보안처리되어 개발자도 볼 수 없습니다.</div>
+              <div class="legalAdvisorNoticeItem">꼭 필요하실 때만 상담을 요청해주세요.</div>
+              <div class="legalAdvisorNoticeItem">변호사님의 일정에 따라 답변이 늦어질 수 있습니다.</div>
+            </div>
           </div>
         </div>
 
@@ -750,29 +771,22 @@ export function render() {
 
 /* ==================== COMMON MODALS ==================== */
 
-
-function renderPaperPickContent() {
-  const all = Object.values(S.cases || {});
-  const q = String(ui.paperPickQuery || '').trim();
-  const list = all
+function getPaperPickItems() {
+  return Object.values(S.cases || {})
     .map((c) => {
       const recs = recordsForCase(S.records, c);
       const last = recs.reduce((m, r) => (String(r.ts || '') > m ? String(r.ts || '') : m), '');
       return { c, recCount: recs.length, lastTs: last };
     })
     .sort((a, b) => String(b.lastTs || '').localeCompare(String(a.lastTs || '')));
+}
 
-  const filtered = q
-    ? list.filter(({ c }) => matchLite([String((c as any).title || ''), String((c as any).query || ''), String((c as any).status || '')].join(' '), q))
-    : list;
-
+function renderPaperPickResultsHtml() {
+  const all = getPaperPickItems();
   return all.length
     ? `
-      <div class="paperPickToolbar">
-        <input class="searchInput paperPickSearch" placeholder="사건 제목/요약 검색" value="${esc(q)}" data-action="search-paper-cases" />
-      </div>
       <div class="paperPickList" role="list">
-        ${filtered.length ? filtered.map(({ c, recCount, lastTs }) => `
+        ${all.length ? all.map(({ c, recCount, lastTs }) => `
           <button class="paperPickItem" data-action="pick-paper-case" data-id="${esc((c as any).id)}" type="button" role="listitem">
             <div class="paperPickMain">
               <div class="paperPickTitle">
@@ -789,11 +803,29 @@ function renderPaperPickContent() {
               <div class="paperPickStat muted">${lastTs ? esc(fmt(lastTs)) : '—'}</div>
             </div>
           </button>
-        `).join('') : H.empty('검색 결과가 없어요.', 120)}
+        `).join('') : H.empty('사건이 없어요.', 120)}
       </div>
 
       <div class="muted" style="margin-top:10px; font-size:12px">
         선택 즉시 내용증명 미리보기로 넘어가요.
+      </div>
+    `
+    : `
+      <div class="empty" style="height:160px">
+        아직 사건이 없어요. 먼저 사건을 기록한 뒤 출력할 수 있어요.
+      </div>
+      <div class="rowInline" style="justify-content:flex-end; margin-top:10px">
+        ${H.btnData('증거모으기로 이동', 'switch-case-tab', { 'case-tab': 'create' }, 'btn primary')}
+      </div>
+    `;
+}
+
+
+function renderPaperPickContent() {
+  return Object.keys(S.cases || {}).length
+    ? `
+      <div data-paper-pick-results>
+        ${renderPaperPickResultsHtml()}
       </div>
     `
     : `
