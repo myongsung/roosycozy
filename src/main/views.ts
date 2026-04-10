@@ -282,7 +282,7 @@ function renderTeacherAccountModal() {
             <div class="teacherAccountStepNo">3</div>
             <div class="teacherAccountStepBody">
               <div class="teacherAccountStepTitle">쪽지 보내기</div>
-              <div class="teacherAccountStepDesc"><b>[루지코지by노명성]</b>에게 쪽지로 생성하고 싶은 ID와 비밀번호를 보내주시면 계정을 생성해드립니다.</div>
+              <div class="teacherAccountStepDesc"><b>[루지코지by노명성]</b>에게 쪽지를 보내주시면 회원가입에 필요한 초대코드를 생성해드립니다.</div>
             </div>
           </li>
         </ol>
