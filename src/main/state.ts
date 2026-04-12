@@ -15,7 +15,7 @@ export const ui = {
   qUpdate: '', // [추가] 업데이트 모달 내 검색어
   updatesNoteOpen: false,
   evidenceTab: 'write' as 'write' | 'list',
-  caseTab: 'create' as 'create' | 'list',
+  caseTab: 'create' as 'create' | 'list' | 'export',
   settingsOpen: false,
   recRelatedOpen: false, // 증거기록하기 > 관련자 추가(details) 열림 상태
   recEditRelatedOpen: false, // 증거 수정 > 관련자 추가(details) 열림 상태

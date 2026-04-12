@@ -1,7 +1,7 @@
 import { nowISO, fmt, esc, trunc, ensureRecordV8, shortHash, getRecordRevisions, verifyRecordIntegrity } from '../utils';
 import type { CaseItem, RecordItem, StepItem, ActorRef } from '../engine';
 import { actorEq, recordsForCase } from '../engine';
-import { S, ui, actorLabel, actorShort, placeLabel, storeLabel, lvLabel } from './state';
+import { S, ui, actorLabel, actorShort, placeLabel, storeLabel, lvLabel, uniq } from './state';
 
 function recordMainActors(r: any): ActorRef[] {
   const raw = Array.isArray(r?.actors) && r.actors.length ? r.actors : [r?.actor];
@@ -548,7 +548,7 @@ dialog.modal.paperModal > .modalHead{
 .paperVerdictTag.warn{ background: rgba(254,249,195,0.94); border-color: rgba(202,138,4,0.22); color:#854d0e; }
 .paperVerdictTag.risk{ background: rgba(254,226,226,0.94); border-color: rgba(220,38,38,0.22); color:#991b1b; }
 .paperEvidenceMeta{ display:grid; gap:6px; }
-.paperEvidenceSub{ font-size: 12px; color:#475569; line-height:1.5; }
+.paperEvidenceSub{ font-size: 12px; color:#475569; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; }
 .paperEvidenceMono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 11.5px; }
 .paperHashBox{ margin-top:10px; padding:10px 12px; border-radius:12px; background:rgba(248,250,252,0.9); border:1px solid rgba(15,23,42,0.08); word-break:break-all; }
 .paperProofFoot{ margin-top:8px; text-align:center; }
@@ -659,6 +659,15 @@ export type PaperPayload = {
   subject: string;
   statementLines: string[];
   actionLines: string[];
+  integrityLines: string[];
+  records: PaperRecordRow[];
+};
+
+export type AllRecordsPayload = {
+  title: string;
+  generatedAt: string;
+  hashSha256: string;
+  overviewLines: string[];
   integrityLines: string[];
   records: PaperRecordRow[];
 };
@@ -821,20 +830,15 @@ function buildIntegritySummary(records: PaperRecordRow[]) {
   ];
 }
 
-function buildPaperPayload(
-  c: CaseItem,
+function buildPaperRecordRows(
   recsAll: RecordItem[],
-  _eventsAll: any[],
-  generatedAtISO: string,
-  hash: string | null,
-  proofDraft?: Partial<ContentProofDraft>
-): PaperPayload {
-  const recs = dedupeRecordsForPaper(recsAll).slice().sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
-  const facts = buildFactsSummary(recs);
-  const actionSummary = buildActionSummary(c);
-  const subject = `[${String(c.title || '사안').trim() || '사안'}] 증거 증빙의 건`;
+  options?: { dedupe?: boolean; steps?: StepItem[] }
+) {
+  const baseRecords = (options?.dedupe ? dedupeRecordsForPaper(recsAll) : recsAll.slice())
+    .slice()
+    .sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
 
-  const records: PaperRecordRow[] = recs.map((r) => {
+  const rows: PaperRecordRow[] = baseRecords.map((r) => {
     const meta = getPaperRecordMeta(r);
     const verified = verifyRecordIntegrity(meta.vr);
     const base: PaperRecordRow = {
@@ -865,9 +869,9 @@ function buildPaperPayload(
     } as PaperRecordRow;
   });
 
-  const steps = (c.steps || []).slice().sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
+  const steps = (options?.steps || []).slice().sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
   for (const s of steps) {
-    records.push({
+    rows.push({
       when: fmt(String(s.ts || '')),
       kind: 'step',
       lv: String(s.lv || ''),
@@ -882,6 +886,39 @@ function buildPaperPayload(
     });
   }
 
+  return rows;
+}
+
+function buildAllRecordsOverview(recsAll: RecordItem[], rows: PaperRecordRow[]) {
+  const sorted = recsAll
+    .slice()
+    .sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
+  const first = sorted[0]?.ts ? fmt(String(sorted[0].ts || '')) : '';
+  const last = sorted[sorted.length - 1]?.ts ? fmt(String(sorted[sorted.length - 1].ts || '')) : '';
+  const actorCount = uniq(sorted.flatMap((r) => recordMainActors(r).map((actor) => actorShort(actor)))).filter(Boolean).length;
+  const storeCount = uniq(sorted.map((r) => storeLabel(r.storeType, r.storeOther))).filter(Boolean).length;
+
+  return [
+    `현재 앱에 저장된 전체 증거기록 ${rows.filter((row) => row.kind === 'record').length}건을 한 문서에 시간순으로 정리했습니다.`,
+    first && last ? `기록 범위는 ${first}부터 ${last}까지입니다.` : '기록 시각이 없는 항목도 현재 저장 상태 그대로 함께 출력했습니다.',
+    `등장 인물 ${actorCount}명, 보관 유형 ${storeCount}종을 기준으로 전체 기록을 빠짐없이 모았습니다.`,
+    '각 항목에는 사건시각, 주체, 장소, 요약, REV, 봉인 시각, SHA-256, 전자서명/지문 기반 검증 근거를 함께 적었습니다.',
+  ];
+}
+
+function buildPaperPayload(
+  c: CaseItem,
+  recsAll: RecordItem[],
+  _eventsAll: any[],
+  generatedAtISO: string,
+  hash: string | null,
+  proofDraft?: Partial<ContentProofDraft>
+): PaperPayload {
+  const recs = dedupeRecordsForPaper(recsAll).slice().sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
+  const facts = buildFactsSummary(recs);
+  const actionSummary = buildActionSummary(c);
+  const subject = `[${String(c.title || '사안').trim() || '사안'}] 증거 증빙의 건`;
+  const records = buildPaperRecordRows(recs, { dedupe: false, steps: c.steps || [] });
   const integrityLines = buildIntegritySummary(records);
 
   return {
@@ -910,7 +947,23 @@ function buildPaperPayload(
   };
 }
 
-export { buildPaperPayload };
+function buildAllRecordsPayload(
+  recsAll: RecordItem[],
+  generatedAtISO: string,
+  hash: string | null
+): AllRecordsPayload {
+  const records = buildPaperRecordRows(recsAll, { dedupe: false });
+  return {
+    title: '전체 증거기록 출력',
+    generatedAt: fmt(generatedAtISO),
+    hashSha256: hash || '',
+    overviewLines: buildAllRecordsOverview(recsAll, records),
+    integrityLines: buildIntegritySummary(records),
+    records,
+  };
+}
+
+export { buildPaperPayload, buildAllRecordsPayload };
 
 function koreanOutlineMarker(idx: number) {
   const markers = ['가', '나', '다', '라', '마', '바', '사', '아', '자', '차', '카', '타', '파', '하'];
@@ -936,7 +989,7 @@ function renderContentProofHTML(payload: PaperPayload) {
         <td data-label="번호">${idx + 1}</td>
         <td data-label="구분">${esc(kindLabel(r.kind))}</td>
         <td data-label="일시">${esc(r.when || '-')}</td>
-        <td data-label="증빙 요지">${esc(trunc(r.summary || '-', 82))}</td>
+        <td data-label="증빙 요지"><div class="paperEvidenceMeta"><div class="paperEvidenceSub">${esc(r.summary || '-')}</div></div></td>
         <td data-label="무결성 결론"><span class="paperVerdictTag ${esc(tone)}">${esc(String(r.integrityVerdict || formatIntegrityVerdict(r)))}</span></td>
         <td data-label="검증 근거"><div class="paperEvidenceMeta"><div class="paperEvidenceSub">${esc(String(r.integrityEvidence || formatIntegrityEvidence(r) || '-'))}</div></div></td>
       </tr>
@@ -1094,3 +1147,17 @@ export async function computeCasePaperHash(c: CaseItem) {
   }
 }
 
+export async function computeAllRecordsPaperHash(recs: RecordItem[]) {
+  try {
+    const payload = JSON.stringify({
+      records: recs,
+      generatedAt: nowISO()
+    });
+    const enc = new TextEncoder().encode(payload);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+    return hex;
+  } catch {
+    return null;
+  }
+}

@@ -279,6 +279,33 @@ pub struct ExportPdfArgs {
   pub file_name: Option<String>, // saveDialog로 받은 전체 경로
 }
 
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AllRecordsPayload {
+  pub title: String,
+  pub generated_at: String,
+  pub hash_sha256: String,
+  pub overview_lines: Vec<String>,
+  pub integrity_lines: Vec<String>,
+  pub records: Vec<PaperRecordRow>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportAllRecordsPdfArgs {
+  pub report: AllRecordsPayload,
+
+  #[serde(
+    default,
+    alias = "fileName",
+    alias = "filePath",
+    alias = "path",
+    alias = "savePath",
+    alias = "outputPath"
+  )]
+  pub file_name: Option<String>,
+}
+
 fn ensure_pdf_ext(mut p: PathBuf) -> PathBuf {
   let has_pdf = p
     .extension()
@@ -638,7 +665,7 @@ pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
       }
       let tail = clean(row.verification_message.as_deref().unwrap_or(""));
       if tail != "-" {
-        parts.push(clamp_chars(tail, 84));
+        parts.push(normalize_pdf_inline_text(tail));
       }
       parts.join(" / ")
     }
@@ -699,10 +726,10 @@ pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
     } else {
       for (idx, r) in paper.records.iter().enumerate() {
         doc.push(elements::Paragraph::new(format!("[{}] {} / {}", idx + 1, normalize_pdf_inline_text(kind_ko(&r.kind)), normalize_pdf_inline_text(clean(&r.when)))).styled(s_h2.clone()).padded((0.6, 0.0, 0.0, 0.0)));
-        doc.push(elements::Paragraph::new(format!("요지 : {}", clamp_chars(&normalize_pdf_inline_text(clean(&r.summary)), 110))).styled(s_body.clone()).padded((0.2, 0.0, 0.0, 0.0)));
-        doc.push(elements::Paragraph::new(format!("주체 / 장소 : {} / {}", clamp_chars(&normalize_pdf_inline_text(clean(&r.actor)), 42), clamp_chars(&normalize_pdf_inline_text(clean(&r.place)), 28))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
-        doc.push(elements::Paragraph::new(format!("무결성 결론 : {}", clamp_chars(&normalize_pdf_inline_text(&verdict_ko(r)), 50))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
-        let evidence = clamp_chars(&normalize_pdf_inline_text(&evidence_ko(r)), 110);
+        doc.push(elements::Paragraph::new(format!("요지 : {}", normalize_pdf_inline_text(clean(&r.summary)))).styled(s_body.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("주체 / 장소 : {} / {}", normalize_pdf_inline_text(clean(&r.actor)), normalize_pdf_inline_text(clean(&r.place)))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("무결성 결론 : {}", normalize_pdf_inline_text(&verdict_ko(r)))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        let evidence = normalize_pdf_inline_text(&evidence_ko(r));
         if r.kind.trim().eq_ignore_ascii_case("record") {
           let rev = r.revision_count.unwrap_or(0);
           let sealed = compact_hash(&normalize_pdf_inline_text(clean(r.last_sealed_at.as_deref().unwrap_or("-"))), 10, 8);
@@ -730,6 +757,189 @@ pub fn export_case_pdf(args: ExportPdfArgs) -> Result<String, String> {
       let prefix = if line_idx == 0 { "발신인 주소 : " } else { "             " };
       doc.push(elements::Paragraph::new(format!("{prefix}{line}")).aligned(Alignment::Center).styled(s_meta.clone()));
     }
+
+    doc.render_to_file(&tmp_path)
+      .map_err(|e| format!("pdf render failed: {e}"))?;
+    Ok(())
+  })).map_err(panic_message)?;
+
+  render_result?;
+
+  let tmp_meta = std::fs::metadata(&tmp_path)
+    .map_err(|e| format!("pdf file check failed: {e}"))?;
+  if tmp_meta.len() < 512 {
+    let _ = std::fs::remove_file(&tmp_path);
+    return Err("PDF 파일이 정상적으로 생성되지 않았어요. 내용을 단순화해 다시 저장하거나 앱을 다시 실행한 뒤 시도해주세요.".to_string());
+  }
+
+  if out_path.exists() {
+    let _ = std::fs::remove_file(&out_path);
+  }
+
+  std::fs::rename(&tmp_path, &out_path).or_else(|_| {
+    std::fs::copy(&tmp_path, &out_path)
+      .map_err(|e| format!("pdf finalize copy failed: {e}"))?;
+    let _ = std::fs::remove_file(&tmp_path);
+    Ok::<(), String>(())
+  })?;
+
+  Ok(out_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+pub fn export_all_records_pdf(args: ExportAllRecordsPdfArgs) -> Result<String, String> {
+  use genpdf::{elements, style, Alignment};
+
+  let report = args.report;
+  let file_name = args
+    .file_name
+    .as_ref()
+    .map(|s| s.trim())
+    .filter(|s| !s.is_empty())
+    .ok_or_else(|| "fileName(전체 경로)가 필요해요. 프론트에서 saveDialog 결과를 넘겨주세요.".to_string())?;
+
+  let out_path = ensure_pdf_ext(PathBuf::from(file_name));
+  ensure_parent_dir(&out_path)?;
+
+  let tmp_path = temp_pdf_output_path(&out_path);
+  if tmp_path.exists() {
+    let _ = std::fs::remove_file(&tmp_path);
+  }
+
+  let render_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| -> Result<(), String> {
+    let src_font = find_korean_font_source()
+      .ok_or_else(|| "Korean font not found (AppleGothic/Malgun/Nanum/Noto).".to_string())?;
+    let (font_dir, family) = prepare_genpdf_font_family(&src_font)?;
+    let font_family = genpdf::fonts::from_files(&font_dir, &family, None)
+      .map_err(|e| format!("font load failed: {e}"))?;
+
+    let mut doc = genpdf::Document::new(font_family);
+    doc.set_title(&report.title);
+    doc.set_font_size(9);
+    doc.set_line_spacing(1.14);
+
+    let mut decorator = genpdf::SimplePageDecorator::new();
+    decorator.set_margins(16);
+    doc.set_page_decorator(decorator);
+
+    let s_title = style::Style::new().bold().with_font_size(17);
+    let s_h1 = style::Style::new().bold().with_font_size(12);
+    let s_h2 = style::Style::new().bold().with_font_size(10);
+    let s_body = style::Style::new().with_font_size(9);
+    let s_meta = style::Style::new().with_font_size(8);
+    let hr = "────────────────────────────────────────────────────────";
+
+    fn clean<'a>(s: &'a str) -> &'a str {
+      let t = s.trim();
+      if t.is_empty() { "-" } else { t }
+    }
+
+    fn verdict_ko(row: &PaperRecordRow) -> String {
+      if !row.kind.trim().eq_ignore_ascii_case("record") {
+        return row.integrity_verdict.clone().unwrap_or_else(|| "사건 대응 조치 로그".to_string());
+      }
+      if let Some(v) = row.integrity_verdict.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+        return v.to_string();
+      }
+      match row.verification_status.as_deref().unwrap_or("").trim() {
+        "verified" => {
+          if row.signed_on_this_device.unwrap_or(false) {
+            "기기서명·해시체인 검증완료".to_string()
+          } else {
+            "기기서명 검증완료".to_string()
+          }
+        }
+        "foreign" => "해시체인 일치 · 타기기 서명".to_string(),
+        "legacy" => "SHA-256 리비전 체인 보존".to_string(),
+        "pending" => "해시체인 일치 · 서명검증 대기".to_string(),
+        "missing" => "해시체인 점검 가능 · 메타 보강 필요".to_string(),
+        _ => "추가 포렌식 검토 필요".to_string(),
+      }
+    }
+
+    fn evidence_ko(row: &PaperRecordRow) -> String {
+      if !row.kind.trim().eq_ignore_ascii_case("record") {
+        return row.integrity_evidence.clone().unwrap_or_else(|| clean(row.verification_message.as_deref().unwrap_or("사건 대응 경과 로그입니다.")).to_string());
+      }
+      if let Some(v) = row.integrity_evidence.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+        return v.to_string();
+      }
+      let mut parts: Vec<String> = vec![format!("REV {}", row.revision_count.unwrap_or(0))];
+      if let Some(sealed) = row.last_sealed_at.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        parts.push(format!("최종 봉인 {}", sealed));
+      }
+      if let Some(hash) = row.integrity_hash.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        parts.push(format!("SHA-256 {}", hash.chars().take(14).collect::<String>()));
+      }
+      parts.push(if row.signature_algorithm.as_deref().unwrap_or("") == "rust-ed25519-v1" {
+        "Ed25519 전자서명".to_string()
+      } else {
+        "해시 체인 봉인".to_string()
+      });
+      if let Some(fp) = row.signer_fingerprint.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        parts.push(format!("지문 {}", fp.chars().take(12).collect::<String>()));
+      }
+      let tail = clean(row.verification_message.as_deref().unwrap_or(""));
+      if tail != "-" {
+        parts.push(normalize_pdf_inline_text(tail));
+      }
+      parts.join(" / ")
+    }
+
+    let kind_ko = |k: &str| -> &'static str {
+      match k.trim().to_ascii_lowercase().as_str() {
+        "record" => "기록",
+        "step" => "조치",
+        "advisor" => "권고",
+        _ => "기타",
+      }
+    };
+
+    doc.push(elements::Paragraph::new("전 체 증 거 기 록").aligned(Alignment::Center).styled(s_title.clone()));
+    doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()).padded((2.0, 0.0, 1.0, 0.0)));
+    doc.push(elements::Paragraph::new(format!("문서 생성일시 : {}", normalize_pdf_inline_text(clean(&report.generated_at)))).styled(s_meta.clone()));
+    if !report.hash_sha256.trim().is_empty() {
+      doc.push(elements::Paragraph::new(format!("문서 전체 SHA-256 : {}", compact_hash(&normalize_pdf_inline_text(report.hash_sha256.trim()), 14, 10))).styled(s_meta.clone()));
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new("1. 전체 기록 개요").styled(s_h1.clone()));
+    for (idx, line) in report.overview_lines.iter().map(|s| s.trim()).filter(|s| !s.is_empty()).enumerate() {
+      doc.push(elements::Paragraph::new(format!("{}. {}", idx + 1, normalize_pdf_inline_text(line))).styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new("2. 전체 증거기록").styled(s_h1.clone()));
+    doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
+
+    if report.records.is_empty() {
+      doc.push(elements::Paragraph::new("※ 저장된 증거기록이 없습니다.").styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    } else {
+      for (idx, r) in report.records.iter().enumerate() {
+        doc.push(elements::Paragraph::new(format!("[{}] {} / {}", idx + 1, normalize_pdf_inline_text(kind_ko(&r.kind)), normalize_pdf_inline_text(clean(&r.when)))).styled(s_h2.clone()).padded((0.6, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("요지 : {}", normalize_pdf_inline_text(clean(&r.summary)))).styled(s_body.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("주체 / 장소 : {} / {}", normalize_pdf_inline_text(clean(&r.actor)), normalize_pdf_inline_text(clean(&r.place)))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("무결성 결론 : {}", normalize_pdf_inline_text(&verdict_ko(r)))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        doc.push(elements::Paragraph::new(format!("검증 근거 : {}", normalize_pdf_inline_text(&evidence_ko(r)))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        if r.kind.trim().eq_ignore_ascii_case("record") {
+          let rev = r.revision_count.unwrap_or(0);
+          let sealed = compact_hash(&normalize_pdf_inline_text(clean(r.last_sealed_at.as_deref().unwrap_or("-"))), 10, 8);
+          let hash = compact_hash(&normalize_pdf_inline_text(clean(r.integrity_hash.as_deref().unwrap_or("-"))), 10, 8);
+          doc.push(elements::Paragraph::new(format!("REV / 봉인 / 해시 / ID : {} / {} / {} / {}", rev, sealed, hash, compact_record_id(&normalize_pdf_inline_text(clean(&r.id))))).styled(s_meta.clone()).padded((0.2, 0.0, 0.0, 0.0)));
+        }
+        doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+      }
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new("3. 무결성 검증 요약").styled(s_h1.clone()));
+    doc.push(elements::Paragraph::new(hr).styled(s_meta.clone()));
+    for (idx, line) in report.integrity_lines.iter().map(|s| s.trim()).filter(|s| !s.is_empty()).enumerate() {
+      doc.push(elements::Paragraph::new(format!("{}. {}", idx + 1, normalize_pdf_inline_text(line))).styled(s_body.clone()).padded((0.5, 0.0, 0.0, 0.0)));
+    }
+
+    doc.push(elements::Break::new(1));
+    doc.push(elements::Paragraph::new(normalize_pdf_inline_text(clean(&report.generated_at))).aligned(Alignment::Center).styled(s_body.clone()));
 
     doc.render_to_file(&tmp_path)
       .map_err(|e| format!("pdf render failed: {e}"))?;

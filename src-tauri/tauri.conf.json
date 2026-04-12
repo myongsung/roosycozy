@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "productName": "roosycozy",
-  "version": "1.0.52",
+  "version": "1.0.53",
   "identifier": "co.roosycozy.app",
   "build": {
     "beforeDevCommand": "npm run dev",

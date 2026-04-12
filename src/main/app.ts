@@ -4,7 +4,7 @@ import { uid, nowISO, toLocalInputValue, fromLocalInputValue, safeParseJSON, def
 import type { ActorRef, PlaceType, StoreType, Sensitivity, StepItem } from '../engine';
 import { OTHER, casesContainingRecord, addActorToList, buildRecordFromDraft, createCaseWithAdvisors, regenerateCaseAdvisors, buildCaseTimeline, getCaseUpdateCandidates, addRecordsToCase, recordsForCase, classifyRecordsRisk } from '../engine';
 import { S, setState, ui, toast, runToastAction, log, openConfirm, closeConfirm, openRecordModal, closeRecordModal,  openCaseCreateModal, closeCaseCreateModal, openTimelineModal, closeTimelineModal, openPaperModal, closePaperModal, openPaperPickModal, closePaperPickModal, openCaseUpdateModal, closeCaseUpdateModal, draftRecord, draftRecordEdit, draftCase, draftStep, actorTypeTextFromInternal, actorTypeInternalFromText, getSelectedCase, logs, actorShort, LVS, PLACE_TYPES, STORE_TYPES, UI_OTHER_ACTOR_LABEL, UI_CLASS_ACTOR_LABEL, normalizeActorTypeTextUI, loadRecordEditDraft, resetRecordEditDraft, CLASS_ROSTER_SIZE, getClassRoster, hasScreenPin, readScreenPin, saveScreenPin, clearScreenPin, normalizeScreenPin, isValidScreenPin } from './state';
-import { ensurePaperStyles, buildPaperPayload, computeCasePaperHash } from './paper';
+import { ensurePaperStyles, buildPaperPayload, buildAllRecordsPayload, computeCasePaperHash, computeAllRecordsPaperHash } from './paper';
 import { render as renderView } from './views';
 
 /* ---------- micro helpers ---------- */
@@ -757,7 +757,7 @@ function bindEvents() {
       log('record modal tab ->', next);
     },
     'switch-case-tab': (btn) => {
-      const next = btn.dataset.caseTab === 'list' ? 'list' : 'create';
+      const next = btn.dataset.caseTab === 'list' ? 'list' : btn.dataset.caseTab === 'export' ? 'export' : 'create';
       ui.caseTab = next as any;
       S.tab = 'cases' as any;
       render();
@@ -1224,6 +1224,23 @@ function bindEvents() {
         const savedPath = await invoke<string>('export_case_pdf', { args: { paper: payload, fileName: path } });
         toast('내용증명 PDF 저장 완료'); log('content proof pdf exported', savedPath);
       } catch (e: any) { console.error(e); toast(`PDF 저장 실패: ${String(e?.message || e)}`); }
+    },
+    'export-all-records-pdf': async () => {
+      if (!S.records.length) return toast('출력할 증거기록이 아직 없어요');
+      try {
+        const suggested = `전체증거기록__${nowISO().slice(0, 10)}.pdf`.replace(/\s+/g, ' ').trim();
+        const path = await saveDialog({ defaultPath: suggested, filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+        if (!path) return toast('저장 취소됨');
+        const generatedAt = nowISO();
+        const hash = await computeAllRecordsPaperHash(S.records);
+        const payload = buildAllRecordsPayload(S.records, generatedAt, hash);
+        const savedPath = await invoke<string>('export_all_records_pdf', { args: { report: payload, fileName: path } });
+        toast('전체 증거기록 PDF 저장 완료');
+        log('all records pdf exported', savedPath);
+      } catch (e: any) {
+        console.error(e);
+        toast(`전체 출력 PDF 저장 실패: ${String(e?.message || e)}`);
+      }
     },
 
     'open-case-update': () => { const c = mustCase(); if (c) (openUpdate(c.id), log('case update modal open', c.id)); },

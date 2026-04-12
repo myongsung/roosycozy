@@ -648,7 +648,7 @@ export function render() {
   (S as any).tab = currentTab;
   queuedPrimaryTab = '';
   const selected = getSelectedCase();
-  const activeCaseTab = ui.caseTab === 'list' ? 'list' : 'create';
+  const activeCaseTab = ui.caseTab === 'list' ? 'list' : ui.caseTab === 'export' ? 'export' : 'create';
   const isHome = currentTab === 'home';
   const isEvidence = currentTab === 'records';
   const isLegal = currentTab === 'legal';
@@ -1842,7 +1842,7 @@ function renderStudentRosterModal() {
 
 function renderCasesShell(selected: CaseItem | null, gridClass: string, gridInner: string) {
   const ids = visibleCases();
-  const active = ui.caseTab === 'list' ? 'list' : 'create';
+  const active = ui.caseTab === 'list' ? 'list' : ui.caseTab === 'export' ? 'export' : 'create';
   const isList = active === 'list';
 
   const panel = active === 'create'
@@ -1854,6 +1854,8 @@ function renderCasesShell(selected: CaseItem | null, gridClass: string, gridInne
         </div>
       </div>
     `
+    : active === 'export'
+      ? renderCaseExportContent()
     : `
         <div class="caseCommandMeta muted">사건 목록과 타임라인은 조회 탭에서만 보여줍니다.</div>
       `;
@@ -1865,6 +1867,7 @@ function renderCasesShell(selected: CaseItem | null, gridClass: string, gridInne
         ${renderMiniTabs([
           { label: '증거모으기', action: 'switch-case-tab', dataKey: 'case-tab', dataValue: 'create', active: active === 'create' },
           { label: '사건조회하기', action: 'switch-case-tab', dataKey: 'case-tab', dataValue: 'list', active: active === 'list' },
+          { label: '전체출력', action: 'switch-case-tab', dataKey: 'case-tab', dataValue: 'export', active: active === 'export' },
         ])}
 
         ${panel}
@@ -1872,6 +1875,49 @@ function renderCasesShell(selected: CaseItem | null, gridClass: string, gridInne
 
       ${isList ? `<section class="${gridClass} caseBodyGrid">${gridInner}</section>` : ''}
     </section>
+  `;
+}
+
+function renderCaseExportContent() {
+  const records = S.records.slice().sort((a, b) => String(a.ts || '').localeCompare(String(b.ts || '')));
+  const totalRecords = records.length;
+  const totalCases = Object.keys(S.cases || {}).length;
+  const firstTs = records[0]?.ts ? fmt(String(records[0].ts || '')) : '—';
+  const lastTs = records[records.length - 1]?.ts ? fmt(String(records[records.length - 1].ts || '')) : '—';
+  const peopleCount = uniq(records.flatMap((record) => recordMainActors(record).map((actor) => actorShort(actor)))).filter(Boolean).length;
+  const exportExtra = totalRecords ? '' : ' disabled aria-disabled="true" title="출력할 증거기록이 없어요"';
+
+  return `
+    <div class="caseCommandPanel caseCommandPanelCreate">
+      <div class="subTabHint muted">현재 앱에 저장된 전체 증거기록을 한 번에 PDF로 정리합니다.</div>
+      <div class="caseCommandPanelScroll">
+        <div class="grid2" style="gap:12px;">
+          <div class="card" style="padding:16px;">
+            <div class="sectionLabel">전체 기록</div>
+            <div class="h2" style="margin-top:8px">${esc(String(totalRecords))}건</div>
+            <div class="muted" style="margin-top:6px">현재 저장된 전체 증거기록 수</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div class="sectionLabel">사건 / 인물</div>
+            <div class="h2" style="margin-top:8px">${esc(String(totalCases))}개 사건 · ${esc(String(peopleCount))}명</div>
+            <div class="muted" style="margin-top:6px">기록에 등장한 사건과 인물 기준</div>
+          </div>
+        </div>
+
+        <div class="helperBox" style="margin-top:14px;">
+          <b>출력 범위:</b> 현재 앱에 저장된 전체 증거기록을 시간순으로 정리하고, 각 기록의 REV·봉인시각·SHA-256·전자서명 검증 근거까지 함께 PDF로 저장합니다.
+        </div>
+
+        <div class="card" style="padding:16px; margin-top:14px;">
+          <div class="sectionLabel">기록 기간</div>
+          <div class="muted" style="margin-top:8px">${esc(firstTs)} ~ ${esc(lastTs)}</div>
+        </div>
+
+        <div class="rowInline" style="margin-top:16px;">
+          ${H.btn('전체 증거기록 PDF 저장', 'export-all-records-pdf', exportExtra, 'btn primary')}
+        </div>
+      </div>
+    </div>
   `;
 }
 
