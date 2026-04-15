@@ -272,7 +272,7 @@ function renderTeacherAccountModal() {
           <li class="teacherAccountStep">
             <div class="teacherAccountStepNo">2</div>
             <div class="teacherAccountStepBody">
-              <div class="teacherAccountStepTitle">사용후기 작성</div>
+              <div class="teacherAccountStepTitle">사용후기 작성 (선택입니다^^) </div>
             <div class="teacherAccountStepDesc">
               인디스쿨 커뮤니티 - 함께해요 - 도구 게시판에 사용후기 글을 작성해주세요. </br>
               후기 본문에 프로그램 링크 <b>www.roosycozy.com</b> 도 함께 꼭! 적어주세요.
