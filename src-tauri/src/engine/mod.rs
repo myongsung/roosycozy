@@ -1453,6 +1453,57 @@ struct StrategyModelDownloadProgress {
   indeterminate: bool,
 }
 
+fn strategy_model_min_size_bytes(model_id: &str) -> u64 {
+  match normalize_strategy_model_id(Some(model_id)) {
+    STRATEGY_MODEL_ROOSY_ID => 300 * 1024 * 1024,
+    _ => 220 * 1024 * 1024,
+  }
+}
+
+fn strategy_model_integrity_error(path: &Path, model_id: &str) -> Option<String> {
+  let meta = fs::metadata(path).ok()?;
+  if !meta.is_file() {
+    return Some("모델 경로가 일반 파일이 아니에요.".to_string());
+  }
+
+  let file_size = meta.len();
+  let min_size = strategy_model_min_size_bytes(model_id);
+  if file_size < min_size {
+    return Some(format!(
+      "파일 크기가 너무 작아요. {:.1}MB만 내려받힌 상태예요.",
+      file_size as f64 / (1024.0 * 1024.0)
+    ));
+  }
+
+  let mut file = fs::File::open(path).ok()?;
+  let mut magic = [0_u8; 4];
+  if file.read_exact(&mut magic).is_err() {
+    return Some("모델 파일 헤더를 읽지 못했어요.".to_string());
+  }
+  if &magic != b"GGUF" {
+    return Some("모델 파일 시작 부분이 GGUF 형식이 아니에요.".to_string());
+  }
+
+  None
+}
+
+fn strategy_model_runtime_hint(path: &Path, model_id: &str) -> String {
+  let mut hints = Vec::new();
+  if let Some(reason) = strategy_model_integrity_error(path, model_id) {
+    hints.push(format!("파일 상태: {}", reason));
+  }
+  #[cfg(target_os = "windows")]
+  {
+    if path.to_string_lossy().chars().any(|ch| !ch.is_ascii()) {
+      hints.push("현재 모델 경로에 한글/특수문자가 있어 일부 Windows PC에서 추론기가 파일을 못 여는 경우가 있어요.".to_string());
+    }
+  }
+  if hints.is_empty() {
+    hints.push("파일 자체는 있지만, 특정 PC에서는 백신 격리·권한 문제·메모리 부족 때문에 로딩이 실패할 수 있어요.".to_string());
+  }
+  hints.join(" ")
+}
+
 fn strategy_model_label_for_id(model_id: &str) -> &'static str {
   match normalize_strategy_model_id(Some(model_id)) {
     STRATEGY_MODEL_HYBRID_ID => "ROOSY-Hybrid",
@@ -1913,21 +1964,40 @@ pub fn download_strategy_models(app: &AppHandle) -> Result<StrategyModelStatus, 
     for spec in specs.iter() {
       let target = storage_dir.join(spec.filename);
       if target.exists() {
-        completed += 1;
+        if strategy_model_integrity_error(&target, spec.model_id).is_none() {
+          completed += 1;
+          emit_strategy_model_download_progress(
+            app,
+            "skip",
+            spec.model_id,
+            spec.label,
+            format!("{} 모델이 이미 준비되어 있어요.", spec.label),
+            completed,
+            total,
+            0,
+            0,
+            100,
+            false,
+          );
+          continue;
+        }
+
+        let reason = strategy_model_runtime_hint(&target, spec.model_id);
+        let _ = std::fs::remove_file(&target);
+        let _ = std::fs::remove_file(target.with_extension("part"));
         emit_strategy_model_download_progress(
           app,
-          "skip",
+          "repair",
           spec.model_id,
           spec.label,
-          format!("{} 모델이 이미 준비되어 있어요.", spec.label),
+          format!("{} 모델 파일이 불완전해서 다시 내려받을게요. {}", spec.label, reason),
           completed,
           total,
           0,
           0,
-          100,
-          false,
+          0,
+          true,
         );
-        continue;
       }
 
       let app_handle = app.clone();
@@ -2074,7 +2144,7 @@ fn strategy_downloaded_model_path(app: Option<&AppHandle>, model_id: &str) -> Op
 
 fn strategy_existing_model_path(app: Option<&AppHandle>, model_id: &str) -> Option<PathBuf> {
   for candidate in strategy_model_candidates(app, model_id) {
-    if candidate.exists() {
+    if candidate.exists() && strategy_model_integrity_error(&candidate, model_id).is_none() {
       return Some(candidate);
     }
   }
@@ -2085,6 +2155,17 @@ fn resolve_strategy_model_path(app: Option<&AppHandle>, model_id: &str) -> Resul
   let filename = strategy_model_filename_for_id(model_id);
   if let Some(path) = strategy_existing_model_path(app, model_id) {
     return Ok(path);
+  }
+  if let Some(path) = strategy_downloaded_model_path(app, model_id) {
+    if path.exists() {
+      let reason = strategy_model_runtime_hint(&path, model_id);
+      return Err(format!(
+        "{} 모델 파일이 손상됐거나 현재 PC에서 정상 로딩되지 않는 상태예요. 채팅 화면에서 AI 모델 다운로드를 다시 실행해주세요. 경로: {} / {}",
+        strategy_model_label_for_id(model_id),
+        path.display(),
+        reason
+      ));
+    }
   }
   #[cfg(target_os = "windows")]
   let message = format!(
@@ -3617,6 +3698,16 @@ fn execute_strategy_model(
     ));
   }
   if !status.success() && answer.is_empty() {
+    if stderr.to_ascii_lowercase().contains("failed to load the model") {
+      return Err(format!(
+        "{} 모델을 불러오지 못했어요. 경로: {} / {} / runner={} / stderr: {}",
+        model_label,
+        model_path.display(),
+        strategy_model_runtime_hint(&model_path, model_id),
+        runner.display(),
+        strategy_trim(stderr.trim(), 600)
+      ));
+    }
     return Err(format!(
       "{} 실행이 완료되지 않았어요. runner={} / stderr: {}",
       model_label,
