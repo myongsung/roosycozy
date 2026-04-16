@@ -871,7 +871,7 @@ function renderLegalSimulationPanel() {
     <article class="strategyModelSetupBanner">
       <div class="strategyModelSetupKicker">${modelDownloadCompleted ? 'Windows 모델 준비 완료' : 'Windows 모델 준비'}</div>
       <div class="strategyModelSetupTitle">${modelDownloadCompleted ? 'AI 모델 준비가 끝났어요.' : '우선 AI모델을 다운로드 받아주세요.'}</div>
-      <div class="strategyModelSetupText">${modelDownloadCompleted ? '모델 두 개를 모두 준비했어요. 이제 바로 채팅을 시작할 수 있어요.' : '프로그램은 가볍게 내려받고, HyperCLOVA-X와 Roosy-X는 앱 안에서 함께 내려받는 구조예요. 이 다운로드는 최초 1회만 필요하고, 한 번 받으면 다음부터는 바로 사용할 수 있어요.'}</div>
+      <div class="strategyModelSetupText">${modelDownloadCompleted ? '모델 두 개를 모두 준비했어요. 이제 바로 채팅을 시작할 수 있어요.' : 'HyperCLOVA-X와 Roosy-X는 앱 안에서 함께 내려받는 구조예요. 이 다운로드는 최초 1회만 필요하고, 최대 소요 시간은 10분 내외예요.'}</div>
       ${modelAvailabilityItems ? `<div class="strategyModelSetupList">${modelAvailabilityItems}</div>` : ''}
       ${strategyModelDownloadPending ? `
         <div class="strategyModelSetupActivity">
@@ -883,7 +883,7 @@ function renderLegalSimulationPanel() {
             <span class="strategyModelSetupEta">예상 소요 시간 약 10분</span>
           </div>
           <div class="strategyModelSetupActivityTitle">최초 1회만 AI 모델을 내려받고 있어요.</div>
-          <div class="strategyModelSetupActivityText">잠시 다른 일을 보셔도 괜찮아요. 두 모델 준비가 끝나면 바로 채팅을 시작할 수 있어요.</div>
+          <div class="strategyModelSetupActivityText">잠시 다른 일을 보셔도 괜찮아요. 최대 10분 내외로 준비가 끝나고, 한 번만 받아두면 다음부터는 다시 받지 않아요.</div>
           ${strategyModelProgressCards ? `<div class="strategyModelSetupProgressGrid">${strategyModelProgressCards}</div>` : ''}
           <div class="strategyModelSetupActivityNote">
             <span>이 작업은 최초 1회만 진행돼요.</span>

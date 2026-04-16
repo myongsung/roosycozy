@@ -70,10 +70,10 @@ async function checkAndUpdateApp() {
     if (result.includes('업데이트 완료')) {
       setBootSplash(
         '업데이트 파일 준비를 마쳤어요.',
-        '지금 화면은 계속 사용할 수 있고, 앱을 종료한 뒤 다시 열면 새 버전이 적용됩니다.',
+        '반드시 지금 창을 닫고 프로그램을 다시 실행해주세요. 다시 실행해야 새 버전이 적용됩니다.',
         'updating'
       );
-      showUpdateToast('✅ 업데이트 파일 준비를 마쳤어요.\n현재 작업은 계속할 수 있고, 앱을 종료 후 다시 열면 새 버전이 적용됩니다.', false);
+      showUpdateToast('✅ 업데이트 파일 준비를 마쳤어요.\n이제 창을 닫고 프로그램을 다시 실행해주세요.\n다시 실행해야 새 버전과 AI 런타임이 적용됩니다.', false);
       hideBootSplash(900);
       return;
     }
