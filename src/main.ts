@@ -70,13 +70,11 @@ async function checkAndUpdateApp() {
     if (result.includes('업데이트 완료')) {
       setBootSplash(
         '업데이트 파일 준비를 마쳤어요.',
-        '앱을 다시 시작하면 새 버전과 AI 런타임이 함께 적용됩니다.',
+        '지금 화면은 계속 사용할 수 있고, 앱을 종료한 뒤 다시 열면 새 버전이 적용됩니다.',
         'updating'
       );
-      showUpdateToast('✅ 업데이트를 받았어요. 적용을 위해 앱을 다시 시작해주세요.');
-      window.setTimeout(() => {
-        alert('새 버전 다운로드와 교체가 완료되었습니다.\n앱을 다시 실행하면 최신 버전이 적용됩니다.');
-      }, 500);
+      showUpdateToast('✅ 업데이트 파일 준비를 마쳤어요.\n현재 작업은 계속할 수 있고, 앱을 종료 후 다시 열면 새 버전이 적용됩니다.', false);
+      hideBootSplash(900);
       return;
     }
 
