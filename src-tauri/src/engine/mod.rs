@@ -1772,10 +1772,10 @@ fn emit_strategy_model_download_progress(
 
 #[cfg(target_os = "windows")]
 fn strategy_program_data_root() -> Option<PathBuf> {
-  std::env::var_os("PROGRAMDATA")
+  std::env::var_os("PUBLIC")
     .map(PathBuf::from)
-    .or_else(|| std::env::var_os("ALLUSERSPROFILE").map(PathBuf::from))
-    .map(|base| base.join("co.roosycozy.app"))
+    .or_else(|| Some(PathBuf::from(r"C:\Users\Public")))
+    .map(|base| base.join("RoosyCozy"))
 }
 
 #[cfg(target_os = "windows")]
