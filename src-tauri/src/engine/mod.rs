@@ -1774,7 +1774,7 @@ fn emit_strategy_model_download_progress(
 fn strategy_program_data_root() -> Option<PathBuf> {
   std::env::var_os("PROGRAMDATA")
     .map(PathBuf::from)
-    .or_else(dirs::data_dir)
+    .or_else(|| std::env::var_os("ALLUSERSPROFILE").map(PathBuf::from))
     .map(|base| base.join("co.roosycozy.app"))
 }
 

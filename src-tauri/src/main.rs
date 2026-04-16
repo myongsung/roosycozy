@@ -564,7 +564,7 @@ fn cleanup_old_versions() {
 fn roosycozy_program_data_root() -> Result<std::path::PathBuf, String> {
   let base = std::env::var_os("PROGRAMDATA")
     .map(std::path::PathBuf::from)
-    .or_else(|| dirs::data_dir())
+    .or_else(|| std::env::var_os("ALLUSERSPROFILE").map(std::path::PathBuf::from))
     .ok_or_else(|| "ProgramData 경로를 찾지 못했어요.".to_string())?;
   Ok(base.join("co.roosycozy.app"))
 }
