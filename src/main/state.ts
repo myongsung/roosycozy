@@ -77,6 +77,15 @@ export const ui = {
   strategyModelDownloadIndeterminate: false,
   strategyModelDownloadReceivedMb: 0,
   strategyModelDownloadTotalMb: 0,
+  strategyModelDownloads: {} as Record<string, {
+    id: string,
+    label: string,
+    stage: string,
+    message: string,
+    pending: boolean,
+    done: boolean,
+    error: boolean,
+  }>,
   strategyChatProgressLines: [] as string[],
   strategyChatProgressStage: '',
   strategyChatMessages: [] as Array<{

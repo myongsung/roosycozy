@@ -793,6 +793,7 @@ function renderLegalSimulationPanel() {
   const strategyModelDownloadPending = !!(ui as any).strategyModelDownloadPending;
   const strategyModelDownloadMessage = String((ui as any).strategyModelDownloadMessage || '').trim();
   const strategyModelDownloadLabel = String((ui as any).strategyModelDownloadLabel || '').trim();
+  const strategyModelDownloads = (((ui as any).strategyModelDownloads || {}) as Record<string, any>);
   const strategyChatModel = 'roosy-hybrid';
   const progressLines = Array.isArray((ui as any).strategyChatProgressLines) ? ((ui as any).strategyChatProgressLines as string[]).slice(-6) : [];
   const progressStage = String((ui as any).strategyChatProgressStage || '').trim();
@@ -828,6 +829,33 @@ function renderLegalSimulationPanel() {
         </span>
       `).join('')
     : '';
+  const strategyModelProgressCards = windowsModelDownloadMode ? [
+    { id: 'hyperclova-x', label: 'HyperCLOVA-X' },
+    { id: 'roosy-x', label: 'Roosy-X' },
+  ].map((item) => {
+    const progress = strategyModelDownloads[item.id] || null;
+    const available = Array.isArray(strategyModelStatus?.models)
+      ? !!strategyModelStatus.models.find((model: any) => String(model?.id || '') === item.id && !!model?.available)
+      : false;
+    const isDone = !!progress?.done || available;
+    const isError = !!progress?.error;
+    const isPending = !!progress?.pending || (strategyModelDownloadPending && !isDone && !isError);
+    const stateLabel = isDone ? '준비 완료' : isError ? '다시 확인 필요' : isPending ? '다운로드 중' : '대기';
+    const message = isDone
+      ? '이제 바로 사용할 수 있어요.'
+      : isError
+        ? String(progress?.message || '다시 내려받기를 시도해주세요.')
+        : String(progress?.message || '최초 1회만 내려받으면 다음부터는 바로 실행돼요.');
+    return `
+      <article class="strategyModelSetupProgressCard ${isDone ? 'isDone' : ''} ${isError ? 'isError' : ''} ${isPending ? 'isPending' : ''}">
+        <div class="strategyModelSetupProgressHead">
+          <strong>${esc(String(progress?.label || item.label))}</strong>
+          <span class="strategyModelSetupProgressState">${esc(stateLabel)}</span>
+        </div>
+        <div class="strategyModelSetupProgressText">${esc(message)}</div>
+      </article>
+    `;
+  }).join('') : '';
   const modelSetupBanner = windowsModelDownloadMode && (!modelsReady || modelDownloadCompleted) ? `
     <article class="strategyModelSetupBanner">
       <div class="strategyModelSetupKicker">${modelDownloadCompleted ? 'Windows 모델 준비 완료' : 'Windows 모델 준비'}</div>
@@ -844,12 +872,15 @@ function renderLegalSimulationPanel() {
             <span class="strategyModelSetupEta">예상 소요 시간 약 10분</span>
           </div>
           <div class="strategyModelSetupActivityTitle">최초 1회만 AI 모델을 내려받고 있어요.</div>
-          <div class="strategyModelSetupActivityText">${esc(strategyModelDownloadMessage || '모델 준비가 끝나면 다음부터는 바로 채팅을 시작할 수 있어요.')}</div>
+          <div class="strategyModelSetupActivityText">두 모델을 차례대로 준비하고 있어요. 입력창은 준비가 끝나면 바로 사용할 수 있어요.</div>
+          ${strategyModelProgressCards ? `<div class="strategyModelSetupProgressGrid">${strategyModelProgressCards}</div>` : ''}
           <div class="strategyModelSetupActivityNote">
             <span>이 작업은 최초 1회만 진행돼요.</span>
             <span>완료 후에는 다시 받지 않고 바로 실행돼요.</span>
           </div>
         </div>
+      ` : modelDownloadCompleted && strategyModelProgressCards ? `
+        <div class="strategyModelSetupProgressGrid">${strategyModelProgressCards}</div>
       ` : ''}
       <div class="strategyModelSetupActions">
         ${H.btn(
@@ -858,7 +889,7 @@ function renderLegalSimulationPanel() {
           strategyModelDownloadPending || strategyModelStatusLoading ? ' disabled aria-disabled="true"' : '',
           'btn primary'
         )}
-        <div class="strategyModelSetupHint">${esc(modelDownloadCompleted ? '모델 준비가 끝났어요. 버튼을 누르면 바로 입력창으로 이동해요.' : strategyModelDownloadPending ? '최초 1회만 다운로드하면 이후에는 바로 사용할 수 있어요.' : (strategyModelDownloadMessage || '최초 1회만 다운로드하면, 다음부터는 바로 채팅을 시작할 수 있어요.'))}</div>
+        <div class="strategyModelSetupHint">${esc(modelDownloadCompleted ? '모델 준비가 끝났어요. 버튼을 누르면 바로 입력창으로 이동해요.' : strategyModelDownloadPending ? '최초 1회만 다운로드하면 이후에는 바로 사용할 수 있어요.' : '최초 1회만 다운로드하면, 다음부터는 바로 채팅을 시작할 수 있어요.')}</div>
       </div>
     </article>
   ` : '';

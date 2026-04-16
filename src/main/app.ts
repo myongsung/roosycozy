@@ -758,8 +758,33 @@ const clearStrategyChat = () => {
 };
 
 let _strategyModelDownloadListenerBound = false;
+let strategyModelDownloadRenderTimer: number | null = null;
 
 const getStrategyModelStatus = () => (((ui as any).strategyModelStatus || null) as StrategyModelStatus | null);
+
+const scheduleStrategyModelDownloadRender = (delay = 180) => {
+  if (strategyModelDownloadRenderTimer != null) window.clearTimeout(strategyModelDownloadRenderTimer);
+  strategyModelDownloadRenderTimer = window.setTimeout(() => {
+    strategyModelDownloadRenderTimer = null;
+    render();
+  }, delay);
+};
+
+const upsertStrategyModelDownloadState = (payload: StrategyModelDownloadProgress) => {
+  const modelId = String(payload.modelId || '').trim();
+  if (!modelId || modelId === 'all') return;
+  const current = { ...(((ui as any).strategyModelDownloads || {}) as Record<string, any>) };
+  current[modelId] = {
+    id: modelId,
+    label: String(payload.label || modelId),
+    stage: String(payload.stage || ''),
+    message: String(payload.message || '').trim(),
+    pending: !['done', 'complete', 'error', 'skip'].includes(String(payload.stage || '')),
+    done: ['done', 'complete', 'skip'].includes(String(payload.stage || '')),
+    error: String(payload.stage || '') === 'error',
+  };
+  (ui as any).strategyModelDownloads = current;
+};
 
 const ensureStrategyModelDownloadListener = () => {
   if (_strategyModelDownloadListenerBound || !hasTauriWindow() || !isWindowsDesktop()) return;
@@ -767,15 +792,14 @@ const ensureStrategyModelDownloadListener = () => {
   listen<StrategyModelDownloadProgress>('strategy-model-download-progress', (event) => {
     const payload = event.payload;
     if (!payload) return;
+    upsertStrategyModelDownloadState(payload);
     (ui as any).strategyModelDownloadMessage = String(payload.message || '').trim();
     (ui as any).strategyModelDownloadLabel = String(payload.label || '').trim();
     (ui as any).strategyModelDownloadPercent = Number(payload.percent || 0);
     (ui as any).strategyModelDownloadIndeterminate = !!payload.indeterminate;
     (ui as any).strategyModelDownloadReceivedMb = Number(payload.downloadedBytes || 0) / (1024 * 1024);
     (ui as any).strategyModelDownloadTotalMb = Number(payload.totalBytes || 0) / (1024 * 1024);
-    const line = `${String(payload.label || '모델')} · ${String(payload.message || '').trim() || '다운로드 진행 중'}`;
-    appendStrategyChatProgress('모델다운로드', line, false);
-    render();
+    scheduleStrategyModelDownloadRender(payload.stage === 'done' || payload.stage === 'error' ? 40 : 220);
   }).catch((err) => {
     _strategyModelDownloadListenerBound = false;
     log('strategy model download listener failed', err);
@@ -825,6 +849,11 @@ const startStrategyModelStatusPolling = () => {
         (ui as any).strategyModelDownloadMessage = '모델 다운로드가 끝났어요. 이제 바로 채팅할 수 있어요.';
         (ui as any).strategyModelDownloadLabel = 'AI 모델';
         (ui as any).strategyModelDownloadIndeterminate = false;
+        const current = { ...(((ui as any).strategyModelDownloads || {}) as Record<string, any>) };
+        Object.keys(current).forEach((key) => {
+          current[key] = { ...current[key], done: true, pending: false, error: false, stage: 'done' };
+        });
+        (ui as any).strategyModelDownloads = current;
         render();
       }
     } catch (_error) {
@@ -844,8 +873,27 @@ const downloadStrategyModels = async () => {
   (ui as any).strategyModelDownloadIndeterminate = true;
   (ui as any).strategyModelDownloadReceivedMb = 0;
   (ui as any).strategyModelDownloadTotalMb = 0;
+  (ui as any).strategyModelDownloads = {
+    'hyperclova-x': {
+      id: 'hyperclova-x',
+      label: 'HyperCLOVA-X',
+      stage: 'queued',
+      message: '다운로드를 준비하고 있어요.',
+      pending: true,
+      done: false,
+      error: false,
+    },
+    'roosy-x': {
+      id: 'roosy-x',
+      label: 'Roosy-X',
+      stage: 'queued',
+      message: '다운로드를 준비하고 있어요.',
+      pending: true,
+      done: false,
+      error: false,
+    },
+  };
   clearStrategyChatProgress();
-  appendStrategyChatProgress('모델다운로드', 'AI 모델 두 개를 내려받는 중이에요.', false);
   render();
   try {
     const status = await invoke('download_strategy_models') as StrategyModelStatus;
@@ -855,11 +903,19 @@ const downloadStrategyModels = async () => {
     (ui as any).strategyModelDownloadPercent = 100;
     (ui as any).strategyModelDownloadIndeterminate = false;
     (ui as any).strategyChatError = '';
+    (ui as any).strategyModelDownloads = {
+      'hyperclova-x': { id: 'hyperclova-x', label: 'HyperCLOVA-X', stage: 'done', message: '준비가 끝났어요.', pending: false, done: true, error: false },
+      'roosy-x': { id: 'roosy-x', label: 'Roosy-X', stage: 'done', message: '준비가 끝났어요.', pending: false, done: true, error: false },
+    };
     toast('AI 모델 다운로드가 끝났어요');
   } catch (err) {
     const message = String((err as any)?.message || err || 'AI 모델 다운로드에 실패했어요.');
     (ui as any).strategyModelDownloadMessage = message;
-    appendStrategyChatProgress('모델다운로드', message, false);
+    const current = { ...(((ui as any).strategyModelDownloads || {}) as Record<string, any>) };
+    Object.keys(current).forEach((key) => {
+      current[key] = { ...current[key], stage: 'error', message, pending: false, done: false, error: true };
+    });
+    (ui as any).strategyModelDownloads = current;
     toast('AI 모델 다운로드 실패');
     log('strategy model download failed', err);
   } finally {
@@ -933,6 +989,13 @@ const sendStrategyAgentMessage = async (overrideMessage?: string) => {
 
   appendStrategyChatMessage('user', message);
   (ui as any).strategyChatInput = '';
+  window.requestAnimationFrame(() => {
+    const input = document.querySelector('.strategyComposerTextareaOnly') as HTMLTextAreaElement | null;
+    if (!input) return;
+    input.value = '';
+    autoResizeStrategyChatArea(input);
+    queueStrategyChatDockedComposerSync();
+  });
   (ui as any).strategyChatError = '';
   closeStrategyChatModelMenu();
   (ui as any).strategyChatPending = true;

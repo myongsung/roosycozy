@@ -23496,6 +23496,8 @@ dialog.modal.strategyPickerModal::backdrop{
   border-radius: 15px;
   background: rgba(255, 255, 255, 0.76);
   border: 1px solid rgba(129, 151, 184, 0.14);
+  min-height: 176px;
+  align-content: start;
 }
 
 .strategyModelSetupActivityHead {
@@ -23549,6 +23551,76 @@ dialog.modal.strategyPickerModal::backdrop{
   color: #64758a;
 }
 
+.strategyModelSetupProgressGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.strategyModelSetupProgressCard {
+  display: grid;
+  gap: 8px;
+  padding: 12px 13px;
+  border-radius: 14px;
+  background: rgba(247, 250, 255, 0.9);
+  border: 1px solid rgba(129, 151, 184, 0.14);
+  min-height: 86px;
+}
+
+.strategyModelSetupProgressCard.isDone {
+  background: rgba(239, 249, 244, 0.9);
+  border-color: rgba(96, 175, 145, 0.2);
+}
+
+.strategyModelSetupProgressCard.isError {
+  background: rgba(255, 245, 245, 0.94);
+  border-color: rgba(214, 99, 99, 0.18);
+}
+
+.strategyModelSetupProgressHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.strategyModelSetupProgressHead strong {
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: #243246;
+}
+
+.strategyModelSetupProgressState {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(109, 147, 204, 0.08);
+  color: #5b7090;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.strategyModelSetupProgressCard.isDone .strategyModelSetupProgressState {
+  background: rgba(96, 175, 145, 0.14);
+  color: #3f7a61;
+}
+
+.strategyModelSetupProgressCard.isError .strategyModelSetupProgressState {
+  background: rgba(214, 99, 99, 0.12);
+  color: #b04d4d;
+}
+
+.strategyModelSetupProgressText {
+  font-size: 12px;
+  line-height: 1.55;
+  color: #68798f;
+}
+
 .strategyModelSetupActivityNote {
   display: flex;
   flex-wrap: wrap;
@@ -23580,4 +23652,33 @@ dialog.modal.strategyPickerModal::backdrop{
     box-shadow: 0 0 0 0 rgba(109, 147, 204, 0);
     transform: scale(0.96);
   }
+}
+
+@media (max-width: 720px) {
+  .strategyModelSetupProgressGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell[data-window-platform="windows"] .topbar {
+  overflow: visible !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell[data-window-platform="windows"] .windowTitlebarStrip {
+  min-height: 34px !important;
+  padding: 6px 10px 2px 10px !important;
+  overflow: visible !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell[data-window-platform="windows"] .windowTitlebarDrag {
+  min-height: 24px !important;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell[data-window-platform="windows"] .windowControls {
+  min-height: 30px;
+  align-self: stretch;
+}
+
+.container.mobileRefined.iphonePremium.fluidDesktopShell[data-window-platform="windows"] .windowControlBtn {
+  height: 30px !important;
 }
