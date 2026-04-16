@@ -2098,6 +2098,9 @@ fn strategy_model_candidates(app: Option<&AppHandle>, model_id: &str) -> Vec<Pat
   if let Some(path) = strategy_downloaded_model_path(app, model_id) {
     push_unique_path(&mut out, path);
   }
+  if let Some(dir) = strategy_model_legacy_storage_dir(app) {
+    push_unique_path(&mut out, dir.join(strategy_model_filename_for_id(model_id)));
+  }
 
   if let Some(app) = app {
     if let Ok(path) = app.path().resolve(resource_path, BaseDirectory::Resource) {
@@ -2130,6 +2133,24 @@ fn strategy_model_candidates(app: Option<&AppHandle>, model_id: &str) -> Vec<Pat
 }
 
 fn strategy_model_storage_dir(app: Option<&AppHandle>) -> Option<PathBuf> {
+  #[cfg(target_os = "windows")]
+  {
+    if let Some(public_dir) = std::env::var_os("PUBLIC") {
+      let candidate = PathBuf::from(public_dir).join("RoosyCozy").join("models");
+      if fs::create_dir_all(&candidate).is_ok() {
+        return Some(candidate);
+      }
+    }
+  }
+  if let Some(app) = app {
+    if let Ok(path) = app.path().resolve("models", BaseDirectory::AppData) {
+      return Some(path);
+    }
+  }
+  None
+}
+
+fn strategy_model_legacy_storage_dir(app: Option<&AppHandle>) -> Option<PathBuf> {
   if let Some(app) = app {
     if let Ok(path) = app.path().resolve("models", BaseDirectory::AppData) {
       return Some(path);
@@ -2145,6 +2166,19 @@ fn strategy_downloaded_model_path(app: Option<&AppHandle>, model_id: &str) -> Op
 fn strategy_existing_model_path(app: Option<&AppHandle>, model_id: &str) -> Option<PathBuf> {
   for candidate in strategy_model_candidates(app, model_id) {
     if candidate.exists() && strategy_model_integrity_error(&candidate, model_id).is_none() {
+      #[cfg(target_os = "windows")]
+      {
+        if candidate.to_string_lossy().chars().any(|ch| !ch.is_ascii()) {
+          if let Some(public_dir) = strategy_model_storage_dir(app) {
+            let migrated = public_dir.join(strategy_model_filename_for_id(model_id));
+            if migrated != candidate {
+              if fs::create_dir_all(&public_dir).is_ok() && fs::copy(&candidate, &migrated).is_ok() {
+                return Some(migrated);
+              }
+            }
+          }
+        }
+      }
       return Some(candidate);
     }
   }
