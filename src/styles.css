@@ -23564,7 +23564,8 @@ dialog.modal.strategyPickerModal::backdrop{
   border-radius: 14px;
   background: rgba(247, 250, 255, 0.9);
   border: 1px solid rgba(129, 151, 184, 0.14);
-  min-height: 86px;
+  min-height: 102px;
+  align-content: start;
 }
 
 .strategyModelSetupProgressCard.isDone {
@@ -23619,6 +23620,12 @@ dialog.modal.strategyPickerModal::backdrop{
   font-size: 12px;
   line-height: 1.55;
   color: #68798f;
+}
+
+.strategyModelSetupProgressMeta {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #8a98aa;
 }
 
 .strategyModelSetupActivityNote {

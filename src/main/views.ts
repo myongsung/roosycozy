@@ -846,6 +846,18 @@ function renderLegalSimulationPanel() {
       : isError
         ? String(progress?.message || '다시 내려받기를 시도해주세요.')
         : String(progress?.message || '최초 1회만 내려받으면 다음부터는 바로 실행돼요.');
+    const downloadedBytes = Number(progress?.downloadedBytes || 0);
+    const totalBytes = Number(progress?.totalBytes || 0);
+    const percent = Number(progress?.percent || 0);
+    const progressMeta = isDone
+      ? '모델 준비 완료'
+      : isError
+        ? '다운로드를 다시 시도해주세요'
+        : totalBytes > 0
+          ? `${percent}% · ${(downloadedBytes / (1024 * 1024)).toFixed(1)}MB / ${(totalBytes / (1024 * 1024)).toFixed(1)}MB`
+          : downloadedBytes > 0
+            ? `${(downloadedBytes / (1024 * 1024)).toFixed(1)}MB 내려받는 중`
+            : '연결 중…';
     return `
       <article class="strategyModelSetupProgressCard ${isDone ? 'isDone' : ''} ${isError ? 'isError' : ''} ${isPending ? 'isPending' : ''}">
         <div class="strategyModelSetupProgressHead">
@@ -853,6 +865,7 @@ function renderLegalSimulationPanel() {
           <span class="strategyModelSetupProgressState">${esc(stateLabel)}</span>
         </div>
         <div class="strategyModelSetupProgressText">${esc(message)}</div>
+        <div class="strategyModelSetupProgressMeta">${esc(progressMeta)}</div>
       </article>
     `;
   }).join('') : '';

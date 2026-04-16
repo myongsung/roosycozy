@@ -759,13 +759,19 @@ const clearStrategyChat = () => {
 
 let _strategyModelDownloadListenerBound = false;
 let strategyModelDownloadRenderTimer: number | null = null;
+let strategyModelDownloadLastRenderAt = 0;
 
 const getStrategyModelStatus = () => (((ui as any).strategyModelStatus || null) as StrategyModelStatus | null);
 
-const scheduleStrategyModelDownloadRender = (delay = 180) => {
-  if (strategyModelDownloadRenderTimer != null) window.clearTimeout(strategyModelDownloadRenderTimer);
+const scheduleStrategyModelDownloadRender = (delay = 180, force = false) => {
+  if (strategyModelDownloadRenderTimer != null) {
+    if (!force) return;
+    window.clearTimeout(strategyModelDownloadRenderTimer);
+    strategyModelDownloadRenderTimer = null;
+  }
   strategyModelDownloadRenderTimer = window.setTimeout(() => {
     strategyModelDownloadRenderTimer = null;
+    strategyModelDownloadLastRenderAt = Date.now();
     render();
   }, delay);
 };
@@ -782,6 +788,10 @@ const upsertStrategyModelDownloadState = (payload: StrategyModelDownloadProgress
     pending: !['done', 'complete', 'error', 'skip'].includes(String(payload.stage || '')),
     done: ['done', 'complete', 'skip'].includes(String(payload.stage || '')),
     error: String(payload.stage || '') === 'error',
+    percent: Number(payload.percent || 0),
+    downloadedBytes: Number(payload.downloadedBytes || 0),
+    totalBytes: Number(payload.totalBytes || 0),
+    indeterminate: !!payload.indeterminate,
   };
   (ui as any).strategyModelDownloads = current;
 };
@@ -799,7 +809,14 @@ const ensureStrategyModelDownloadListener = () => {
     (ui as any).strategyModelDownloadIndeterminate = !!payload.indeterminate;
     (ui as any).strategyModelDownloadReceivedMb = Number(payload.downloadedBytes || 0) / (1024 * 1024);
     (ui as any).strategyModelDownloadTotalMb = Number(payload.totalBytes || 0) / (1024 * 1024);
-    scheduleStrategyModelDownloadRender(payload.stage === 'done' || payload.stage === 'error' ? 40 : 220);
+    const stage = String(payload.stage || '');
+    const immediate = ['start', 'done', 'complete', 'error', 'repair', 'skip', 'starting'].includes(stage);
+    if (immediate) {
+      scheduleStrategyModelDownloadRender(40, true);
+      return;
+    }
+    const elapsed = Date.now() - strategyModelDownloadLastRenderAt;
+    scheduleStrategyModelDownloadRender(elapsed > 1000 ? 60 : 1000 - elapsed, false);
   }).catch((err) => {
     _strategyModelDownloadListenerBound = false;
     log('strategy model download listener failed', err);
@@ -851,7 +868,7 @@ const startStrategyModelStatusPolling = () => {
         (ui as any).strategyModelDownloadIndeterminate = false;
         const current = { ...(((ui as any).strategyModelDownloads || {}) as Record<string, any>) };
         Object.keys(current).forEach((key) => {
-          current[key] = { ...current[key], done: true, pending: false, error: false, stage: 'done' };
+          current[key] = { ...current[key], done: true, pending: false, error: false, stage: 'done', percent: 100, indeterminate: false };
         });
         (ui as any).strategyModelDownloads = current;
         render();
@@ -882,6 +899,10 @@ const downloadStrategyModels = async () => {
       pending: true,
       done: false,
       error: false,
+      percent: 0,
+      downloadedBytes: 0,
+      totalBytes: 0,
+      indeterminate: true,
     },
     'roosy-x': {
       id: 'roosy-x',
@@ -891,6 +912,10 @@ const downloadStrategyModels = async () => {
       pending: true,
       done: false,
       error: false,
+      percent: 0,
+      downloadedBytes: 0,
+      totalBytes: 0,
+      indeterminate: true,
     },
   };
   clearStrategyChatProgress();
@@ -904,8 +929,8 @@ const downloadStrategyModels = async () => {
     (ui as any).strategyModelDownloadIndeterminate = false;
     (ui as any).strategyChatError = '';
     (ui as any).strategyModelDownloads = {
-      'hyperclova-x': { id: 'hyperclova-x', label: 'HyperCLOVA-X', stage: 'done', message: '준비가 끝났어요.', pending: false, done: true, error: false },
-      'roosy-x': { id: 'roosy-x', label: 'Roosy-X', stage: 'done', message: '준비가 끝났어요.', pending: false, done: true, error: false },
+      'hyperclova-x': { id: 'hyperclova-x', label: 'HyperCLOVA-X', stage: 'done', message: '준비가 끝났어요.', pending: false, done: true, error: false, percent: 100, downloadedBytes: 0, totalBytes: 0, indeterminate: false },
+      'roosy-x': { id: 'roosy-x', label: 'Roosy-X', stage: 'done', message: '준비가 끝났어요.', pending: false, done: true, error: false, percent: 100, downloadedBytes: 0, totalBytes: 0, indeterminate: false },
     };
     toast('AI 모델 다운로드가 끝났어요');
   } catch (err) {
@@ -913,7 +938,7 @@ const downloadStrategyModels = async () => {
     (ui as any).strategyModelDownloadMessage = message;
     const current = { ...(((ui as any).strategyModelDownloads || {}) as Record<string, any>) };
     Object.keys(current).forEach((key) => {
-      current[key] = { ...current[key], stage: 'error', message, pending: false, done: false, error: true };
+      current[key] = { ...current[key], stage: 'error', message, pending: false, done: false, error: true, indeterminate: false };
     });
     (ui as any).strategyModelDownloads = current;
     toast('AI 모델 다운로드 실패');
