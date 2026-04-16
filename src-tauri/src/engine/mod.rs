@@ -1770,6 +1770,29 @@ fn emit_strategy_model_download_progress(
   let _ = app.emit("strategy-model-download-progress", payload);
 }
 
+#[cfg(target_os = "windows")]
+fn strategy_program_data_root() -> Option<PathBuf> {
+  std::env::var_os("PROGRAMDATA")
+    .map(PathBuf::from)
+    .or_else(dirs::data_dir)
+    .map(|base| base.join("co.roosycozy.app"))
+}
+
+#[cfg(target_os = "windows")]
+fn strategy_program_data_models_dir() -> Option<PathBuf> {
+  strategy_program_data_root().map(|root| root.join("models"))
+}
+
+#[cfg(target_os = "windows")]
+fn strategy_program_data_sidecar_dir() -> Option<PathBuf> {
+  strategy_program_data_root().map(|root| root.join("sidecar"))
+}
+
+#[cfg(target_os = "windows")]
+fn strategy_program_data_resources_dir() -> Option<PathBuf> {
+  strategy_program_data_root().map(|root| root.join("resources"))
+}
+
 fn strategy_model_status_inner(app: Option<&AppHandle>) -> StrategyModelStatus {
   let specs = strategy_model_download_specs();
   let storage_dir = strategy_model_storage_dir(app)
@@ -1863,6 +1886,14 @@ where
 }
 
 pub fn start_strategy_model_download(app: &AppHandle) -> Result<StrategyModelStatus, String> {
+  #[cfg(target_os = "windows")]
+  {
+    if let Some(root) = strategy_program_data_root() {
+      let _ = fs::create_dir_all(root.join("models"));
+      let _ = fs::create_dir_all(root.join("sidecar"));
+      let _ = fs::create_dir_all(root.join("resources"));
+    }
+  }
   let current_status = strategy_model_status_inner(Some(app));
   if current_status.all_ready {
     return Ok(current_status);

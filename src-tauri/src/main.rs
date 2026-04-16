@@ -512,7 +512,7 @@ fn check_and_update(app: AppHandle) -> Result<String, String> {
 
     #[cfg(target_os = "windows")]
     {
-        ensure_windows_runtime_cache(&app)?;
+  ensure_windows_runtime_cache(&app)?;
 
         let app_version = app.package_info().version.to_string();
         let current_exe = std::env::current_exe()
@@ -560,7 +560,43 @@ fn cleanup_old_versions() {
     }
 }
 
+#[cfg(target_os = "windows")]
+fn roosycozy_program_data_root() -> Result<std::path::PathBuf, String> {
+  let base = std::env::var_os("PROGRAMDATA")
+    .map(std::path::PathBuf::from)
+    .or_else(|| dirs::data_dir())
+    .ok_or_else(|| "ProgramData 경로를 찾지 못했어요.".to_string())?;
+  Ok(base.join("co.roosycozy.app"))
+}
+
+#[cfg(target_os = "windows")]
+fn roosycozy_program_data_path(child: &str) -> Result<std::path::PathBuf, String> {
+  Ok(roosycozy_program_data_root()?.join(child))
+}
+
+#[cfg(target_os = "windows")]
+fn configure_windows_program_data_env() {
+  if let Ok(root) = roosycozy_program_data_root() {
+    let _ = std::fs::create_dir_all(&root);
+    let updates_root = root.join("updates");
+    let temp_root = updates_root.join("temp");
+    let _ = std::fs::create_dir_all(&updates_root);
+    let _ = std::fs::create_dir_all(&temp_root);
+    std::env::set_var("ROOSYCOZY_SHARED_ROOT", &root);
+    std::env::set_var("ROOSYCOZY_UPDATES_ROOT", &updates_root);
+    std::env::set_var("TMP", &temp_root);
+    std::env::set_var("TEMP", &temp_root);
+    std::env::set_var("TMPDIR", &temp_root);
+    if let Some(parent) = root.parent() {
+      std::env::set_var("APPDATA", parent);
+      std::env::set_var("LOCALAPPDATA", parent);
+    }
+  }
+}
+
 fn main() {
+  #[cfg(target_os = "windows")]
+  configure_windows_program_data_env();
     cleanup_old_versions();
 
     tauri::Builder::default()

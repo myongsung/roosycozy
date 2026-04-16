@@ -1,7 +1,7 @@
 {
   "name": "roosycozy",
   "private": true,
-  "version": "1.0.96",
+  "version": "1.0.99",
   "type": "module",
   "scripts": {
     "dev": "vite --port 1420 --strictPort",

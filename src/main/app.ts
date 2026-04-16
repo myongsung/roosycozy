@@ -811,11 +811,11 @@ const ensureStrategyModelDownloadListener = () => {
     (ui as any).strategyModelDownloadTotalMb = Number(payload.totalBytes || 0) / (1024 * 1024);
     const stage = String(payload.stage || '');
     const immediate = ['start', 'done', 'complete', 'error', 'repair', 'skip', 'starting'].includes(stage);
-    if (immediate) {
-      scheduleStrategyModelDownloadRender(40, true);
-    } else {
-      return;
-    }
+        if (immediate) {
+          scheduleStrategyModelDownloadRender(40, true);
+        } else {
+          scheduleStrategyModelDownloadRender(600, false);
+        }
   }).catch((err) => {
     _strategyModelDownloadListenerBound = false;
     log('strategy model download listener failed', err);
@@ -919,6 +919,7 @@ const downloadStrategyModels = async () => {
   };
   clearStrategyChatProgress();
   render();
+  scheduleStrategyModelDownloadRender(40, true);
   try {
     const status = await invoke('download_strategy_models') as StrategyModelStatus;
     (ui as any).strategyModelStatus = status;
@@ -2035,6 +2036,10 @@ function bindEvents() {
     },
     'download-strategy-models': async () => {
       if ((ui as any).strategyModelDownloadPending) return;
+      strategyModelStatusLoading = false;
+      strategyModelStatusError = '';
+      toast('AI 모델 다운로드를 시작할게요. 최초 1회만 받아두면 됩니다.');
+      render();
       await downloadStrategyModels();
     },
     'focus-strategy-chat': () => {
