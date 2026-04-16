@@ -813,10 +813,9 @@ const ensureStrategyModelDownloadListener = () => {
     const immediate = ['start', 'done', 'complete', 'error', 'repair', 'skip', 'starting'].includes(stage);
     if (immediate) {
       scheduleStrategyModelDownloadRender(40, true);
+    } else {
       return;
     }
-    const elapsed = Date.now() - strategyModelDownloadLastRenderAt;
-    scheduleStrategyModelDownloadRender(elapsed > 1000 ? 60 : 1000 - elapsed, false);
   }).catch((err) => {
     _strategyModelDownloadListenerBound = false;
     log('strategy model download listener failed', err);

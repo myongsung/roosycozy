@@ -23564,8 +23564,10 @@ dialog.modal.strategyPickerModal::backdrop{
   border-radius: 14px;
   background: rgba(247, 250, 255, 0.9);
   border: 1px solid rgba(129, 151, 184, 0.14);
-  min-height: 102px;
+  min-height: 118px;
   align-content: start;
+  overflow: hidden;
+  position: relative;
 }
 
 .strategyModelSetupProgressCard.isDone {
@@ -23628,6 +23630,41 @@ dialog.modal.strategyPickerModal::backdrop{
   color: #8a98aa;
 }
 
+.strategyModelSetupProgressAnimation {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  height: 22px;
+}
+
+.strategyModelSetupProgressAnimation span {
+  position: relative;
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(109, 147, 204, 0.1);
+}
+
+.strategyModelSetupProgressAnimation span::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(109,147,204,0.32) 50%, rgba(255,255,255,0) 100%);
+  transform: translateX(-120%);
+  animation: strategyModelSweep 1.8s ease-in-out infinite;
+}
+
+.strategyModelSetupProgressAnimation span:nth-child(2)::after {
+  animation-delay: 0.22s;
+}
+
+.strategyModelSetupProgressAnimation span:nth-child(3)::after {
+  animation-delay: 0.44s;
+}
+
 .strategyModelSetupActivityNote {
   display: flex;
   flex-wrap: wrap;
@@ -23658,6 +23695,15 @@ dialog.modal.strategyPickerModal::backdrop{
   100% {
     box-shadow: 0 0 0 0 rgba(109, 147, 204, 0);
     transform: scale(0.96);
+  }
+}
+
+@keyframes strategyModelSweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(130%);
   }
 }
 

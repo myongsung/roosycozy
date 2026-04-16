@@ -845,25 +845,23 @@ function renderLegalSimulationPanel() {
       ? '이제 바로 사용할 수 있어요.'
       : isError
         ? String(progress?.message || '다시 내려받기를 시도해주세요.')
-        : String(progress?.message || '최초 1회만 내려받으면 다음부터는 바로 실행돼요.');
-    const downloadedBytes = Number(progress?.downloadedBytes || 0);
-    const totalBytes = Number(progress?.totalBytes || 0);
-    const percent = Number(progress?.percent || 0);
+        : isPending
+          ? '최초 1회만 준비하면 다음부터는 바로 실행돼요.'
+          : '곧 준비가 시작돼요.';
     const progressMeta = isDone
       ? '모델 준비 완료'
       : isError
         ? '다운로드를 다시 시도해주세요'
-        : totalBytes > 0
-          ? `${percent}% · ${(downloadedBytes / (1024 * 1024)).toFixed(1)}MB / ${(totalBytes / (1024 * 1024)).toFixed(1)}MB`
-          : downloadedBytes > 0
-            ? `${(downloadedBytes / (1024 * 1024)).toFixed(1)}MB 내려받는 중`
-            : '연결 중…';
+        : isPending
+          ? '최대 소요 시간 10분 내외'
+          : '곧 확인돼요';
     return `
       <article class="strategyModelSetupProgressCard ${isDone ? 'isDone' : ''} ${isError ? 'isError' : ''} ${isPending ? 'isPending' : ''}">
         <div class="strategyModelSetupProgressHead">
           <strong>${esc(String(progress?.label || item.label))}</strong>
           <span class="strategyModelSetupProgressState">${esc(stateLabel)}</span>
         </div>
+        ${isPending && !isDone && !isError ? `<div class="strategyModelSetupProgressAnimation" aria-hidden="true"><span></span><span></span><span></span></div>` : ''}
         <div class="strategyModelSetupProgressText">${esc(message)}</div>
         <div class="strategyModelSetupProgressMeta">${esc(progressMeta)}</div>
       </article>
@@ -885,10 +883,12 @@ function renderLegalSimulationPanel() {
             <span class="strategyModelSetupEta">예상 소요 시간 약 10분</span>
           </div>
           <div class="strategyModelSetupActivityTitle">최초 1회만 AI 모델을 내려받고 있어요.</div>
-          <div class="strategyModelSetupActivityText">두 모델을 차례대로 준비하고 있어요. 입력창은 준비가 끝나면 바로 사용할 수 있어요.</div>
+          <div class="strategyModelSetupActivityText">잠시 다른 일을 보셔도 괜찮아요. 두 모델 준비가 끝나면 바로 채팅을 시작할 수 있어요.</div>
           ${strategyModelProgressCards ? `<div class="strategyModelSetupProgressGrid">${strategyModelProgressCards}</div>` : ''}
           <div class="strategyModelSetupActivityNote">
             <span>이 작업은 최초 1회만 진행돼요.</span>
+            <span>최대 소요 시간은 10분 내외예요.</span>
+            <span>잠시 다른 일을 보셔도 괜찮아요.</span>
             <span>완료 후에는 다시 받지 않고 바로 실행돼요.</span>
           </div>
         </div>
@@ -902,7 +902,7 @@ function renderLegalSimulationPanel() {
           strategyModelDownloadPending || strategyModelStatusLoading ? ' disabled aria-disabled="true"' : '',
           'btn primary'
         )}
-        <div class="strategyModelSetupHint">${esc(modelDownloadCompleted ? '모델 준비가 끝났어요. 버튼을 누르면 바로 입력창으로 이동해요.' : strategyModelDownloadPending ? '최초 1회만 다운로드하면 이후에는 바로 사용할 수 있어요.' : '최초 1회만 다운로드하면, 다음부터는 바로 채팅을 시작할 수 있어요.')}</div>
+        <div class="strategyModelSetupHint">${esc(modelDownloadCompleted ? '모델 준비가 끝났어요. 버튼을 누르면 바로 입력창으로 이동해요.' : strategyModelDownloadPending ? '최초 1회만 다운로드하면 이후에는 바로 사용할 수 있어요. 잠시 다른 일을 보셔도 괜찮아요.' : '최초 1회만 다운로드하면, 다음부터는 바로 채팅을 시작할 수 있어요.')}</div>
       </div>
     </article>
   ` : '';
