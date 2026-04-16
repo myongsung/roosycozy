@@ -566,7 +566,7 @@ fn roosycozy_program_data_root() -> Result<std::path::PathBuf, String> {
     .map(std::path::PathBuf::from)
     .or_else(|| Some(std::path::PathBuf::from(r"C:\Users\Public")))
     .ok_or_else(|| "공용 사용자 경로를 찾지 못했어요.".to_string())?;
-  Ok(base.join("RoosyCozy"))
+  Ok(base.join("Documents").join("RoosyCozy").join("co.roosycozy.app"))
 }
 
 #[cfg(target_os = "windows")]
@@ -580,10 +580,16 @@ fn configure_windows_program_data_env() {
     let _ = std::fs::create_dir_all(&root);
     let updates_root = root.join("updates");
     let temp_root = updates_root.join("temp");
+    let staging_root = updates_root.join("staging");
+    let prepared_root = updates_root.join("prepared");
     let _ = std::fs::create_dir_all(&updates_root);
     let _ = std::fs::create_dir_all(&temp_root);
+    let _ = std::fs::create_dir_all(&staging_root);
+    let _ = std::fs::create_dir_all(&prepared_root);
     std::env::set_var("ROOSYCOZY_SHARED_ROOT", &root);
     std::env::set_var("ROOSYCOZY_UPDATES_ROOT", &updates_root);
+    std::env::set_var("ROOSYCOZY_UPDATE_STAGING_ROOT", &staging_root);
+    std::env::set_var("ROOSYCOZY_PREPARED_ROOT", &prepared_root);
     std::env::set_var("TMP", &temp_root);
     std::env::set_var("TEMP", &temp_root);
     std::env::set_var("TMPDIR", &temp_root);
@@ -594,9 +600,28 @@ fn configure_windows_program_data_env() {
   }
 }
 
+#[cfg(target_os = "windows")]
+fn clear_prepared_update_marker_for_current_version() {
+  let current_version = env!("CARGO_PKG_VERSION").to_string();
+  let marker_path = match roosycozy_program_data_path("updates/.prepared-version") {
+    Ok(path) => path,
+    Err(_) => return,
+  };
+  let previous = match std::fs::read_to_string(&marker_path) {
+    Ok(value) => value.trim().to_string(),
+    Err(_) => return,
+  };
+  if previous == current_version {
+    let _ = std::fs::remove_file(marker_path);
+  }
+}
+
 fn main() {
   #[cfg(target_os = "windows")]
-  configure_windows_program_data_env();
+  {
+    configure_windows_program_data_env();
+    clear_prepared_update_marker_for_current_version();
+  }
     cleanup_old_versions();
 
     tauri::Builder::default()

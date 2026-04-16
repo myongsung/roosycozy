@@ -1775,7 +1775,7 @@ fn strategy_program_data_root() -> Option<PathBuf> {
   std::env::var_os("PUBLIC")
     .map(PathBuf::from)
     .or_else(|| Some(PathBuf::from(r"C:\Users\Public")))
-    .map(|base| base.join("RoosyCozy"))
+    .map(|base| base.join("Documents").join("RoosyCozy").join("co.roosycozy.app"))
 }
 
 #[cfg(target_os = "windows")]
